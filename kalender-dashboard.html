@@ -2,12 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Time Blocking">
-<meta name="theme-color" content="#080810">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Time Blocking</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@200;300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -213,120 +208,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.err{color:var(--red);border-color:rgba(192,80,74,.3);}
 
-/* ── TABLET + PHONE (≤900px) ── */
 @media(max-width:900px){
-  html,body{overflow:auto;height:auto;}
-  .orb,.orb2{display:none;}
-  .shell{
-    grid-template-columns:1fr;
-    grid-template-rows:auto;
-    height:auto;min-height:100svh;
-    padding:1rem 1rem calc(4rem + env(safe-area-inset-bottom));
-    gap:.75rem 0;max-width:100%;overflow:visible;
-  }
-  .header{grid-column:1;padding-bottom:.75rem;margin-bottom:.25rem;flex-wrap:wrap;gap:.5rem;}
-  .tab-switcher{display:none;}
-  .header-greeting,.day-progress{display:none;}
-  .left{gap:.75rem;}
-  .right{border-left:none;border-top:.5px solid var(--border);padding-left:0;padding-top:1rem;}
+  .shell{grid-template-columns:1fr;padding:1.25rem;overflow-y:auto;height:auto;min-height:100vh;}
+  .header,.footer{grid-column:1;}
+  .right{border-left:none;border-top:.5px solid var(--border);padding-left:0;padding-top:1.25rem;}
   .upcoming-scroll{overflow:visible;max-height:none;}
-  .footer{grid-column:1;display:none;}
-
-  /* bigger touch targets globally */
-  .btn{min-height:38px;display:inline-flex;align-items:center;justify-content:center;}
-  .event-row{min-height:50px;padding:.7rem .5rem .7rem .7rem;}
-  .tab-btn{min-height:36px;}
-
-  /* ── FIXED BOTTOM BAR ── */
-  .mobile-bar{
-    display:flex;
-    position:fixed;bottom:0;left:0;right:0;
-    background:rgba(8,8,16,.96);
-    border-top:.5px solid var(--border);
-    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-    padding:.45rem .75rem;
-    padding-bottom:calc(.45rem + env(safe-area-inset-bottom));
-    gap:.5rem;z-index:50;align-items:center;
-  }
-  .mobile-bar-tabs{
-    display:flex;flex:1;
-    background:rgba(210,170,80,.04);
-    border:.5px solid var(--border);border-radius:8px;padding:3px;
-  }
-  .mobile-bar-tabs .tab-btn{flex:1;font-size:.62rem;padding:.4rem .5rem;min-height:36px;}
-  .mobile-bar-tabs .tab-btn.active{background:rgba(210,170,80,.12);color:var(--gold);border:.5px solid rgba(210,170,80,.3);}
-  .mobile-bar-actions{display:flex;gap:.4rem;align-items:center;}
-  .mobile-bar-actions .btn{padding:.4rem .65rem;min-height:36px;font-size:.55rem;}
-}
-
-/* ── PHONE (≤600px) ── */
-@media(max-width:600px){
-  .shell{padding:.75rem .75rem calc(4.5rem + env(safe-area-inset-bottom));}
-  .live-clock{font-size:2.2rem;letter-spacing:-1px;}
-  .header-date{font-size:.58rem;letter-spacing:.1em;}
-
-  /* current card — stacked, centered */
-  .current-card{
-    flex-direction:column;align-items:center;
-    text-align:center;padding:1.25rem 1rem;gap:.75rem;
-  }
-  .current-card.free{padding:1.5rem;}
-  .ring-wrap{width:100px;height:100px;}
-  .ring-wrap svg{width:100px;height:100px;}
-  .ring-mins{font-size:1.6rem;}
-  .current-info{width:100%;}
-  .current-title{font-size:1.2rem;white-space:normal;text-align:center;}
-  .current-range{text-align:center;font-size:.65rem;}
-  .current-stats{justify-content:center;gap:1.5rem;}
-  .stat-val{font-size:.82rem;}
-  .stat-key{font-size:.52rem;}
-  .current-actions{justify-content:center;}
-  .current-actions .btn{padding:.55rem 1.1rem;font-size:.6rem;min-height:42px;}
-
-  /* next block */
-  .next-block{padding:.75rem;gap:.75rem;}
-  .next-countdown{font-size:1.1rem;}
-  .next-title{font-size:.84rem;}
-  .next-time{font-size:.6rem;}
-
-  /* timeline */
-  .timeline-wrap{min-height:260px;}
-
-  /* event list */
-  .event-name{font-size:.84rem;}
-  .event-start{font-size:.7rem;}
-  .badge{font-size:.54rem;padding:2px 6px;}
-
-  /* modals — slide up from bottom */
-  .modal-bg{align-items:flex-end;}
-  .modal{
-    padding:1.5rem 1.25rem 2rem;
-    border-radius:16px 16px 0 0;
-    width:100%;max-width:100%;
-    max-height:88svh;
-  }
-  .modal-title{font-size:1.3rem;}
-  .form-input,.form-textarea{font-size:.84rem;padding:.65rem .85rem;min-height:44px;}
-  .modal-actions .btn{min-height:42px;padding:.55rem .9rem;}
-
-  /* setup */
-  .setup-card{padding:1.5rem;border-radius:12px;margin:0 .5rem;}
-  .setup-title{font-size:1.75rem;}
-  .step-text{font-size:.77rem;}
-  .input-field{font-size:.84rem;padding:.65rem .85rem;min-height:46px;}
-  #connect-btn{min-height:50px;font-size:.66rem;}
-  .sec-label{font-size:.58rem;}
-  #new-event-btn{min-height:38px;padding:.4rem .8rem;font-size:.6rem;}
-  .right-header{margin-bottom:.6rem;}
-  .free-text{font-size:1.2rem;}
-  .free-sub{font-size:.6rem;}
-}
-
-/* ── TABLET only (601–900px) — keep side elements readable ── */
-@media(min-width:601px) and (max-width:900px){
-  .current-title{font-size:1.5rem;}
-  .ring-wrap{width:95px;height:95px;}
-  .ring-wrap svg{width:95px;height:95px;}
+  body{overflow:auto;}
 }
 </style>
 </head>
@@ -437,19 +324,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
 
   </div>
-
-  <!-- Mobile bottom bar (only visible ≤900px via CSS) -->
-  <div class="mobile-bar" id="mobile-bar" style="display:none;">
-    <div class="mobile-bar-tabs">
-      <button class="tab-btn active" id="mob-tab-today" onclick="switchTab('today')">Heute</button>
-      <button class="tab-btn" id="mob-tab-tomorrow" onclick="switchTab('tomorrow')">Morgen</button>
-    </div>
-    <div class="mobile-bar-actions">
-      <button class="btn primary sm" onclick="openNewEventModal()">+ Neu</button>
-      <button class="btn sm" id="mob-refresh-btn">↻</button>
-      <button class="btn sm" id="mob-logout-btn">✕</button>
-    </div>
-  </div>
+</div>
 
 <!-- Event detail modal -->
 <div class="modal-bg" id="event-modal" style="display:none;" onclick="if(event.target===this)closeModal('event-modal')">
@@ -542,36 +417,16 @@ function isoDate(d){return d.toISOString().split('T')[0];}
 function showToast(msg,err=false){const t=$('toast');t.textContent=msg;t.className='toast'+(err?' err':'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 
 // ─── OAuth ──────────────────────────────────────────────
-const SK_PENDING = 'td_auth_pending';
-
-function isMobileDevice(){
-  return /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
-}
-
-function buildAuthUrl(){
-  const url=new URL('https://accounts.google.com/o/oauth2/v2/auth');
-  url.searchParams.set('client_id',clientId);
-  url.searchParams.set('response_type','token');
-  url.searchParams.set('redirect_uri',window.location.origin+window.location.pathname);
-  url.searchParams.set('scope',SCOPES);
-  url.searchParams.set('prompt','select_account consent');
-  return url.toString();
-}
-
 function doAuth(){
   return new Promise((resolve,reject)=>{
-    if(isMobileDevice()){
-      // Redirect flow: save state, navigate to Google, capture token on return
-      sessionStorage.setItem(SK_PENDING,'1');
-      if(clientId) sessionStorage.setItem(SK_CLIENT+'_pending',clientId);
-      window.location.href=buildAuthUrl();
-      // Never resolves — page navigates away
-      return;
-    }
-    // Desktop: popup flow
-    const url=buildAuthUrl();
+    const url=new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    url.searchParams.set('client_id',clientId);
+    url.searchParams.set('response_type','token');
+    url.searchParams.set('redirect_uri',window.location.origin+window.location.pathname);
+    url.searchParams.set('scope',SCOPES);
+    url.searchParams.set('prompt','select_account consent');
     const w=520,h=620,left=Math.round(screen.width/2-w/2),top=Math.round(screen.height/2-h/2);
-    const popup=window.open(url,'google_auth',`width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no`);
+    const popup=window.open(url.toString(),'google_auth',`width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no`);
     if(!popup||popup.closed){reject(new Error('popup_blocked'));return;}
     const hint=$('oauth-hint');if(hint)hint.style.display='block';
     const timer=setInterval(()=>{
@@ -1048,31 +903,7 @@ function startDashboard(){
 
 // ─── Init ─────────────────────────────────────────────────
 async function init(){
-  // ── 1. Capture token from OAuth redirect (mobile flow) ──
-  const hashStr=window.location.hash.slice(1);
-  if(hashStr){
-    const params=new URLSearchParams(hashStr);
-    const redirectToken=params.get('access_token');
-    const redirectExpiry=parseInt(params.get('expires_in')||'3600');
-    if(redirectToken&&sessionStorage.getItem(SK_PENDING)){
-      sessionStorage.removeItem(SK_PENDING);
-      // Restore clientId if needed
-      const pendingId=sessionStorage.getItem(SK_CLIENT+'_pending');
-      if(pendingId){sessionStorage.removeItem(SK_CLIENT+'_pending');storeSet({[SK_CLIENT]:pendingId});}
-      clientId=storeGet(SK_CLIENT);
-      accessToken=redirectToken;
-      storeSet({[SK_TOKEN]:{token:redirectToken,exp:Date.now()+redirectExpiry*1000}});
-      history.replaceState(null,'',window.location.pathname);
-    }
-  }
-
   await new Promise(r=>setTimeout(r,200));
-
-  // ── 2. Mobile bar setup ──
-  if(window.innerWidth<=900||isMobileDevice()){
-    show('mobile-bar');
-  }
-
   clientId=storeGet(SK_CLIENT);
   if(!clientId){hide('loading-screen');show('setup-screen');initSetup();return;}
   const hasToken=await ensureToken();
