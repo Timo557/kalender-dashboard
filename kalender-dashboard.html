@@ -7,190 +7,214 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@200;300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:        #080810;
-    --surface:   #0f0f1a;
-    --border:    rgba(210,170,80,0.15);
-    --gold:      #d2aa50;
-    --gold-dim:  rgba(210,170,80,0.45);
-    --gold-glow: rgba(210,170,80,0.08);
-    --text:      #ede8db;
-    --text-muted:#7d7868;
-    --text-dim:  rgba(237,232,219,0.35);
-    --red:       #c0504a;
-    --green:     #4a9e6e;
-  }
+:root {
+  --bg:#080810; --surface:#0f0f1a; --surface2:#131320;
+  --border:rgba(210,170,80,0.15); --gold:#d2aa50; --gold-dim:rgba(210,170,80,0.45);
+  --gold-glow:rgba(210,170,80,0.08); --text:#ede8db; --text-muted:#7d7868;
+  --text-dim:rgba(237,232,219,0.35); --red:#c0504a; --green:#4a9e6e;
+  --blue:rgba(100,140,220,0.7);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:0;}
+.orb{position:fixed;top:-200px;right:-200px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(210,170,80,0.07) 0%,transparent 65%);pointer-events:none;z-index:0;}
+.orb2{position:fixed;bottom:-150px;left:-150px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(80,120,210,0.04) 0%,transparent 65%);pointer-events:none;z-index:0;}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; }
+/* ── SHELL ── */
+.shell{position:relative;z-index:1;display:grid;grid-template-columns:1fr 380px;grid-template-rows:auto 1fr auto;height:100vh;max-width:1380px;margin:0 auto;padding:1.75rem 2.5rem 1.25rem;gap:0 2.5rem;}
 
-  body::before {
-    content: ''; position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-    opacity: 0.025; pointer-events: none; z-index: 0;
-  }
-  .orb { position: fixed; top: -200px; right: -200px; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(210,170,80,0.07) 0%, transparent 65%); pointer-events: none; z-index: 0; }
-  .orb2 { position: fixed; bottom: -150px; left: -150px; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(80,120,210,0.04) 0%, transparent 65%); pointer-events: none; z-index: 0; }
+/* ── HEADER ── */
+.header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding-bottom:1rem;border-bottom:.5px solid var(--border);margin-bottom:1.25rem;}
+.clock-wrap{display:flex;align-items:flex-end;gap:1.5rem;}
+.live-clock{font-family:'JetBrains Mono',monospace;font-size:clamp(2.4rem,4.5vw,3.5rem);font-weight:200;color:var(--gold);line-height:1;letter-spacing:-2px;}
+.live-clock .secs{font-size:.55em;opacity:.4;vertical-align:middle;}
+.header-date{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted);padding-bottom:4px;}
+.header-right{display:flex;align-items:center;gap:1.25rem;}
+.header-greeting{font-family:'Cormorant Garamond',serif;font-size:1rem;font-style:italic;color:var(--text-dim);}
+.day-progress{width:100px;height:2px;background:rgba(210,170,80,.06);border-radius:2px;overflow:hidden;}
+.day-bar-fill{height:100%;background:linear-gradient(90deg,rgba(210,170,80,.2),rgba(210,170,80,.5));border-radius:2px;}
 
-  .shell {
-    position: relative; z-index: 1;
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    grid-template-rows: auto 1fr auto;
-    height: 100vh;
-    max-width: 1300px; margin: 0 auto;
-    padding: 2rem 2.5rem 1.5rem;
-    gap: 0 2.5rem;
-  }
+/* Tab switcher */
+.tab-switcher{display:flex;gap:.3rem;background:rgba(210,170,80,.04);border:.5px solid var(--border);border-radius:8px;padding:3px;}
+.tab-btn{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .8rem;border-radius:5px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;transition:all .2s;}
+.tab-btn.active{background:rgba(210,170,80,.12);color:var(--gold);border:.5px solid rgba(210,170,80,.3);}
 
-  /* Header */
-  .header {
-    grid-column: 1 / -1;
-    display: flex; align-items: center; justify-content: space-between;
-    padding-bottom: 1.25rem; border-bottom: 0.5px solid var(--border); margin-bottom: 1.5rem;
-  }
-  .live-clock { font-family: 'JetBrains Mono', monospace; font-size: clamp(2.8rem, 5vw, 4rem); font-weight: 200; color: var(--gold); line-height: 1; letter-spacing: -2px; }
-  .live-clock .secs { font-size: 0.55em; opacity: 0.4; vertical-align: middle; }
-  .header-right { text-align: right; }
-  .header-date { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
-  .header-greeting { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-style: italic; color: var(--text-dim); }
-  .day-progress { width: 120px; height: 2px; background: rgba(210,170,80,0.06); border-radius: 2px; overflow: hidden; margin-top: 0.4rem; margin-left: auto; }
-  .day-bar-fill { height: 100%; background: linear-gradient(90deg, rgba(210,170,80,0.2), rgba(210,170,80,0.5)); border-radius: 2px; }
+/* ── SECTIONS ── */
+.sec-label{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:.5rem;display:flex;align-items:center;gap:.6rem;}
+.sec-label::after{content:'';flex:1;height:.5px;background:var(--border);}
 
-  /* Left */
-  .left { display: flex; flex-direction: column; gap: 1.25rem; overflow: hidden; }
+/* ── LEFT ── */
+.left{display:flex;flex-direction:column;gap:1rem;overflow:hidden;min-height:0;}
 
-  .sec-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.6rem; }
-  .sec-label::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
+/* Current card */
+.current-card{background:var(--gold-glow);border:.5px solid rgba(210,170,80,.25);border-radius:16px;padding:1.5rem 1.75rem;display:flex;align-items:center;gap:1.75rem;position:relative;overflow:hidden;flex-shrink:0;}
+.current-card::before{content:'';position:absolute;inset:0;border-radius:16px;background:linear-gradient(135deg,rgba(210,170,80,.04) 0%,transparent 50%);}
+.current-card.free{justify-content:center;flex-direction:column;text-align:center;gap:.4rem;padding:1.75rem;}
+.ring-wrap{position:relative;flex-shrink:0;width:110px;height:110px;}
+.ring-wrap svg{transform:rotate(-90deg);overflow:visible;}
+.ring-track{fill:none;stroke:rgba(210,170,80,.08);}
+.ring-fill{fill:none;stroke:var(--gold);stroke-linecap:round;transition:stroke-dashoffset 1s linear;}
+.ring-fill.urgent{stroke:var(--red);}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-mins{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:300;color:var(--gold);line-height:1;}
+.ring-mins.urgent{color:var(--red);}
+.ring-sublabel{font-family:'JetBrains Mono',monospace;font-size:.48rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-top:2px;}
+.current-info{flex:1;min-width:0;}
+.current-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.4rem,2.2vw,1.9rem);font-weight:400;line-height:1.2;color:var(--text);margin-bottom:.35rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.current-range{font-family:'JetBrains Mono',monospace;font-size:.67rem;color:var(--gold-dim);margin-bottom:.75rem;letter-spacing:.05em;}
+.progress-track{height:2px;background:rgba(210,170,80,.1);border-radius:2px;overflow:hidden;margin-bottom:.75rem;}
+.progress-fill{height:100%;background:linear-gradient(90deg,rgba(210,170,80,.3),var(--gold));border-radius:2px;transition:width 1s linear;}
+.current-stats{display:flex;gap:1.25rem;margin-bottom:.75rem;}
+.stat{display:flex;flex-direction:column;gap:2px;}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text);}
+.stat-key{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
+.current-actions{display:flex;gap:.5rem;flex-wrap:wrap;}
+.free-icon{font-size:1.8rem;opacity:.12;margin-bottom:.3rem;}
+.free-text{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-style:italic;color:var(--text-dim);}
+.free-sub{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text-muted);letter-spacing:.1em;}
 
-  /* Current card */
-  .current-card { background: var(--gold-glow); border: 0.5px solid rgba(210,170,80,0.25); border-radius: 18px; padding: 1.75rem 2rem; display: flex; align-items: center; gap: 2rem; position: relative; overflow: hidden; }
-  .current-card::before { content: ''; position: absolute; inset: 0; border-radius: 18px; background: linear-gradient(135deg, rgba(210,170,80,0.04) 0%, transparent 50%); }
-  .current-card.free { justify-content: center; flex-direction: column; text-align: center; gap: 0.4rem; padding: 2rem; }
+/* Gap progress bar (current→next) */
+.gap-bar-wrap{display:flex;align-items:center;gap:.75rem;padding:0 .25rem;flex-shrink:0;}
+.gap-bar-label{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--text-muted);white-space:nowrap;min-width:70px;}
+.gap-bar-label.right{text-align:right;}
+.gap-bar-track{flex:1;height:3px;background:rgba(210,170,80,.07);border-radius:3px;overflow:hidden;position:relative;}
+.gap-bar-fill{height:100%;background:linear-gradient(90deg,rgba(210,170,80,.2),rgba(210,170,80,.6));border-radius:3px;transition:width 1s linear;}
+.gap-bar-dot{position:absolute;top:50%;transform:translateY(-50%);width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px rgba(210,170,80,.5);transition:left 1s linear;}
 
-  .ring-wrap { position: relative; flex-shrink: 0; width: 130px; height: 130px; }
-  .ring-wrap svg { transform: rotate(-90deg); overflow: visible; }
-  .ring-track { fill: none; stroke: rgba(210,170,80,0.08); }
-  .ring-fill { fill: none; stroke: var(--gold); stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
-  .ring-fill.urgent { stroke: var(--red); }
-  .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .ring-mins { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 300; color: var(--gold); line-height: 1; }
-  .ring-mins.urgent { color: var(--red); }
-  .ring-sublabel { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 3px; }
+/* Next block */
+.next-block{background:rgba(210,170,80,.03);border:.5px solid rgba(210,170,80,.1);border-radius:12px;padding:.9rem 1.1rem;display:flex;align-items:center;gap:1rem;flex-shrink:0;}
+.next-countdown{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:200;color:var(--gold-dim);line-height:1;flex-shrink:0;min-width:52px;text-align:center;}
+.next-countdown-label{font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);text-align:center;margin-top:3px;}
+.next-divider{width:.5px;height:36px;background:var(--border);flex-shrink:0;}
+.next-info{flex:1;min-width:0;}
+.next-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:.2rem;}
+.next-title{font-size:.85rem;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.next-time{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text-muted);margin-top:2px;}
 
-  .current-info { flex: 1; min-width: 0; }
-  .current-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 400; line-height: 1.2; color: var(--text); margin-bottom: 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .current-range { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--gold-dim); margin-bottom: 1rem; letter-spacing: 0.05em; }
-  .progress-track { height: 2px; background: rgba(210,170,80,0.1); border-radius: 2px; overflow: hidden; margin-bottom: 0.9rem; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, rgba(210,170,80,0.3), var(--gold)); border-radius: 2px; transition: width 1s linear; }
-  .current-stats { display: flex; gap: 1.25rem; }
-  .stat { display: flex; flex-direction: column; gap: 2px; }
-  .stat-val { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text); font-weight: 400; }
-  .stat-key { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+/* ── TIMELINE VIEW ── */
+.timeline-wrap{flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
+.timeline-scroll{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.timeline-scroll::-webkit-scrollbar{width:2px;}
+.timeline-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.timeline-inner{position:relative;padding:.25rem 0 .25rem 48px;}
+.tl-hour-line{position:absolute;left:0;right:0;display:flex;align-items:center;gap:.5rem;pointer-events:none;}
+.tl-hour-label{font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--text-muted);width:38px;text-align:right;flex-shrink:0;opacity:.5;}
+.tl-hour-rule{flex:1;height:.5px;background:rgba(237,232,219,.04);}
+.tl-event{position:absolute;left:52px;right:4px;border-radius:8px;padding:.3rem .6rem;cursor:pointer;transition:all .2s;border:.5px solid transparent;overflow:hidden;}
+.tl-event:hover{filter:brightness(1.15);}
+.tl-event.tl-done{opacity:.45;filter:saturate(0.4);}
+.tl-event.tl-current{box-shadow:0 0 0 1px rgba(210,170,80,.4),0 2px 12px rgba(210,170,80,.12);}
+.tl-event-title{font-size:.72rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;}
+.tl-event-time{font-family:'JetBrains Mono',monospace;font-size:.52rem;opacity:.7;margin-top:1px;}
+.tl-now-line{position:absolute;left:0;right:0;display:flex;align-items:center;pointer-events:none;z-index:10;}
+.tl-now-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;margin-left:38px;box-shadow:0 0 6px rgba(192,80,74,.6);}
+.tl-now-rule{flex:1;height:1px;background:rgba(192,80,74,.4);}
 
-  .free-icon { font-size: 2rem; opacity: 0.12; margin-bottom: 0.4rem; }
-  .free-text { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-style: italic; color: var(--text-dim); }
-  .free-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--text-muted); letter-spacing: 0.1em; }
+/* ── RIGHT ── */
+.right{display:flex;flex-direction:column;border-left:.5px solid var(--border);padding-left:2rem;overflow:hidden;min-height:0;}
+.right-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;}
+.upcoming-scroll{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.upcoming-scroll::-webkit-scrollbar{width:2px;}
+.upcoming-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 
-  /* Next block */
-  .next-block { background: rgba(210,170,80,0.03); border: 0.5px solid rgba(210,170,80,0.12); border-radius: 14px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1.25rem; }
-  .next-countdown { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 200; color: var(--gold-dim); line-height: 1; flex-shrink: 0; min-width: 60px; text-align: center; }
-  .next-countdown-label { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); text-align: center; margin-top: 3px; }
-  .next-divider { width: 0.5px; height: 40px; background: var(--border); flex-shrink: 0; }
-  .next-info { flex: 1; min-width: 0; }
-  .next-label { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.25rem; }
-  .next-title { font-size: 0.88rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .next-time { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
+/* Event rows */
+.event-row{display:flex;align-items:stretch;padding:.55rem .5rem .55rem .7rem;border-radius:9px;margin-bottom:.2rem;transition:background .15s;cursor:pointer;}
+.event-row:hover{background:rgba(210,170,80,.03);}
+.event-row.done-row{background:rgba(74,158,110,.05);border:.5px solid rgba(74,158,110,.15);}
+.event-row.done-row:hover{background:rgba(74,158,110,.08);}
+.event-row.current-row{background:rgba(210,170,80,.06);border:.5px solid rgba(210,170,80,.2);}
+.event-row.next-row{background:rgba(210,170,80,.03);border:.5px solid rgba(210,170,80,.1);}
+.event-time-col{width:58px;flex-shrink:0;padding-top:1px;}
+.event-start{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text-muted);white-space:nowrap;}
+.event-end{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:rgba(125,120,104,.4);margin-top:1px;}
+.event-row.done-row .event-start{color:var(--green);}
+.event-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;}
+.event-name{font-size:.78rem;font-weight:400;color:rgba(237,232,219,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
+.event-row.done-row .event-name{color:var(--green);text-decoration:line-through;text-decoration-color:rgba(74,158,110,.6);text-decoration-thickness:1px;opacity:.85;}
+.event-row.current-row .event-name,.event-row.next-row .event-name{color:var(--text);font-weight:500;}
+.event-meta{display:flex;align-items:center;gap:.4rem;margin-top:2px;}
+.event-dur{font-family:'JetBrains Mono',monospace;font-size:.52rem;color:rgba(125,120,104,.5);}
+.badge{font-family:'JetBrains Mono',monospace;font-size:.48rem;letter-spacing:.07em;padding:1px 5px;border-radius:3px;display:inline-block;}
+.badge-running{color:var(--gold);border:.5px solid rgba(210,170,80,.4);background:rgba(210,170,80,.08);}
+.badge-next{color:rgba(210,170,80,.6);border:.5px solid rgba(210,170,80,.2);background:rgba(210,170,80,.04);}
+.badge-soon{color:var(--gold-dim);border:.5px solid rgba(210,170,80,.15);}
+.badge-done{color:var(--green);border:.5px solid rgba(74,158,110,.35);background:rgba(74,158,110,.07);}
+.list-divider{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);padding:.5rem .4rem .25rem;display:flex;align-items:center;gap:.5rem;}
+.list-divider::after{content:'';flex:1;height:.5px;background:rgba(125,120,104,.12);}
+.empty-msg{text-align:center;padding:2rem 1rem;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;color:var(--text-dim);}
 
-  /* Right */
-  .right { display: flex; flex-direction: column; border-left: 0.5px solid var(--border); padding-left: 2.5rem; overflow: hidden; }
-  .upcoming-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 0.25rem; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-  .upcoming-scroll::-webkit-scrollbar { width: 2px; }
-  .upcoming-scroll::-webkit-scrollbar-track { background: transparent; }
-  .upcoming-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+/* ── FOOTER ── */
+.footer{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding-top:.75rem;border-top:.5px solid rgba(210,170,80,.08);margin-top:.5rem;}
+.footer-status{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;color:var(--text-muted);}
+.footer-status .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:middle;animation:pulse 2s ease-in-out infinite;}
+.footer-status .dot.err{background:var(--red);animation:none;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.footer-actions{display:flex;gap:.5rem;}
 
-  /* Event rows */
-  .event-row { display: flex; align-items: stretch; padding: 0.6rem 0.5rem 0.6rem 0.75rem; border-radius: 10px; margin-bottom: 0.25rem; transition: background 0.15s; }
-  .event-row:hover { background: rgba(210,170,80,0.03); }
+/* ── BUTTONS ── */
+.btn{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;padding:.28rem .7rem;border-radius:5px;border:.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all .2s;}
+.btn:hover{background:var(--gold-glow);color:var(--gold);border-color:rgba(210,170,80,.3);}
+.btn.primary{border-color:rgba(210,170,80,.4);color:var(--gold);}
+.btn.primary:hover{background:rgba(210,170,80,.1);}
+.btn.green{border-color:rgba(74,158,110,.4);color:var(--green);}
+.btn.green:hover{background:rgba(74,158,110,.1);}
+.btn.sm{font-size:.5rem;padding:.22rem .55rem;}
 
-  .event-row.done-row { background: rgba(74,158,110,0.05); border: 0.5px solid rgba(74,158,110,0.15); }
-  .event-row.done-row:hover { background: rgba(74,158,110,0.08); }
-  .event-row.current-row { background: rgba(210,170,80,0.06); border: 0.5px solid rgba(210,170,80,0.2); }
-  .event-row.next-row { background: rgba(210,170,80,0.03); border: 0.5px solid rgba(210,170,80,0.1); }
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(8,8,16,.85);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);}
+.modal{background:var(--surface);border:.5px solid rgba(210,170,80,.25);border-radius:16px;padding:2rem;width:min(480px,90vw);max-height:80vh;overflow-y:auto;}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;margin-bottom:1.25rem;}
+.form-group{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.9rem;}
+.form-label{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);}
+.form-input,.form-textarea{background:var(--bg);border:.5px solid rgba(210,170,80,.2);border-radius:8px;padding:.6rem .85rem;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.72rem;outline:none;transition:border-color .2s;width:100%;}
+.form-input:focus,.form-textarea:focus{border-color:var(--gold-dim);}
+.form-input::placeholder,.form-textarea::placeholder{color:rgba(125,120,104,.5);}
+.form-textarea{resize:vertical;min-height:70px;font-family:'Inter',sans-serif;font-size:.78rem;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+.modal-actions{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1.25rem;}
+.modal-err{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--red);margin-top:.5rem;display:none;}
 
-  .event-time-col { width: 64px; flex-shrink: 0; padding-top: 1px; }
-  .event-start { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
-  .event-end { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: rgba(125,120,104,0.45); margin-top: 1px; }
-  .event-row.done-row .event-start { color: var(--green); }
+/* ── SETUP ── */
+#setup-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;padding:2rem;overflow-y:auto;}
+.setup-card{max-width:560px;width:100%;background:var(--surface);border:.5px solid rgba(210,170,80,.25);border-radius:20px;padding:2.5rem;margin:auto;}
+.setup-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:.75rem;}
+.setup-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;margin-bottom:.4rem;}
+.setup-sub{font-size:.82rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.75rem;}
+.setup-steps{display:flex;flex-direction:column;gap:.85rem;margin-bottom:1.75rem;}
+.step{display:flex;gap:.85rem;align-items:flex-start;padding:.8rem .9rem;background:rgba(210,170,80,.03);border:.5px solid rgba(210,170,80,.1);border-radius:10px;}
+.step-num{font-family:'JetBrains Mono',monospace;font-size:.62rem;width:20px;height:20px;border-radius:50%;border:.5px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--gold-dim);flex-shrink:0;margin-top:1px;}
+.step-text{font-size:.78rem;color:rgba(237,232,219,.7);line-height:1.5;}
+.step-text a{color:var(--gold);text-decoration:none;}
+.step-text a:hover{text-decoration:underline;}
+.step-text code{font-family:'JetBrains Mono',monospace;font-size:.72rem;background:rgba(210,170,80,.08);border:.5px solid var(--border);padding:1px 6px;border-radius:4px;color:var(--gold);word-break:break-all;}
+.input-group{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem;}
+.input-label{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);}
+.input-field{background:var(--bg);border:.5px solid rgba(210,170,80,.2);border-radius:8px;padding:.65rem .9rem;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.72rem;outline:none;transition:border-color .2s;width:100%;}
+.input-field:focus{border-color:var(--gold-dim);}
+.input-field::placeholder{color:rgba(125,120,104,.5);}
+.setup-err{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--red);margin-bottom:.6rem;display:none;line-height:1.5;}
+#oauth-hint{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--gold-dim);margin-top:.6rem;display:none;line-height:1.6;letter-spacing:.05em;}
 
-  .event-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-  .event-name { font-size: 0.8rem; font-weight: 400; color: rgba(237,232,219,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
-  .event-row.done-row .event-name { color: var(--green); text-decoration: line-through; text-decoration-color: rgba(74,158,110,0.6); text-decoration-thickness: 1px; opacity: 0.85; }
-  .event-row.current-row .event-name { color: var(--text); font-weight: 500; }
-  .event-row.next-row .event-name { color: var(--text); }
+/* Loading */
+#loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;z-index:99;}
+.spinner-ring{width:38px;height:38px;border:1.5px solid rgba(210,170,80,.15);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted);}
+.fade-in{animation:fadeIn .4s ease both;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
 
-  .event-meta { display: flex; align-items: center; gap: 0.5rem; margin-top: 2px; }
-  .event-dur { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: rgba(125,120,104,0.5); }
-  .badge { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; letter-spacing: 0.08em; padding: 1px 5px; border-radius: 3px; display: inline-block; }
-  .badge-running { color: var(--gold); border: 0.5px solid rgba(210,170,80,0.4); background: rgba(210,170,80,0.08); }
-  .badge-next    { color: rgba(210,170,80,0.6); border: 0.5px solid rgba(210,170,80,0.2); background: rgba(210,170,80,0.04); }
-  .badge-soon    { color: var(--gold-dim); border: 0.5px solid rgba(210,170,80,0.15); }
-  .badge-done    { color: var(--green); border: 0.5px solid rgba(74,158,110,0.35); background: rgba(74,158,110,0.07); }
+/* Toast */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:.5px solid rgba(210,170,80,.3);border-radius:8px;padding:.6rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--gold);opacity:0;transition:all .3s;z-index:300;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.err{color:var(--red);border-color:rgba(192,80,74,.3);}
 
-  .list-divider { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); padding: 0.6rem 0.5rem 0.3rem; display: flex; align-items: center; gap: 0.5rem; }
-  .list-divider::after { content: ''; flex: 1; height: 0.5px; background: rgba(125,120,104,0.15); }
-
-  .empty-msg { text-align: center; padding: 3rem 1rem; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.1rem; color: var(--text-dim); }
-
-  /* Footer */
-  .footer { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding-top: 0.9rem; border-top: 0.5px solid rgba(210,170,80,0.08); margin-top: 0.5rem; }
-  .footer-status { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; color: var(--text-muted); }
-  .footer-status .dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--green); margin-right: 5px; vertical-align: middle; animation: pulse 2s ease-in-out infinite; }
-  .footer-status .dot.err { background: var(--red); animation: none; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-  .footer-actions { display: flex; gap: 0.6rem; }
-  .btn { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.3rem 0.8rem; border-radius: 5px; border: 0.5px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
-  .btn:hover { background: var(--gold-glow); color: var(--gold); border-color: rgba(210,170,80,0.3); }
-  .btn.primary { border-color: rgba(210,170,80,0.4); color: var(--gold); }
-  .btn.primary:hover { background: rgba(210,170,80,0.1); }
-
-  /* Setup */
-  #setup-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 2rem; overflow-y: auto; }
-  .setup-card { max-width: 580px; width: 100%; background: var(--surface); border: 0.5px solid rgba(210,170,80,0.25); border-radius: 20px; padding: 3rem; margin: auto; }
-  .setup-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 1rem; }
-  .setup-title { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 400; margin-bottom: 0.5rem; }
-  .setup-sub { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem; }
-  .setup-steps { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
-  .step { display: flex; gap: 1rem; align-items: flex-start; padding: 0.9rem 1rem; background: rgba(210,170,80,0.03); border: 0.5px solid rgba(210,170,80,0.1); border-radius: 10px; }
-  .step-num { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; width: 22px; height: 22px; border-radius: 50%; border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--gold-dim); flex-shrink: 0; margin-top: 1px; }
-  .step-text { font-size: 0.8rem; color: rgba(237,232,219,0.7); line-height: 1.5; }
-  .step-text a { color: var(--gold); text-decoration: none; }
-  .step-text a:hover { text-decoration: underline; }
-  .step-text code { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; background: rgba(210,170,80,0.08); border: 0.5px solid var(--border); padding: 1px 6px; border-radius: 4px; color: var(--gold); word-break: break-all; }
-  .input-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.2rem; }
-  .input-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
-  .input-field { background: var(--bg); border: 0.5px solid rgba(210,170,80,0.2); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; outline: none; transition: border-color 0.2s; width: 100%; }
-  .input-field:focus { border-color: var(--gold-dim); }
-  .input-field::placeholder { color: rgba(125,120,104,0.5); }
-  .setup-err { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--red); margin-bottom: 0.75rem; display: none; line-height: 1.5; }
-  #oauth-hint { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--gold-dim); margin-top: 0.75rem; display: none; line-height: 1.6; letter-spacing: 0.05em; }
-
-  /* Loading */
-  #loading-screen { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; z-index: 99; }
-  .spinner-ring { width: 40px; height: 40px; border: 1.5px solid rgba(210,170,80,0.15); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); }
-
-  .fade-in { animation: fadeIn 0.5s ease both; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-
-  @media (max-width: 900px) {
-    .shell { grid-template-columns: 1fr; padding: 1.25rem; overflow-y: auto; height: auto; min-height: 100vh; }
-    .header, .footer { grid-column: 1; }
-    .right { border-left: none; border-top: 0.5px solid var(--border); padding-left: 0; padding-top: 1.25rem; }
-    .upcoming-scroll { overflow: visible; max-height: none; }
-    body { overflow: auto; }
-  }
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr;padding:1.25rem;overflow-y:auto;height:auto;min-height:100vh;}
+  .header,.footer{grid-column:1;}
+  .right{border-left:none;border-top:.5px solid var(--border);padding-left:0;padding-top:1.25rem;}
+  .upcoming-scroll{overflow:visible;max-height:none;}
+  body{overflow:auto;}
+}
 </style>
 </head>
 <body>
@@ -204,54 +228,89 @@
   <div class="setup-card fade-in">
     <div class="setup-eyebrow">Einmalige Einrichtung</div>
     <div class="setup-title">Time Blocking Dashboard</div>
-    <div class="setup-sub">Verbinde deinen Google Kalender — dauert ca. 3 Minuten, danach nie wieder.<br>
-    <strong style="color:var(--gold-dim);">Wichtig:</strong> Seite muss über <code>http://</code> oder <code>https://</code> geöffnet werden.</div>
+    <div class="setup-sub">Verbinde deinen Google Kalender. Die Seite benötigt Schreibzugriff um Termine zu erstellen und zu bearbeiten.</div>
     <div class="setup-steps">
-      <div class="step"><div class="step-num">1</div><div class="step-text">Geh auf <a href="https://console.cloud.google.com/" target="_blank">console.cloud.google.com</a>, erstelle ein Projekt und aktiviere die <strong>Google Calendar API</strong>.</div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-text"><em>APIs &amp; Services → Anmeldedaten → OAuth-2.0-Client-ID</em>. Typ: <strong>Webanwendung</strong>.<br>Autorisierter JavaScript-Ursprung: <code id="origin-display">—</code></div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-text">Deinen Google-Account unter <em>Zustimmungsbildschirm → Testnutzer</em> eintragen.</div></div>
-      <div class="step"><div class="step-num">4</div><div class="step-text">Client-ID (endet auf <code>.apps.googleusercontent.com</code>) unten eintragen.</div></div>
+      <div class="step"><div class="step-num">1</div><div class="step-text">Geh auf <a href="https://console.cloud.google.com/" target="_blank">console.cloud.google.com</a> und aktiviere die <strong>Google Calendar API</strong>.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><em>Anmeldedaten → OAuth-Client-ID → Webanwendung</em>.<br>JavaScript-Ursprung: <code id="origin-display">—</code></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Weiterleitungs-URI: <code id="redirect-display">—</code></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">Deinen Account unter <em>Zustimmungsbildschirm → Testnutzer</em> eintragen.</div></div>
     </div>
     <div class="input-group">
       <div class="input-label">Google OAuth Client-ID</div>
       <input type="text" id="client-id-input" class="input-field" placeholder="123456789-abc.apps.googleusercontent.com" autocomplete="off" spellcheck="false">
     </div>
     <div class="setup-err" id="setup-err"></div>
-    <div id="oauth-hint">↑ Ein Google-Login-Popup öffnet sich. Falls blockiert, bitte Popups für diese Seite erlauben.</div>
-    <button class="btn primary" id="connect-btn" style="width:100%; padding: 0.6rem; font-size: 0.65rem;">Mit Google verbinden →</button>
+    <div id="oauth-hint">↑ Google-Login-Popup öffnet sich. Popups für diese Seite erlauben falls blockiert.</div>
+    <button class="btn primary" id="connect-btn" style="width:100%;padding:.55rem;font-size:.62rem;">Mit Google verbinden →</button>
   </div>
 </div>
 
 <div id="main-screen" style="display:none;">
   <div class="orb"></div><div class="orb2"></div>
   <div class="shell fade-in">
+
+    <!-- HEADER -->
     <div class="header">
-      <div>
+      <div class="clock-wrap">
         <div class="live-clock" id="clock">00:00<span class="secs" id="secs">:00</span></div>
         <div class="header-date" id="header-date">—</div>
       </div>
       <div class="header-right">
-        <div class="header-greeting" id="greeting">Guten Morgen</div>
-        <div class="day-progress"><div class="day-bar-fill" id="day-bar"></div></div>
+        <div class="tab-switcher">
+          <button class="tab-btn active" id="tab-today" onclick="switchTab('today')">Heute</button>
+          <button class="tab-btn" id="tab-tomorrow" onclick="switchTab('tomorrow')">Morgen</button>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;">
+          <div class="header-greeting" id="greeting">Guten Morgen</div>
+          <div class="day-progress"><div class="day-bar-fill" id="day-bar"></div></div>
+        </div>
       </div>
     </div>
 
+    <!-- LEFT -->
     <div class="left">
+      <!-- Current block -->
       <div>
-        <div class="sec-label">Aktueller Block</div>
+        <div class="sec-label" id="current-label">Aktueller Block</div>
         <div class="current-card" id="current-card"></div>
       </div>
-      <div>
-        <div class="sec-label">Als nächstes</div>
-        <div id="next-block-wrap"></div>
+
+      <!-- Gap progress bar -->
+      <div class="gap-bar-wrap" id="gap-bar-wrap" style="display:none;">
+        <div>
+          <div class="gap-bar-label" id="gap-from">—</div>
+        </div>
+        <div class="gap-bar-track">
+          <div class="gap-bar-fill" id="gap-fill"></div>
+          <div class="gap-bar-dot" id="gap-dot"></div>
+        </div>
+        <div>
+          <div class="gap-bar-label right" id="gap-to">—</div>
+        </div>
+      </div>
+
+      <!-- Next block -->
+      <div id="next-block-wrap"></div>
+
+      <!-- Timeline -->
+      <div class="timeline-wrap">
+        <div class="sec-label" id="timeline-label">Tagesansicht</div>
+        <div class="timeline-scroll" id="timeline-scroll">
+          <div class="timeline-inner" id="timeline-inner"></div>
+        </div>
       </div>
     </div>
 
+    <!-- RIGHT -->
     <div class="right">
-      <div class="sec-label" id="right-label">Heute</div>
+      <div class="right-header">
+        <div class="sec-label" id="right-label" style="margin-bottom:0;flex:1;">Termine</div>
+        <button class="btn sm primary" id="new-event-btn" onclick="openNewEventModal()">+ Neu</button>
+      </div>
       <div class="upcoming-scroll" id="event-list"></div>
     </div>
 
+    <!-- FOOTER -->
     <div class="footer">
       <div class="footer-status">
         <span class="dot" id="status-dot"></span>
@@ -259,105 +318,231 @@
       </div>
       <div class="footer-actions">
         <button class="btn" id="switch-account-btn">⇄ Account</button>
-        <button class="btn" id="refresh-btn">↻ Aktualisieren</button>
+        <button class="btn" id="refresh-btn">↻ Laden</button>
         <button class="btn" id="logout-btn">Abmelden</button>
       </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Event detail modal -->
+<div class="modal-bg" id="event-modal" style="display:none;" onclick="if(event.target===this)closeModal('event-modal')">
+  <div class="modal">
+    <div class="modal-title" id="em-title">Termin</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--gold-dim);margin-bottom:1.25rem;" id="em-time">—</div>
+    <div class="form-group">
+      <div class="form-label">Notiz / Beschreibung</div>
+      <textarea class="form-textarea" id="em-note" placeholder="Notiz hinzufügen …"></textarea>
+    </div>
+    <div class="modal-err" id="em-err"></div>
+    <div class="modal-actions">
+      <button class="btn green sm" id="em-done-btn">✓ Als erledigt</button>
+      <button class="btn sm" id="em-save-btn">Speichern</button>
+      <button class="btn sm" onclick="closeModal('event-modal')">Schließen</button>
     </div>
   </div>
 </div>
 
+<!-- New event modal -->
+<div class="modal-bg" id="new-modal" style="display:none;" onclick="if(event.target===this)closeModal('new-modal')">
+  <div class="modal">
+    <div class="modal-title">Neuer Termin</div>
+    <div class="form-group">
+      <div class="form-label">Titel</div>
+      <input type="text" class="form-input" id="nm-title" placeholder="Termin-Titel …">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Datum</div>
+        <input type="date" class="form-input" id="nm-date">
+      </div>
+      <div class="form-group" style="display:none;"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Startzeit</div>
+        <input type="time" class="form-input" id="nm-start">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Endzeit</div>
+        <input type="time" class="form-input" id="nm-end">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Notiz (optional)</div>
+      <textarea class="form-textarea" id="nm-note" placeholder="Beschreibung …" style="min-height:55px;"></textarea>
+    </div>
+    <div class="modal-err" id="nm-err"></div>
+    <div class="modal-actions">
+      <button class="btn primary sm" id="nm-save-btn" onclick="saveNewEvent()">Erstellen →</button>
+      <button class="btn sm" onclick="closeModal('new-modal')">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+// ─── Constants ──────────────────────────────────────────
+const SCOPES = 'https://www.googleapis.com/auth/calendar';
 const CAL_API = 'https://www.googleapis.com/calendar/v3';
-const RING_R = 58, RING_C = 2 * Math.PI * RING_R;
+const RING_R = 50, RING_C = 2 * Math.PI * RING_R;
 const SK_CLIENT = 'td_client_id', SK_TOKEN = 'td_token_exp';
+const TL_START = 7, TL_END = 23; // timeline hours
+const PX_PER_HOUR = 60;
 
-let events = [], accessToken = null, clientId = null, refreshTimer = null, clockTimer = null;
+// ─── State ──────────────────────────────────────────────
+let todayEvents = [], tomorrowEvents = [];
+let accessToken = null, clientId = null;
+let refreshTimer = null, clockTimer = null;
+let currentTab = 'today';
+let selectedEventId = null, selectedEventData = null;
+let localDone = new Set(JSON.parse(localStorage.getItem('td_done')||'[]'));
 
+// ─── Utils ──────────────────────────────────────────────
 const $ = id => document.getElementById(id);
 const show = id => { $(id).style.display = ''; };
 const hide = id => { $(id).style.display = 'none'; };
+function storeGet(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch{return null;}}
+function storeSet(o){for(const[k,v]of Object.entries(o))localStorage.setItem(k,JSON.stringify(v));}
+function storeRemove(ks){ks.forEach(k=>localStorage.removeItem(k));}
+function saveDone(){localStorage.setItem('td_done',JSON.stringify([...localDone]));}
+function hhmm(d){return d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}
+function dur(ms){const m=Math.floor(ms/60000);if(m<60)return`${m}m`;const h=Math.floor(m/60),r=m%60;return r?`${h}h ${r}m`:`${h}h`;}
+function greet(h){if(h<5)return'Gute Nacht';if(h<12)return'Guten Morgen';if(h<17)return'Guten Nachmittag';if(h<22)return'Guten Abend';return'Gute Nacht';}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function dateStr(d){return d.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();}
+function isoDate(d){return d.toISOString().split('T')[0];}
+function showToast(msg,err=false){const t=$('toast');t.textContent=msg;t.className='toast'+(err?' err':'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 
-function storeGet(k) { try { const v=localStorage.getItem(k); return v?JSON.parse(v):null; } catch{return null;} }
-function storeSet(o) { for(const[k,v]of Object.entries(o)) localStorage.setItem(k,JSON.stringify(v)); }
-function storeRemove(ks) { ks.forEach(k=>localStorage.removeItem(k)); }
-
-function doAuth() {
-  return new Promise((resolve, reject) => {
-    const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-    url.searchParams.set('client_id', clientId);
-    url.searchParams.set('response_type', 'token');
-    url.searchParams.set('redirect_uri', window.location.origin + window.location.pathname);
-    url.searchParams.set('scope', SCOPES);
-    url.searchParams.set('prompt', 'select_account consent');
+// ─── OAuth ──────────────────────────────────────────────
+function doAuth(){
+  return new Promise((resolve,reject)=>{
+    const url=new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    url.searchParams.set('client_id',clientId);
+    url.searchParams.set('response_type','token');
+    url.searchParams.set('redirect_uri',window.location.origin+window.location.pathname);
+    url.searchParams.set('scope',SCOPES);
+    url.searchParams.set('prompt','select_account consent');
     const w=520,h=620,left=Math.round(screen.width/2-w/2),top=Math.round(screen.height/2-h/2);
-    const popup = window.open(url.toString(),'google_auth',`width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no`);
+    const popup=window.open(url.toString(),'google_auth',`width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no`);
     if(!popup||popup.closed){reject(new Error('popup_blocked'));return;}
-    const hint=$('oauth-hint'); if(hint) hint.style.display='block';
+    const hint=$('oauth-hint');if(hint)hint.style.display='block';
     const timer=setInterval(()=>{
-      try {
+      try{
         const u=popup.location.href;
         if(u.startsWith(window.location.origin)){
-          clearInterval(timer);
-          if(hint) hint.style.display='none';
-          popup.close();
-          const hash=new URL(u).hash.slice(1), params=new URLSearchParams(hash);
-          const token=params.get('access_token'), expiresIn=parseInt(params.get('expires_in')||'3600');
-          if(token) resolve({token,expiresIn}); else reject(new Error('no_token'));
+          clearInterval(timer);if(hint)hint.style.display='none';popup.close();
+          const hash=new URL(u).hash.slice(1),params=new URLSearchParams(hash);
+          const token=params.get('access_token'),expiresIn=parseInt(params.get('expires_in')||'3600');
+          if(token)resolve({token,expiresIn});else reject(new Error('no_token'));
         }
-      } catch(_){}
+      }catch(_){}
       if(popup.closed){clearInterval(timer);if(hint)hint.style.display='none';reject(new Error('popup_closed'));}
     },500);
   });
 }
-
-async function ensureToken() {
+async function ensureToken(){
   const s=storeGet(SK_TOKEN);
   if(s&&s.token&&s.exp>Date.now()+60000){accessToken=s.token;return true;}
   return false;
 }
+async function refreshAuth(){
+  const{token,expiresIn}=await doAuth();
+  accessToken=token;
+  storeSet({[SK_TOKEN]:{token,exp:Date.now()+expiresIn*1000}});
+}
 
-async function fetchTodayEvents() {
-  const now=new Date(), start=new Date(now), end=new Date(now);
-  start.setHours(0,0,0,0); end.setHours(23,59,59,999);
+// ─── API helpers ────────────────────────────────────────
+async function apiGet(url){
+  const res=await fetch(url,{headers:{Authorization:`Bearer ${accessToken}`}});
+  if(res.status===401)throw new Error('auth_expired');
+  if(!res.ok)throw new Error('api_error:'+res.status);
+  return res.json();
+}
+async function apiPatch(url,body){
+  const res=await fetch(url,{method:'PATCH',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(res.status===401)throw new Error('auth_expired');
+  if(!res.ok)throw new Error('api_error:'+res.status);
+  return res.json();
+}
+async function apiPost(url,body){
+  const res=await fetch(url,{method:'POST',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(res.status===401)throw new Error('auth_expired');
+  if(!res.ok)throw new Error('api_error:'+res.status);
+  return res.json();
+}
+
+// ─── Fetch events ────────────────────────────────────────
+async function fetchEventsFor(date){
+  const start=new Date(date);start.setHours(0,0,0,0);
+  const end=new Date(date);end.setHours(23,59,59,999);
   const url=new URL(`${CAL_API}/calendars/primary/events`);
   url.searchParams.set('timeMin',start.toISOString());
   url.searchParams.set('timeMax',end.toISOString());
   url.searchParams.set('singleEvents','true');
   url.searchParams.set('orderBy','startTime');
-  url.searchParams.set('maxResults','30');
-  const res=await fetch(url.toString(),{headers:{Authorization:`Bearer ${accessToken}`}});
-  if(res.status===401) throw new Error('auth_expired');
-  if(!res.ok) throw new Error('api_error');
-  const data=await res.json();
+  url.searchParams.set('maxResults','40');
+  const data=await apiGet(url.toString());
   return (data.items||[]).filter(e=>e.start?.dateTime).map(e=>({
-    title:e.summary||'(Kein Titel)',
-    start:new Date(e.start.dateTime),
-    end:new Date(e.end.dateTime),
+    id:e.id, title:e.summary||'(Kein Titel)',
+    start:new Date(e.start.dateTime), end:new Date(e.end.dateTime),
+    description:e.description||'',
   }));
 }
 
-function hhmm(d){return d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}
-function dur(ms){const m=Math.floor(ms/60000);if(m<60)return`${m}m`;const h=Math.floor(m/60),r=m%60;return r?`${h}h ${r}m`:`${h}h`;}
-function greet(h){if(h<5)return'Gute Nacht';if(h<12)return'Guten Morgen';if(h<17)return'Guten Nachmittag';if(h<22)return'Guten Abend';return'Gute Nacht';}
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+async function loadAllEvents(){
+  const today=new Date();
+  const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
+  [todayEvents,tomorrowEvents]=await Promise.all([fetchEventsFor(today),fetchEventsFor(tomorrow)]);
+  setStatus(true);
+  renderAll();
+  clearTimeout(refreshTimer);
+  refreshTimer=setTimeout(loadAllEvents,5*60*1000);
+}
 
-function renderCurrent(now) {
-  const cur=events.find(e=>e.start<=now&&e.end>now), card=$('current-card');
+function getEvents(){return currentTab==='today'?todayEvents:tomorrowEvents;}
+
+// ─── Render all ──────────────────────────────────────────
+function renderAll(){
+  const now=new Date();
+  renderCurrent(now);
+  renderGapBar(now);
+  renderNextBlock(now);
+  renderTimeline();
+  renderList(now);
+}
+
+// ─── Current card ────────────────────────────────────────
+function renderCurrent(now){
+  const evs=getEvents();
+  const card=$('current-card');
+  const lbl=$('current-label');
+
+  if(currentTab==='tomorrow'){
+    lbl.childNodes[0].textContent='Morgen — ';
+    const d=new Date();d.setDate(d.getDate()+1);
+    card.className='current-card free';
+    card.innerHTML=`<div class="free-icon">◌</div><div class="free-text">${dateStr(d).split(',')[0]}</div><div class="free-sub">${evs.length} Termine geplant</div>`;
+    return;
+  }
+  lbl.childNodes[0].textContent='Aktueller Block';
+  const cur=evs.find(e=>e.start<=now&&e.end>now&&!localDone.has(e.id));
   if(!cur){
     card.className='current-card free';
     card.innerHTML=`<div class="free-icon">◌</div><div class="free-text">Freie Zeit</div><div class="free-sub">Kein aktiver Block — genieße die Pause</div>`;
     return;
   }
-  const totalMs=cur.end-cur.start, remainMs=Math.max(0,cur.end-now);
-  const pct=Math.max(0,remainMs/totalMs), doneMs=totalMs-remainMs;
-  const remainMin=Math.ceil(remainMs/60000), isUrgent=remainMin<=5;
+  const totalMs=cur.end-cur.start,remainMs=Math.max(0,cur.end-now);
+  const pct=Math.max(0,remainMs/totalMs),doneMs=totalMs-remainMs;
+  const remainMin=Math.ceil(remainMs/60000),isUrgent=remainMin<=5;
   card.className='current-card';
   card.innerHTML=`
     <div class="ring-wrap">
-      <svg width="130" height="130" viewBox="0 0 130 130">
-        <circle class="ring-track" cx="65" cy="65" r="${RING_R}" stroke-width="4"/>
-        <circle class="${isUrgent?'ring-fill urgent':'ring-fill'}" cx="65" cy="65" r="${RING_R}"
+      <svg width="110" height="110" viewBox="0 0 110 110">
+        <circle class="ring-track" cx="55" cy="55" r="${RING_R}" stroke-width="4"/>
+        <circle class="${isUrgent?'ring-fill urgent':'ring-fill'}" cx="55" cy="55" r="${RING_R}"
           stroke-width="4" stroke-dasharray="${RING_C.toFixed(2)}"
           stroke-dashoffset="${(RING_C*(1-pct)).toFixed(2)}"/>
       </svg>
@@ -375,64 +560,161 @@ function renderCurrent(now) {
         <div class="stat"><div class="stat-val">${dur(doneMs)}</div><div class="stat-key">absolviert</div></div>
         <div class="stat"><div class="stat-val">${Math.round((doneMs/totalMs)*100)}%</div><div class="stat-key">Fortschritt</div></div>
       </div>
+      <div class="current-actions">
+        <button class="btn green sm" onclick="markDone('${cur.id}')">✓ Erledigt</button>
+        <button class="btn sm" onclick="openEventModal('${cur.id}')">✎ Notiz</button>
+      </div>
     </div>`;
 }
 
-function renderNextBlock(now) {
+// ─── Gap bar ─────────────────────────────────────────────
+function renderGapBar(now){
+  if(currentTab!=='today'){hide('gap-bar-wrap');return;}
+  const evs=getEvents();
+  const prev=evs.slice().reverse().find(e=>e.end<=now);
+  const next=evs.find(e=>e.start>now);
+  const cur=evs.find(e=>e.start<=now&&e.end>now);
+  if(cur||!next){hide('gap-bar-wrap');return;}
+  show('gap-bar-wrap');
+  const gapStart=prev?prev.end:now;
+  const gapEnd=next.start;
+  const totalGap=gapEnd-gapStart,elapsed=now-gapStart;
+  const pct=Math.max(0,Math.min(1,elapsed/totalGap))*100;
+  $('gap-from').textContent=prev?`Ende: ${hhmm(prev.end)}`:'Jetzt';
+  $('gap-to').textContent=`${hhmm(next.start)} →`;
+  $('gap-fill').style.width=pct.toFixed(1)+'%';
+  $('gap-dot').style.left=`calc(${pct.toFixed(1)}% - 4px)`;
+}
+
+// ─── Next block ──────────────────────────────────────────
+function renderNextBlock(now){
   const wrap=$('next-block-wrap');
-  const next=events.find(e=>e.start>now);
+  const evs=getEvents();
+  const next=currentTab==='today'
+    ?evs.find(e=>e.start>now&&!localDone.has(e.id))
+    :evs[0];
   if(!next){
-    wrap.innerHTML=`<div style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--text-dim);font-size:0.9rem;padding:0.75rem 0;">Keine weiteren Termine heute</div>`;
+    wrap.innerHTML=`<div style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--text-dim);font-size:.85rem;padding:.5rem 0;">Keine weiteren Termine</div>`;
     return;
   }
-  const ms=next.start-now, m=Math.round(ms/60000);
+  const ms=currentTab==='today'?next.start-now:next.start-(new Date());
+  const m=Math.round(Math.abs(ms)/60000);
   const countdown=m<60?`${m}m`:(()=>{const h=Math.floor(m/60),r=m%60;return r?`${h}h ${r}m`:`${h}h`;})();
   wrap.innerHTML=`
-    <div class="next-block">
+    <div class="next-block" onclick="openEventModal('${next.id}')" style="cursor:pointer;">
       <div>
-        <div class="next-countdown">${countdown}</div>
-        <div class="next-countdown-label">bis Start</div>
+        <div class="next-countdown">${currentTab==='today'?countdown:'—'}</div>
+        <div class="next-countdown-label">${currentTab==='today'?'bis Start':'erster'}</div>
       </div>
       <div class="next-divider"></div>
       <div class="next-info">
-        <div class="next-label">Danach</div>
+        <div class="next-eyebrow">Als nächstes</div>
         <div class="next-title">${esc(next.title)}</div>
         <div class="next-time">${hhmm(next.start)} – ${hhmm(next.end)} · ${dur(next.end-next.start)}</div>
       </div>
     </div>`;
 }
 
-function renderList(now) {
+// ─── Timeline ────────────────────────────────────────────
+function renderTimeline(){
+  const inner=$('timeline-inner');
+  const evs=getEvents();
+  const totalHours=TL_END-TL_START;
+  const totalPx=totalHours*PX_PER_HOUR;
+  inner.style.height=(totalPx+40)+'px';
+
+  let html='';
+  // Hour lines
+  for(let h=TL_START;h<=TL_END;h++){
+    const y=(h-TL_START)*PX_PER_HOUR;
+    html+=`<div class="tl-hour-line" style="top:${y}px;">
+      <div class="tl-hour-label">${String(h).padStart(2,'0')}:00</div>
+      <div class="tl-hour-rule"></div>
+    </div>`;
+  }
+
+  // Events
+  evs.forEach(e=>{
+    const startH=e.start.getHours()+e.start.getMinutes()/60;
+    const endH=e.end.getHours()+e.end.getMinutes()/60;
+    const top=(startH-TL_START)*PX_PER_HOUR;
+    const height=Math.max((endH-startH)*PX_PER_HOUR,18);
+    const now=new Date();
+    const isDone=localDone.has(e.id)||(currentTab==='today'&&e.end<=now);
+    const isCur=currentTab==='today'&&e.start<=now&&e.end>now;
+    // Color
+    const col=isDone?'rgba(74,158,110,0.12)':isCur?'rgba(210,170,80,0.15)':'rgba(100,130,200,0.12)';
+    const bord=isDone?'rgba(74,158,110,0.3)':isCur?'rgba(210,170,80,0.5)':'rgba(100,130,200,0.25)';
+    const tc=isDone?'var(--green)':isCur?'var(--gold)':'rgba(180,190,220,0.8)';
+    html+=`<div class="tl-event ${isDone?'tl-done':''} ${isCur?'tl-current':''}"
+      style="top:${top}px;height:${height}px;background:${col};border-color:${bord};"
+      onclick="openEventModal('${e.id}')">
+      <div class="tl-event-title" style="color:${tc};">${esc(e.title)}</div>
+      ${height>28?`<div class="tl-event-time">${hhmm(e.start)} – ${hhmm(e.end)}</div>`:''}
+    </div>`;
+  });
+
+  // Now line (today only)
+  if(currentTab==='today'){
+    const now=new Date();
+    const nowH=now.getHours()+now.getMinutes()/60;
+    if(nowH>=TL_START&&nowH<=TL_END){
+      const y=(nowH-TL_START)*PX_PER_HOUR;
+      html+=`<div class="tl-now-line" style="top:${y}px;">
+        <div class="tl-now-dot"></div>
+        <div class="tl-now-rule"></div>
+      </div>`;
+    }
+  }
+
+  inner.innerHTML=html;
+
+  // Scroll to current time
+  if(currentTab==='today'){
+    const now=new Date();
+    const nowH=now.getHours()+now.getMinutes()/60;
+    const y=Math.max(0,(nowH-TL_START)*PX_PER_HOUR-80);
+    $('timeline-scroll').scrollTop=y;
+  }
+}
+
+// ─── Event list ──────────────────────────────────────────
+function renderList(now){
   const list=$('event-list');
-  if(!events.length){list.innerHTML='<div class="empty-msg">Keine Termine heute</div>';$('right-label').textContent='Heute';return;}
-  const done=events.filter(e=>e.end<=now);
-  const current=events.find(e=>e.start<=now&&e.end>now);
-  const upcoming=events.filter(e=>e.start>now);
-  $('right-label').textContent=`Heute · ${done.length}/${events.length}`;
+  const evs=getEvents();
+  if(!evs.length){list.innerHTML='<div class="empty-msg">Keine Termine</div>';$('right-label').childNodes[0].textContent='Termine · 0/0 ';return;}
+  const done=evs.filter(e=>localDone.has(e.id)||(currentTab==='today'&&e.end<=now));
+  const current=currentTab==='today'?evs.find(e=>e.start<=now&&e.end>now&&!localDone.has(e.id)):null;
+  const upcoming=evs.filter(e=>{
+    const isDone=localDone.has(e.id)||(currentTab==='today'&&e.end<=now);
+    const isCur=currentTab==='today'&&e.start<=now&&e.end>now&&!localDone.has(e.id);
+    return !isDone&&!isCur&&(currentTab==='tomorrow'||e.start>now);
+  });
+  $('right-label').childNodes[0].textContent=`Termine · ${done.length}/${evs.length} `;
   let html='';
   if(done.length){
-    html+=`<div class="list-divider" style="color:var(--green);opacity:0.8;">✓ Erledigt</div>`;
-    html+=done.map(e=>row(e,'done',now)).join('');
+    html+=`<div class="list-divider" style="color:var(--green);opacity:.8;">✓ Erledigt</div>`;
+    html+=done.map(e=>rowHtml(e,'done',now)).join('');
   }
   if(current){
-    html+=`<div class="list-divider" style="color:var(--gold-dim);">▶ Läuft gerade</div>`;
-    html+=row(current,'current',now);
+    html+=`<div class="list-divider" style="color:var(--gold-dim);">▶ Läuft</div>`;
+    html+=rowHtml(current,'current',now);
   }
   if(upcoming.length){
     html+=`<div class="list-divider">Kommend</div>`;
-    upcoming.forEach((e,i)=>{html+=row(e,i===0?'next':'future',now);});
+    upcoming.forEach((e,i)=>{html+=rowHtml(e,i===0?'next':'future',now);});
   }
   list.innerHTML=html;
 }
 
-function row(e,type,now){
-  const startsIn=Math.round((e.start-now)/60000), totalMs=e.end-e.start;
-  let cls='event-row', badge='';
-  if(type==='done'){cls+=' done-row';badge=`<span class="badge badge-done">✓ erledigt</span>`;}
+function rowHtml(e,type,now){
+  const startsIn=Math.round((e.start-now)/60000),totalMs=e.end-e.start;
+  let cls='event-row',badge='';
+  if(type==='done'){cls+=' done-row';badge=`<span class="badge badge-done">✓</span>`;}
   else if(type==='current'){cls+=' current-row';badge=`<span class="badge badge-running">▶ läuft</span>`;}
-  else if(type==='next'){cls+=' next-row';badge=`<span class="badge badge-next">als nächstes</span>`;}
-  else if(startsIn<=30){badge=`<span class="badge badge-soon">in ${startsIn}m</span>`;}
-  return `<div class="${cls}">
+  else if(type==='next'){cls+=' next-row';badge=`<span class="badge badge-next">nächster</span>`;}
+  else if(startsIn<=30&&startsIn>0){badge=`<span class="badge badge-soon">in ${startsIn}m</span>`;}
+  return `<div class="${cls}" onclick="openEventModal('${e.id}')">
     <div class="event-time-col"><div class="event-start">${hhmm(e.start)}</div><div class="event-end">${hhmm(e.end)}</div></div>
     <div class="event-body">
       <div class="event-name">${esc(e.title)}</div>
@@ -441,69 +723,185 @@ function row(e,type,now){
   </div>`;
 }
 
+// ─── Clock ───────────────────────────────────────────────
 function renderClock(){
   const now=new Date();
   const hh=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
   const ss=':'+String(now.getSeconds()).padStart(2,'0');
-  $('clock').childNodes[0].textContent=hh; $('secs').textContent=ss;
-  $('header-date').textContent=now.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+  $('clock').childNodes[0].textContent=hh;$('secs').textContent=ss;
+  $('header-date').textContent=dateStr(now);
   $('greeting').textContent=greet(now.getHours());
   $('day-bar').style.width=((now.getHours()*3600+now.getMinutes()*60+now.getSeconds())/86400*100).toFixed(2)+'%';
-  renderCurrent(now); renderNextBlock(now);
-  if(now.getSeconds()===0) renderList(now);
+  renderCurrent(now);renderGapBar(now);renderNextBlock(now);
+  if(now.getSeconds()===0){renderList(now);renderTimeline();}
 }
 
-async function loadEvents(){
+// ─── Tab switch ──────────────────────────────────────────
+function switchTab(tab){
+  currentTab=tab;
+  $('tab-today').className='tab-btn'+(tab==='today'?' active':'');
+  $('tab-tomorrow').className='tab-btn'+(tab==='tomorrow'?' active':'');
+  $('timeline-label').childNodes[0].textContent=tab==='today'?'Tagesansicht — Heute':'Tagesansicht — Morgen';
+  renderAll();
+}
+
+// ─── Event modal ─────────────────────────────────────────
+function openEventModal(id){
+  const evs=[...todayEvents,...tomorrowEvents];
+  const e=evs.find(x=>x.id===id);
+  if(!e)return;
+  selectedEventId=id;selectedEventData=e;
+  $('em-title').textContent=e.title;
+  $('em-time').textContent=hhmm(e.start)+' – '+hhmm(e.end)+' · '+dur(e.end-e.start);
+  $('em-note').value=e.description||'';
+  $('em-err').style.display='none';
+  const isDone=localDone.has(id);
+  $('em-done-btn').textContent=isDone?'↩ Erledigt rückgängig':'✓ Als erledigt';
+  $('em-done-btn').onclick=()=>toggleDone(id);
+  $('em-save-btn').onclick=()=>saveNote(id);
+  show('event-modal');
+}
+function closeModal(id){hide(id);}
+
+async function toggleDone(id){
+  if(localDone.has(id)){localDone.delete(id);}
+  else{
+    localDone.add(id);
+    // Also add label in Google Calendar description
+    const e=selectedEventData;
+    if(e){
+      try{
+        await apiPatch(`${CAL_API}/calendars/primary/events/${id}`,{
+          description:(e.description||'')+'\n[✓ Erledigt]'
+        });
+        showToast('Als erledigt markiert');
+      }catch(err){
+        if(err.message==='auth_expired'){await refreshAuth();await toggleDone(id);return;}
+        showToast('Lokal markiert (API-Fehler)',true);
+      }
+    }
+  }
+  saveDone();
+  closeModal('event-modal');
+  renderAll();
+}
+
+async function saveNote(id){
+  const note=$('em-note').value.trim();
+  $('em-err').style.display='none';
   try{
-    events=await fetchTodayEvents(); setStatus(true);
-    const now=new Date(); renderList(now); renderCurrent(now); renderNextBlock(now);
-    clearTimeout(refreshTimer); refreshTimer=setTimeout(loadEvents,5*60*1000);
-  }catch(e){
-    if(e.message==='auth_expired'){
-      try{const{token,expiresIn}=await doAuth();accessToken=token;storeSet({[SK_TOKEN]:{token,exp:Date.now()+expiresIn*1000}});await loadEvents();}
-      catch{setStatus(false,'Neu anmelden erforderlich');}
-    }else{setStatus(false,'Ladefehler');}
+    await apiPatch(`${CAL_API}/calendars/primary/events/${id}`,{description:note});
+    // update local
+    const e=[...todayEvents,...tomorrowEvents].find(x=>x.id===id);
+    if(e)e.description=note;
+    showToast('Notiz gespeichert');
+    closeModal('event-modal');
+  }catch(err){
+    if(err.message==='auth_expired'){await refreshAuth();await saveNote(id);return;}
+    $('em-err').textContent='Fehler beim Speichern.';$('em-err').style.display='block';
   }
 }
 
+// ─── New event modal ─────────────────────────────────────
+function openNewEventModal(){
+  const now=new Date();
+  const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
+  const d=currentTab==='today'?now:tomorrow;
+  $('nm-date').value=isoDate(d);
+  const h=now.getHours(),m=Math.ceil(now.getMinutes()/15)*15;
+  const startMin=(m>=60)?`${String(h+1).padStart(2,'0')}:00`:`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  const endH=parseInt(startMin.split(':')[0])+1;
+  $('nm-start').value=startMin;
+  $('nm-end').value=`${String(endH).padStart(2,'0')}:${startMin.split(':')[1]}`;
+  $('nm-title').value='';$('nm-note').value='';
+  $('nm-err').style.display='none';
+  show('new-modal');
+  setTimeout(()=>$('nm-title').focus(),100);
+}
+
+async function saveNewEvent(){
+  const title=$('nm-title').value.trim();
+  const date=$('nm-date').value;
+  const start=$('nm-start').value;
+  const end=$('nm-end').value;
+  const note=$('nm-note').value.trim();
+  $('nm-err').style.display='none';
+  if(!title){$('nm-err').textContent='Bitte Titel eingeben.';$('nm-err').style.display='block';return;}
+  if(!date||!start||!end){$('nm-err').textContent='Bitte Datum und Zeiten ausfüllen.';$('nm-err').style.display='block';return;}
+  const startDT=`${date}T${start}:00`;
+  const endDT=`${date}T${end}:00`;
+  if(startDT>=endDT){$('nm-err').textContent='Endzeit muss nach Startzeit liegen.';$('nm-err').style.display='block';return;}
+  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
+  try{
+    $('nm-save-btn').textContent='…';$('nm-save-btn').disabled=true;
+    await apiPost(`${CAL_API}/calendars/primary/events`,{
+      summary:title,
+      description:note||undefined,
+      start:{dateTime:startDT,timeZone:tz},
+      end:{dateTime:endDT,timeZone:tz}
+    });
+    showToast('Termin erstellt ✓');
+    closeModal('new-modal');
+    await loadAllEvents();
+  }catch(err){
+    if(err.message==='auth_expired'){await refreshAuth();await saveNewEvent();return;}
+    $('nm-err').textContent='Fehler beim Erstellen.';$('nm-err').style.display='block';
+  }finally{
+    $('nm-save-btn').textContent='Erstellen →';$('nm-save-btn').disabled=false;
+  }
+}
+
+// ─── Status ──────────────────────────────────────────────
 function setStatus(ok,msg){
   $('status-dot').className='dot'+(ok?'':' err');
   $('status-text').textContent=ok?('Aktualisiert · '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})):(msg||'Fehler');
 }
 
+// ─── Setup flow ──────────────────────────────────────────
 async function initSetup(){
   $('origin-display').textContent=window.location.origin;
+  $('redirect-display').textContent=window.location.origin+window.location.pathname;
   $('connect-btn').addEventListener('click',async()=>{
     const id=$('client-id-input').value.trim();
-    if(!id){showErr('Bitte Client-ID eingeben.');return;}
-    if(!id.includes('apps.googleusercontent.com')){showErr('Ungültige Client-ID.');return;}
-    clientId=id; $('connect-btn').textContent='…'; $('connect-btn').disabled=true;
+    if(!id){showSetupErr('Bitte Client-ID eingeben.');return;}
+    if(!id.includes('apps.googleusercontent.com')){showSetupErr('Ungültige Client-ID.');return;}
+    clientId=id;$('connect-btn').textContent='…';$('connect-btn').disabled=true;
     try{
-      const{token,expiresIn}=await doAuth(); accessToken=token;
+      const{token,expiresIn}=await doAuth();accessToken=token;
       storeSet({[SK_CLIENT]:id,[SK_TOKEN]:{token,exp:Date.now()+expiresIn*1000}});
-      hide('setup-screen'); show('main-screen'); startDashboard();
+      hide('setup-screen');show('main-screen');startDashboard();
     }catch(e){
       let msg='Verbindung fehlgeschlagen.';
-      if(e.message==='popup_blocked') msg='Popup blockiert — Popups für diese Seite erlauben.';
-      else if(e.message==='popup_closed') msg='Login-Fenster geschlossen.';
-      showErr(msg); $('connect-btn').textContent='Mit Google verbinden →'; $('connect-btn').disabled=false;
+      if(e.message==='popup_blocked')msg='Popup blockiert — Popups für diese Seite erlauben.';
+      else if(e.message==='popup_closed')msg='Login-Fenster geschlossen.';
+      showSetupErr(msg);
+      $('connect-btn').textContent='Mit Google verbinden →';$('connect-btn').disabled=false;
     }
   });
 }
-function showErr(m){const el=$('setup-err');el.textContent=m;el.style.display='block';}
+function showSetupErr(m){const el=$('setup-err');el.textContent=m;el.style.display='block';}
 
+// ─── Dashboard start ─────────────────────────────────────
 function startDashboard(){
-  renderClock(); clockTimer=setInterval(renderClock,1000); loadEvents();
-  $('refresh-btn').addEventListener('click',loadEvents);
+  $('timeline-label').innerHTML='Tagesansicht — Heute<span style="margin-left:.5rem;"></span>';
+  renderClock();
+  clockTimer=setInterval(renderClock,1000);
+  loadAllEvents().catch(async e=>{
+    if(e.message==='auth_expired'){await refreshAuth();loadAllEvents();}
+    else setStatus(false,'Ladefehler');
+  });
+  $('refresh-btn').addEventListener('click',()=>loadAllEvents());
   $('switch-account-btn').addEventListener('click',async()=>{
-    storeRemove([SK_TOKEN]); accessToken=null;
-    try{const{token,expiresIn}=await doAuth();accessToken=token;storeSet({[SK_TOKEN]:{token,exp:Date.now()+expiresIn*1000}});await loadEvents();}catch{}
+    storeRemove([SK_TOKEN]);accessToken=null;
+    try{await refreshAuth();await loadAllEvents();}catch{}
   });
   $('logout-btn').addEventListener('click',()=>{
-    clearTimeout(refreshTimer);clearInterval(clockTimer);storeRemove([SK_CLIENT,SK_TOKEN]);location.reload();
+    clearTimeout(refreshTimer);clearInterval(clockTimer);
+    storeRemove([SK_CLIENT,SK_TOKEN]);location.reload();
   });
 }
 
+// ─── Init ─────────────────────────────────────────────────
 async function init(){
   await new Promise(r=>setTimeout(r,200));
   clientId=storeGet(SK_CLIENT);
@@ -512,10 +910,9 @@ async function init(){
   hide('loading-screen');show('main-screen');
   if(!hasToken){
     setStatus(false,'Bitte neu anmelden');
-    renderList(new Date());renderCurrent(new Date());renderNextBlock(new Date());
     $('refresh-btn').textContent='Anmelden →';
     $('refresh-btn').addEventListener('click',async()=>{
-      try{const{token,expiresIn}=await doAuth();accessToken=token;storeSet({[SK_TOKEN]:{token,exp:Date.now()+expiresIn*1000}});$('refresh-btn').textContent='↻ Aktualisieren';await loadEvents();}catch{}
+      try{await refreshAuth();$('refresh-btn').textContent='↻ Laden';startDashboard();}catch{}
     });
     clockTimer=setInterval(renderClock,1000);renderClock();return;
   }
