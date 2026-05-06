@@ -486,6 +486,7 @@ const SCOPES      = 'https://www.googleapis.com/auth/calendar.readonly';
 const CAL_API     = 'https://www.googleapis.com/calendar/v3';
 const RING_R      = 50, RING_C = 2 * Math.PI * RING_R;
 const SK_CLIENT   = 'fd_client', SK_TOKEN = 'fd_tok';
+const HARDCODED_CLIENT = '800573913528-tgntatesfbqdmmq1br2ubrfbp5ephh0s.apps.googleusercontent.com';
 const TL_S=7, TL_E=23, PX_H=58;
 const AUTO_MS     = 5 * 60 * 1000;
 
@@ -949,7 +950,7 @@ function startDashboard(){
 // ═══ Init ════════════════════════════════════════════
 async function init(){
   await new Promise(r=>setTimeout(r,150));
-  clientId=sg(SK_CLIENT);
+  clientId=sg(SK_CLIENT)||HARDCODED_CLIENT;
   if(!clientId){
     $('loading-screen').style.display='none';
     $('setup-screen').style.display='';
