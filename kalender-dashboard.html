@@ -22,598 +22,172 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body {
-    width: 100%; height: 100%;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    overflow: hidden;
-  }
+  html, body { width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; }
 
   body::before {
-    content: '';
-    position: fixed; inset: 0;
+    content: ''; position: fixed; inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-    opacity: 0.025;
-    pointer-events: none;
-    z-index: 0;
+    opacity: 0.025; pointer-events: none; z-index: 0;
   }
-
-  .orb {
-    position: fixed;
-    top: -200px; right: -200px;
-    width: 600px; height: 600px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(210,170,80,0.07) 0%, transparent 65%);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .orb2 {
-    position: fixed;
-    bottom: -150px; left: -150px;
-    width: 400px; height: 400px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(80,120,210,0.04) 0%, transparent 65%);
-    pointer-events: none;
-    z-index: 0;
-  }
+  .orb { position: fixed; top: -200px; right: -200px; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(210,170,80,0.07) 0%, transparent 65%); pointer-events: none; z-index: 0; }
+  .orb2 { position: fixed; bottom: -150px; left: -150px; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(80,120,210,0.04) 0%, transparent 65%); pointer-events: none; z-index: 0; }
 
   .shell {
-    position: relative;
-    z-index: 1;
+    position: relative; z-index: 1;
     display: grid;
-    grid-template-columns: 1fr 340px;
-    grid-template-rows: auto 1fr;
+    grid-template-columns: 1fr 360px;
+    grid-template-rows: auto 1fr auto;
     height: 100vh;
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2.5rem 2.5rem 2rem;
-    gap: 0 3rem;
+    max-width: 1300px; margin: 0 auto;
+    padding: 2rem 2.5rem 1.5rem;
+    gap: 0 2.5rem;
   }
 
-  .left { display: flex; flex-direction: column; gap: 2rem; }
-
+  /* Header */
   .header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    padding-bottom: 1.5rem;
-    border-bottom: 0.5px solid var(--border);
+    grid-column: 1 / -1;
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 1.25rem; border-bottom: 0.5px solid var(--border); margin-bottom: 1.5rem;
   }
+  .live-clock { font-family: 'JetBrains Mono', monospace; font-size: clamp(2.8rem, 5vw, 4rem); font-weight: 200; color: var(--gold); line-height: 1; letter-spacing: -2px; }
+  .live-clock .secs { font-size: 0.55em; opacity: 0.4; vertical-align: middle; }
+  .header-right { text-align: right; }
+  .header-date { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
+  .header-greeting { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-style: italic; color: var(--text-dim); }
+  .day-progress { width: 120px; height: 2px; background: rgba(210,170,80,0.06); border-radius: 2px; overflow: hidden; margin-top: 0.4rem; margin-left: auto; }
+  .day-bar-fill { height: 100%; background: linear-gradient(90deg, rgba(210,170,80,0.2), rgba(210,170,80,0.5)); border-radius: 2px; }
 
-  .live-clock {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(3.5rem, 7vw, 5.5rem);
-    font-weight: 200;
-    color: var(--gold);
-    line-height: 1;
-    letter-spacing: -2px;
-  }
-  .live-clock .secs {
-    font-size: 0.55em;
-    opacity: 0.5;
-    vertical-align: middle;
-  }
+  /* Left */
+  .left { display: flex; flex-direction: column; gap: 1.25rem; overflow: hidden; }
 
-  .header-meta { text-align: right; }
-  .header-date {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 0.4rem;
-  }
-  .header-greeting {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.1rem;
-    font-style: italic;
-    color: var(--text-dim);
-  }
+  .sec-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.6rem; }
+  .sec-label::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
 
-  .sec-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold-dim);
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-  }
-  .sec-label::after {
-    content: '';
-    flex: 1;
-    height: 0.5px;
-    background: var(--border);
-  }
+  /* Current card */
+  .current-card { background: var(--gold-glow); border: 0.5px solid rgba(210,170,80,0.25); border-radius: 18px; padding: 1.75rem 2rem; display: flex; align-items: center; gap: 2rem; position: relative; overflow: hidden; }
+  .current-card::before { content: ''; position: absolute; inset: 0; border-radius: 18px; background: linear-gradient(135deg, rgba(210,170,80,0.04) 0%, transparent 50%); }
+  .current-card.free { justify-content: center; flex-direction: column; text-align: center; gap: 0.4rem; padding: 2rem; }
 
-  .current-wrap { flex: 1; display: flex; flex-direction: column; }
-
-  .current-card {
-    flex: 1;
-    background: var(--gold-glow);
-    border: 0.5px solid rgba(210,170,80,0.2);
-    border-radius: 20px;
-    padding: 2rem 2.5rem;
-    display: flex;
-    align-items: center;
-    gap: 2.5rem;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.3s;
-  }
-  .current-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 20px;
-    background: linear-gradient(135deg, rgba(210,170,80,0.04) 0%, transparent 50%);
-  }
-  .current-card.free {
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-    gap: 0.5rem;
-  }
-
-  .ring-wrap {
-    position: relative;
-    flex-shrink: 0;
-    width: 160px;
-    height: 160px;
-  }
-  .ring-wrap svg {
-    transform: rotate(-90deg);
-    overflow: visible;
-  }
+  .ring-wrap { position: relative; flex-shrink: 0; width: 130px; height: 130px; }
+  .ring-wrap svg { transform: rotate(-90deg); overflow: visible; }
   .ring-track { fill: none; stroke: rgba(210,170,80,0.08); }
-  .ring-fill {
-    fill: none;
-    stroke: var(--gold);
-    stroke-linecap: round;
-    transition: stroke-dashoffset 1s linear;
-  }
+  .ring-fill { fill: none; stroke: var(--gold); stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
   .ring-fill.urgent { stroke: var(--red); }
-  .ring-center {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  .ring-mins {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 2.4rem;
-    font-weight: 300;
-    color: var(--gold);
-    line-height: 1;
-  }
+  .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring-mins { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 300; color: var(--gold); line-height: 1; }
   .ring-mins.urgent { color: var(--red); }
-  .ring-sublabel {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.55rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-top: 3px;
-  }
+  .ring-sublabel { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 3px; }
 
   .current-info { flex: 1; min-width: 0; }
-  .current-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(1.6rem, 3vw, 2.2rem);
-    font-weight: 400;
-    line-height: 1.2;
-    color: var(--text);
-    margin-bottom: 0.5rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .current-range {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--gold-dim);
-    margin-bottom: 1.2rem;
-    letter-spacing: 0.05em;
-  }
-  .progress-track {
-    height: 2px;
-    background: rgba(210,170,80,0.1);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-bottom: 1rem;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, rgba(210,170,80,0.3), var(--gold));
-    border-radius: 2px;
-    transition: width 1s linear;
-  }
-  .current-stats {
-    display: flex;
-    gap: 1.5rem;
-  }
-  .stat {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .stat-val {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--text);
-    font-weight: 400;
-  }
-  .stat-key {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.55rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
+  .current-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 400; line-height: 1.2; color: var(--text); margin-bottom: 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .current-range { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--gold-dim); margin-bottom: 1rem; letter-spacing: 0.05em; }
+  .progress-track { height: 2px; background: rgba(210,170,80,0.1); border-radius: 2px; overflow: hidden; margin-bottom: 0.9rem; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, rgba(210,170,80,0.3), var(--gold)); border-radius: 2px; transition: width 1s linear; }
+  .current-stats { display: flex; gap: 1.25rem; }
+  .stat { display: flex; flex-direction: column; gap: 2px; }
+  .stat-val { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text); font-weight: 400; }
+  .stat-key { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
 
-  .free-icon {
-    font-size: 2.5rem;
-    opacity: 0.15;
-    margin-bottom: 0.5rem;
-  }
-  .free-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.6rem;
-    font-style: italic;
-    color: var(--text-dim);
-  }
-  .free-sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    letter-spacing: 0.1em;
-  }
+  .free-icon { font-size: 2rem; opacity: 0.12; margin-bottom: 0.4rem; }
+  .free-text { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-style: italic; color: var(--text-dim); }
+  .free-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--text-muted); letter-spacing: 0.1em; }
 
-  .right {
-    display: flex;
-    flex-direction: column;
-    border-left: 0.5px solid var(--border);
-    padding-left: 2.5rem;
-    overflow: hidden;
-  }
+  /* Next block */
+  .next-block { background: rgba(210,170,80,0.03); border: 0.5px solid rgba(210,170,80,0.12); border-radius: 14px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1.25rem; }
+  .next-countdown { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 200; color: var(--gold-dim); line-height: 1; flex-shrink: 0; min-width: 60px; text-align: center; }
+  .next-countdown-label { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); text-align: center; margin-top: 3px; }
+  .next-divider { width: 0.5px; height: 40px; background: var(--border); flex-shrink: 0; }
+  .next-info { flex: 1; min-width: 0; }
+  .next-label { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.25rem; }
+  .next-title { font-size: 0.88rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .next-time { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
 
-  .upcoming-scroll {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-right: 0.5rem;
-  }
+  /* Right */
+  .right { display: flex; flex-direction: column; border-left: 0.5px solid var(--border); padding-left: 2.5rem; overflow: hidden; }
+  .upcoming-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 0.25rem; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
   .upcoming-scroll::-webkit-scrollbar { width: 2px; }
   .upcoming-scroll::-webkit-scrollbar-track { background: transparent; }
   .upcoming-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  .event-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.9rem;
-    padding: 0.75rem 0.75rem 0.75rem 0;
-    border-bottom: 0.5px solid rgba(237,232,219,0.05);
-    cursor: default;
-    transition: background 0.15s;
-    border-radius: 8px;
-    position: relative;
-  }
+  /* Event rows */
+  .event-row { display: flex; align-items: stretch; padding: 0.6rem 0.5rem 0.6rem 0.75rem; border-radius: 10px; margin-bottom: 0.25rem; transition: background 0.15s; }
   .event-row:hover { background: rgba(210,170,80,0.03); }
-  .event-row:last-child { border-bottom: none; }
 
-  .event-row.next-up::before {
-    content: '';
-    position: absolute;
-    left: -12px; top: 50%;
-    transform: translateY(-50%);
-    width: 3px; height: 60%;
-    background: var(--gold);
-    border-radius: 2px;
-    opacity: 0.7;
-  }
+  .event-row.done-row { background: rgba(74,158,110,0.05); border: 0.5px solid rgba(74,158,110,0.15); }
+  .event-row.done-row:hover { background: rgba(74,158,110,0.08); }
+  .event-row.current-row { background: rgba(210,170,80,0.06); border: 0.5px solid rgba(210,170,80,0.2); }
+  .event-row.next-row { background: rgba(210,170,80,0.03); border: 0.5px solid rgba(210,170,80,0.1); }
 
-  .event-time-col {
-    width: 72px;
-    flex-shrink: 0;
-    padding-top: 1px;
-  }
-  .event-start {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    white-space: nowrap;
-  }
-  .event-start.soon { color: var(--gold); }
-  .event-end {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    color: rgba(125,120,104,0.5);
-    margin-top: 1px;
-  }
+  .event-time-col { width: 64px; flex-shrink: 0; padding-top: 1px; }
+  .event-start { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
+  .event-end { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: rgba(125,120,104,0.45); margin-top: 1px; }
+  .event-row.done-row .event-start { color: var(--green); }
 
-  .event-body { flex: 1; min-width: 0; }
-  .event-name {
-    font-size: 0.82rem;
-    font-weight: 400;
-    color: rgba(237,232,219,0.85);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3;
-    margin-bottom: 3px;
-  }
-  .event-row.next-up .event-name { color: var(--text); }
-  .event-badge {
-    display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.55rem;
-    letter-spacing: 0.08em;
-    padding: 1px 6px;
-    border-radius: 3px;
-    border: 0.5px solid rgba(210,170,80,0.3);
-    color: var(--gold-dim);
-    background: rgba(210,170,80,0.05);
-  }
+  .event-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+  .event-name { font-size: 0.8rem; font-weight: 400; color: rgba(237,232,219,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+  .event-row.done-row .event-name { color: var(--green); text-decoration: line-through; text-decoration-color: rgba(74,158,110,0.6); text-decoration-thickness: 1px; opacity: 0.85; }
+  .event-row.current-row .event-name { color: var(--text); font-weight: 500; }
+  .event-row.next-row .event-name { color: var(--text); }
 
-  .event-dur {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    color: rgba(125,120,104,0.6);
-    padding-top: 3px;
-    flex-shrink: 0;
-  }
+  .event-meta { display: flex; align-items: center; gap: 0.5rem; margin-top: 2px; }
+  .event-dur { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: rgba(125,120,104,0.5); }
+  .badge { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; letter-spacing: 0.08em; padding: 1px 5px; border-radius: 3px; display: inline-block; }
+  .badge-running { color: var(--gold); border: 0.5px solid rgba(210,170,80,0.4); background: rgba(210,170,80,0.08); }
+  .badge-next    { color: rgba(210,170,80,0.6); border: 0.5px solid rgba(210,170,80,0.2); background: rgba(210,170,80,0.04); }
+  .badge-soon    { color: var(--gold-dim); border: 0.5px solid rgba(210,170,80,0.15); }
+  .badge-done    { color: var(--green); border: 0.5px solid rgba(74,158,110,0.35); background: rgba(74,158,110,0.07); }
 
-  .past-row { opacity: 0.3; }
-  .past-row .event-name { text-decoration: line-through; text-decoration-color: rgba(125,120,104,0.4); }
-  .done-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.5rem;
-    color: var(--green);
-    opacity: 0.7;
-  }
+  .list-divider { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); padding: 0.6rem 0.5rem 0.3rem; display: flex; align-items: center; gap: 0.5rem; }
+  .list-divider::after { content: ''; flex: 1; height: 0.5px; background: rgba(125,120,104,0.15); }
 
-  .footer {
-    grid-column: 1 / -1;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 1rem;
-    border-top: 0.5px solid rgba(210,170,80,0.08);
-    margin-top: 0.5rem;
-  }
-  .footer-status {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-  }
-  .footer-status .dot {
-    display: inline-block;
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--green);
-    margin-right: 5px;
-    vertical-align: middle;
-    animation: pulse 2s ease-in-out infinite;
-  }
+  .empty-msg { text-align: center; padding: 3rem 1rem; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.1rem; color: var(--text-dim); }
+
+  /* Footer */
+  .footer { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding-top: 0.9rem; border-top: 0.5px solid rgba(210,170,80,0.08); margin-top: 0.5rem; }
+  .footer-status { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; color: var(--text-muted); }
+  .footer-status .dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--green); margin-right: 5px; vertical-align: middle; animation: pulse 2s ease-in-out infinite; }
   .footer-status .dot.err { background: var(--red); animation: none; }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-  .footer-actions { display: flex; gap: 0.75rem; }
-  .btn {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0.35rem 0.9rem;
-    border-radius: 5px;
-    border: 0.5px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .footer-actions { display: flex; gap: 0.6rem; }
+  .btn { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.3rem 0.8rem; border-radius: 5px; border: 0.5px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
   .btn:hover { background: var(--gold-glow); color: var(--gold); border-color: rgba(210,170,80,0.3); }
   .btn.primary { border-color: rgba(210,170,80,0.4); color: var(--gold); }
   .btn.primary:hover { background: rgba(210,170,80,0.1); }
 
-  /* ─── Setup Screen ─── */
-  #setup-screen {
-    position: fixed; inset: 0;
-    background: var(--bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: 2rem;
-    overflow-y: auto;
-  }
-  .setup-card {
-    max-width: 580px;
-    width: 100%;
-    background: var(--surface);
-    border: 0.5px solid rgba(210,170,80,0.25);
-    border-radius: 20px;
-    padding: 3rem;
-    margin: auto;
-  }
-  .setup-eyebrow {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold-dim);
-    margin-bottom: 1rem;
-  }
-  .setup-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 2.2rem;
-    font-weight: 400;
-    margin-bottom: 0.5rem;
-  }
-  .setup-sub {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    line-height: 1.6;
-    margin-bottom: 2rem;
-  }
+  /* Setup */
+  #setup-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 2rem; overflow-y: auto; }
+  .setup-card { max-width: 580px; width: 100%; background: var(--surface); border: 0.5px solid rgba(210,170,80,0.25); border-radius: 20px; padding: 3rem; margin: auto; }
+  .setup-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 1rem; }
+  .setup-title { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 400; margin-bottom: 0.5rem; }
+  .setup-sub { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem; }
   .setup-steps { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
-  .step {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-    padding: 0.9rem 1rem;
-    background: rgba(210,170,80,0.03);
-    border: 0.5px solid rgba(210,170,80,0.1);
-    border-radius: 10px;
-  }
-  .step-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    border: 0.5px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--gold-dim);
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
+  .step { display: flex; gap: 1rem; align-items: flex-start; padding: 0.9rem 1rem; background: rgba(210,170,80,0.03); border: 0.5px solid rgba(210,170,80,0.1); border-radius: 10px; }
+  .step-num { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; width: 22px; height: 22px; border-radius: 50%; border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--gold-dim); flex-shrink: 0; margin-top: 1px; }
   .step-text { font-size: 0.8rem; color: rgba(237,232,219,0.7); line-height: 1.5; }
   .step-text a { color: var(--gold); text-decoration: none; }
   .step-text a:hover { text-decoration: underline; }
-  .step-text code {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    background: rgba(210,170,80,0.08);
-    border: 0.5px solid var(--border);
-    padding: 1px 6px;
-    border-radius: 4px;
-    color: var(--gold);
-    word-break: break-all;
-  }
-
+  .step-text code { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; background: rgba(210,170,80,0.08); border: 0.5px solid var(--border); padding: 1px 6px; border-radius: 4px; color: var(--gold); word-break: break-all; }
   .input-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.2rem; }
-  .input-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-  .input-field {
-    background: var(--bg);
-    border: 0.5px solid rgba(210,170,80,0.2);
-    border-radius: 8px;
-    padding: 0.7rem 1rem;
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    outline: none;
-    transition: border-color 0.2s;
-    width: 100%;
-  }
+  .input-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+  .input-field { background: var(--bg); border: 0.5px solid rgba(210,170,80,0.2); border-radius: 8px; padding: 0.7rem 1rem; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; outline: none; transition: border-color 0.2s; width: 100%; }
   .input-field:focus { border-color: var(--gold-dim); }
   .input-field::placeholder { color: rgba(125,120,104,0.5); }
+  .setup-err { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--red); margin-bottom: 0.75rem; display: none; line-height: 1.5; }
+  #oauth-hint { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--gold-dim); margin-top: 0.75rem; display: none; line-height: 1.6; letter-spacing: 0.05em; }
 
-  .setup-err {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--red);
-    margin-bottom: 0.75rem;
-    display: none;
-    line-height: 1.5;
-  }
-
-  /* ─── Loading ─── */
-  #loading-screen {
-    position: fixed; inset: 0;
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    z-index: 99;
-  }
-  .spinner-ring {
-    width: 40px; height: 40px;
-    border: 1.5px solid rgba(210,170,80,0.15);
-    border-top-color: var(--gold);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
+  /* Loading */
+  #loading-screen { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; z-index: 99; }
+  .spinner-ring { width: 40px; height: 40px; border: 1.5px solid rgba(210,170,80,0.15); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
+  .loading-text { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); }
 
   .fade-in { animation: fadeIn 0.5s ease both; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-  .day-bar-wrap {
-    width: 100%;
-    height: 2px;
-    background: rgba(210,170,80,0.06);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-bottom: 1.5rem;
-  }
-  .day-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, rgba(210,170,80,0.2), rgba(210,170,80,0.5));
-    border-radius: 2px;
-    transition: width 60s linear;
-  }
-
-  .empty-msg {
-    text-align: center;
-    padding: 3rem 1rem;
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 1.1rem;
-    color: var(--text-dim);
-  }
-
-  .upcoming-scroll { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-
-  /* ─── OAuth Popup Helper ─── */
-  #oauth-hint {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--gold-dim);
-    margin-top: 0.75rem;
-    display: none;
-    line-height: 1.6;
-    letter-spacing: 0.05em;
-  }
-
   @media (max-width: 900px) {
-    .shell {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto auto 1fr auto;
-      padding: 1.5rem;
-      overflow-y: auto;
-      height: auto;
-      min-height: 100vh;
-    }
-    .right {
-      border-left: none;
-      border-top: 0.5px solid var(--border);
-      padding-left: 0;
-      padding-top: 1.5rem;
-    }
+    .shell { grid-template-columns: 1fr; padding: 1.25rem; overflow-y: auto; height: auto; min-height: 100vh; }
+    .header, .footer { grid-column: 1; }
+    .right { border-left: none; border-top: 0.5px solid var(--border); padding-left: 0; padding-top: 1.25rem; }
     .upcoming-scroll { overflow: visible; max-height: none; }
     body { overflow: auto; }
   }
@@ -621,87 +195,55 @@
 </head>
 <body>
 
-<!-- Loading screen -->
 <div id="loading-screen">
   <div class="spinner-ring"></div>
   <div class="loading-text">Wird gestartet …</div>
 </div>
 
-<!-- Setup screen -->
 <div id="setup-screen" style="display:none;">
   <div class="setup-card fade-in">
     <div class="setup-eyebrow">Einmalige Einrichtung</div>
     <div class="setup-title">Time Blocking Dashboard</div>
     <div class="setup-sub">Verbinde deinen Google Kalender — dauert ca. 3 Minuten, danach nie wieder.<br>
-    <strong style="color:var(--gold-dim);">Wichtig:</strong> Diese Seite muss über einen lokalen Webserver geöffnet werden (z.B. <code style="font-family:monospace;font-size:0.8em;color:var(--gold)">http://localhost:PORT/...</code>), nicht als <code style="font-family:monospace;font-size:0.8em;color:var(--red)">file://</code> — sonst blockiert der Browser den OAuth-Login.</div>
-
+    <strong style="color:var(--gold-dim);">Wichtig:</strong> Seite muss über <code>http://</code> oder <code>https://</code> geöffnet werden.</div>
     <div class="setup-steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-text">
-          Geh auf <a href="https://console.cloud.google.com/" target="_blank">console.cloud.google.com</a>, erstelle ein Projekt (z.B. „Time Dash") und aktiviere die <strong>Google Calendar API</strong>.
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-text">
-          Geh zu <em>APIs &amp; Services → Anmeldedaten → OAuth-2.0-Client-ID</em>.<br>
-          Typ: <strong>Webanwendung</strong>. Füge als <em>Autorisierter JavaScript-Ursprung</em> hinzu:
-          <br><code id="origin-display" style="display:inline-block;margin-top:6px;word-break:break-all;background:rgba(210,170,80,0.08);border:0.5px solid var(--border);padding:3px 8px;border-radius:4px;color:var(--gold);font-family:monospace;font-size:0.75em;">—</code>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-text">
-          Füge deinen Google-Account unter <em>OAuth-Zustimmungsbildschirm → Testnutzer</em> hinzu.
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-text">
-          Kopiere deine <strong>Client-ID</strong> (endet auf <code>.apps.googleusercontent.com</code>) und trage sie unten ein. Die <strong>Client-Secret brauchst du NICHT</strong>.
-        </div>
-      </div>
+      <div class="step"><div class="step-num">1</div><div class="step-text">Geh auf <a href="https://console.cloud.google.com/" target="_blank">console.cloud.google.com</a>, erstelle ein Projekt und aktiviere die <strong>Google Calendar API</strong>.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><em>APIs &amp; Services → Anmeldedaten → OAuth-2.0-Client-ID</em>. Typ: <strong>Webanwendung</strong>.<br>Autorisierter JavaScript-Ursprung: <code id="origin-display">—</code></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Deinen Google-Account unter <em>Zustimmungsbildschirm → Testnutzer</em> eintragen.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">Client-ID (endet auf <code>.apps.googleusercontent.com</code>) unten eintragen.</div></div>
     </div>
-
     <div class="input-group">
       <div class="input-label">Google OAuth Client-ID</div>
       <input type="text" id="client-id-input" class="input-field" placeholder="123456789-abc.apps.googleusercontent.com" autocomplete="off" spellcheck="false">
     </div>
-
     <div class="setup-err" id="setup-err"></div>
-    <div id="oauth-hint">↑ Ein Google-Login-Popup öffnet sich. Falls es blockiert wird, erlaube Popups für diese Seite in der Browser-Adressleiste.</div>
-    <button class="btn primary" id="connect-btn" style="width:100%; padding: 0.6rem; font-size: 0.65rem;">
-      Mit Google verbinden →
-    </button>
+    <div id="oauth-hint">↑ Ein Google-Login-Popup öffnet sich. Falls blockiert, bitte Popups für diese Seite erlauben.</div>
+    <button class="btn primary" id="connect-btn" style="width:100%; padding: 0.6rem; font-size: 0.65rem;">Mit Google verbinden →</button>
   </div>
 </div>
 
-<!-- Main dashboard -->
 <div id="main-screen" style="display:none;">
-  <div class="orb"></div>
-  <div class="orb2"></div>
+  <div class="orb"></div><div class="orb2"></div>
   <div class="shell fade-in">
+    <div class="header">
+      <div>
+        <div class="live-clock" id="clock">00:00<span class="secs" id="secs">:00</span></div>
+        <div class="header-date" id="header-date">—</div>
+      </div>
+      <div class="header-right">
+        <div class="header-greeting" id="greeting">Guten Morgen</div>
+        <div class="day-progress"><div class="day-bar-fill" id="day-bar"></div></div>
+      </div>
+    </div>
 
     <div class="left">
-      <div class="header">
-        <div>
-          <div class="live-clock" id="clock">00:00<span class="secs" id="secs">:00</span></div>
-          <div class="header-date" id="header-date">—</div>
-        </div>
-        <div class="header-meta">
-          <div class="header-greeting" id="greeting">Guten Morgen</div>
-          <div style="margin-top: 0.4rem;">
-            <div class="day-bar-wrap" style="width:120px; margin-bottom: 0;">
-              <div class="day-bar-fill" id="day-bar"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="current-wrap">
+      <div>
         <div class="sec-label">Aktueller Block</div>
         <div class="current-card" id="current-card"></div>
+      </div>
+      <div>
+        <div class="sec-label">Als nächstes</div>
+        <div id="next-block-wrap"></div>
       </div>
     </div>
 
@@ -716,441 +258,268 @@
         <span id="status-text">Verbunden</span>
       </div>
       <div class="footer-actions">
-        <button class="btn" id="switch-account-btn">⇄ Account wechseln</button>
+        <button class="btn" id="switch-account-btn">⇄ Account</button>
         <button class="btn" id="refresh-btn">↻ Aktualisieren</button>
         <button class="btn" id="logout-btn">Abmelden</button>
       </div>
     </div>
-
   </div>
 </div>
 
 <script>
-// ─── Constants ─────────────────────────────────────────
 const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 const CAL_API = 'https://www.googleapis.com/calendar/v3';
-const RING_R = 68;
-const RING_C = 2 * Math.PI * RING_R;
-const STORAGE_KEY_CLIENT = 'td_client_id';
-const STORAGE_KEY_TOKEN  = 'td_token_exp';
+const RING_R = 58, RING_C = 2 * Math.PI * RING_R;
+const SK_CLIENT = 'td_client_id', SK_TOKEN = 'td_token_exp';
 
-// ─── State ─────────────────────────────────────────────
-let events = [];
-let accessToken = null;
-let clientId = null;
-let refreshTimer = null;
-let clockTimer = null;
+let events = [], accessToken = null, clientId = null, refreshTimer = null, clockTimer = null;
 
-// ─── DOM helpers ───────────────────────────────────────
 const $ = id => document.getElementById(id);
 const show = id => { $(id).style.display = ''; };
 const hide = id => { $(id).style.display = 'none'; };
 
-// ─── Storage (localStorage) ────────────────────────────
-function storeGet(key) {
-  try {
-    const v = localStorage.getItem(key);
-    return v ? JSON.parse(v) : null;
-  } catch { return null; }
-}
-function storeSet(obj) {
-  for (const [k, v] of Object.entries(obj)) {
-    localStorage.setItem(k, JSON.stringify(v));
-  }
-}
-function storeRemove(keys) {
-  keys.forEach(k => localStorage.removeItem(k));
-}
+function storeGet(k) { try { const v=localStorage.getItem(k); return v?JSON.parse(v):null; } catch{return null;} }
+function storeSet(o) { for(const[k,v]of Object.entries(o)) localStorage.setItem(k,JSON.stringify(v)); }
+function storeRemove(ks) { ks.forEach(k=>localStorage.removeItem(k)); }
 
-// ─── OAuth via Popup ────────────────────────────────────
-// Uses Google's implicit flow with a popup window.
-// Works from any http:// or https:// origin.
-function buildAuthUrl(forceAccount) {
-  const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-  url.searchParams.set('client_id', clientId);
-  url.searchParams.set('response_type', 'token');
-  url.searchParams.set('redirect_uri', window.location.origin + window.location.pathname);
-  url.searchParams.set('scope', SCOPES);
-  url.searchParams.set('prompt', forceAccount ? 'select_account consent' : 'none');
-  return url.toString();
-}
-
-function doAuth(interactive) {
+function doAuth() {
   return new Promise((resolve, reject) => {
-    if (!interactive) {
-      // Silent: use hidden iframe trick (works only if already logged in with same origin)
-      // For simplicity we skip silent and always go interactive on first try
-      reject(new Error('silent_not_supported'));
-      return;
-    }
-
-    const authUrl = buildAuthUrl(true);
-    const w = 520, h = 620;
-    const left = Math.round(screen.width / 2 - w / 2);
-    const top  = Math.round(screen.height / 2 - h / 2);
-    const popup = window.open(authUrl, 'google_auth',
-      `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes`);
-
-    if (!popup || popup.closed) {
-      reject(new Error('popup_blocked'));
-      return;
-    }
-
-    $('oauth-hint').style.display = 'block';
-
-    const timer = setInterval(() => {
+    const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    url.searchParams.set('client_id', clientId);
+    url.searchParams.set('response_type', 'token');
+    url.searchParams.set('redirect_uri', window.location.origin + window.location.pathname);
+    url.searchParams.set('scope', SCOPES);
+    url.searchParams.set('prompt', 'select_account consent');
+    const w=520,h=620,left=Math.round(screen.width/2-w/2),top=Math.round(screen.height/2-h/2);
+    const popup = window.open(url.toString(),'google_auth',`width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no`);
+    if(!popup||popup.closed){reject(new Error('popup_blocked'));return;}
+    const hint=$('oauth-hint'); if(hint) hint.style.display='block';
+    const timer=setInterval(()=>{
       try {
-        // Once Google redirects back, the popup URL becomes our own origin
-        const url = popup.location.href;
-        if (url.startsWith(window.location.origin)) {
+        const u=popup.location.href;
+        if(u.startsWith(window.location.origin)){
           clearInterval(timer);
-          $('oauth-hint').style.display = 'none';
+          if(hint) hint.style.display='none';
           popup.close();
-
-          // Token is in the hash fragment
-          const hash = new URL(url).hash.slice(1);
-          const params = new URLSearchParams(hash);
-          const token = params.get('access_token');
-          const expiresIn = parseInt(params.get('expires_in') || '3600');
-          if (token) {
-            resolve({ token, expiresIn });
-          } else {
-            reject(new Error('no_token'));
-          }
+          const hash=new URL(u).hash.slice(1), params=new URLSearchParams(hash);
+          const token=params.get('access_token'), expiresIn=parseInt(params.get('expires_in')||'3600');
+          if(token) resolve({token,expiresIn}); else reject(new Error('no_token'));
         }
-      } catch (_) {
-        // Cross-origin access blocked while popup is on accounts.google.com — that's fine, keep waiting
-      }
-
-      if (popup.closed) {
-        clearInterval(timer);
-        $('oauth-hint').style.display = 'none';
-        reject(new Error('popup_closed'));
-      }
-    }, 500);
+      } catch(_){}
+      if(popup.closed){clearInterval(timer);if(hint)hint.style.display='none';reject(new Error('popup_closed'));}
+    },500);
   });
 }
 
 async function ensureToken() {
-  const stored = storeGet(STORAGE_KEY_TOKEN);
-  if (stored && stored.token && stored.exp > Date.now() + 60000) {
-    accessToken = stored.token;
-    return true;
-  }
+  const s=storeGet(SK_TOKEN);
+  if(s&&s.token&&s.exp>Date.now()+60000){accessToken=s.token;return true;}
   return false;
 }
 
-// ─── Calendar API ──────────────────────────────────────
 async function fetchTodayEvents() {
-  const now = new Date();
-  const start = new Date(now); start.setHours(0,0,0,0);
-  const end   = new Date(now); end.setHours(23,59,59,999);
-
-  const url = new URL(`${CAL_API}/calendars/primary/events`);
-  url.searchParams.set('timeMin', start.toISOString());
-  url.searchParams.set('timeMax', end.toISOString());
-  url.searchParams.set('singleEvents', 'true');
-  url.searchParams.set('orderBy', 'startTime');
-  url.searchParams.set('maxResults', '30');
-
-  const res = await fetch(url.toString(), {
-    headers: { Authorization: `Bearer ${accessToken}` }
-  });
-  if (res.status === 401) throw new Error('auth_expired');
-  if (!res.ok) throw new Error('api_error');
-  const data = await res.json();
-  return (data.items || []).filter(e => e.start?.dateTime).map(e => ({
-    title: e.summary || '(Kein Titel)',
-    start: new Date(e.start.dateTime),
-    end:   new Date(e.end.dateTime),
-    color: e.colorId || null
+  const now=new Date(), start=new Date(now), end=new Date(now);
+  start.setHours(0,0,0,0); end.setHours(23,59,59,999);
+  const url=new URL(`${CAL_API}/calendars/primary/events`);
+  url.searchParams.set('timeMin',start.toISOString());
+  url.searchParams.set('timeMax',end.toISOString());
+  url.searchParams.set('singleEvents','true');
+  url.searchParams.set('orderBy','startTime');
+  url.searchParams.set('maxResults','30');
+  const res=await fetch(url.toString(),{headers:{Authorization:`Bearer ${accessToken}`}});
+  if(res.status===401) throw new Error('auth_expired');
+  if(!res.ok) throw new Error('api_error');
+  const data=await res.json();
+  return (data.items||[]).filter(e=>e.start?.dateTime).map(e=>({
+    title:e.summary||'(Kein Titel)',
+    start:new Date(e.start.dateTime),
+    end:new Date(e.end.dateTime),
   }));
 }
 
-// ─── Formatting ────────────────────────────────────────
-function hhmm(d) {
-  return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-}
-function dur(ms) {
-  const m = Math.floor(ms / 60000);
-  if (m < 60) return `${m}m`;
-  const h = Math.floor(m / 60), r = m % 60;
-  return r ? `${h}h ${r}m` : `${h}h`;
-}
-function greet(h) {
-  if (h < 5)  return 'Gute Nacht';
-  if (h < 12) return 'Guten Morgen';
-  if (h < 17) return 'Guten Nachmittag';
-  if (h < 22) return 'Guten Abend';
-  return 'Gute Nacht';
-}
+function hhmm(d){return d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}
+function dur(ms){const m=Math.floor(ms/60000);if(m<60)return`${m}m`;const h=Math.floor(m/60),r=m%60;return r?`${h}h ${r}m`:`${h}h`;}
+function greet(h){if(h<5)return'Gute Nacht';if(h<12)return'Guten Morgen';if(h<17)return'Guten Nachmittag';if(h<22)return'Guten Abend';return'Gute Nacht';}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-// ─── Render: Current Block ──────────────────────────────
 function renderCurrent(now) {
-  const cur = events.find(e => e.start <= now && e.end > now);
-  const card = $('current-card');
-
-  if (!cur) {
-    card.className = 'current-card free';
-    card.innerHTML = `
-      <div class="free-icon">◌</div>
-      <div class="free-text">Freie Zeit</div>
-      <div class="free-sub" style="margin-top:4px;">Keine aktive Zeitblock — genieße die Pause</div>
-    `;
+  const cur=events.find(e=>e.start<=now&&e.end>now), card=$('current-card');
+  if(!cur){
+    card.className='current-card free';
+    card.innerHTML=`<div class="free-icon">◌</div><div class="free-text">Freie Zeit</div><div class="free-sub">Kein aktiver Block — genieße die Pause</div>`;
     return;
   }
-
-  const totalMs   = cur.end - cur.start;
-  const remainMs  = Math.max(0, cur.end - now);
-  const pct       = Math.max(0, remainMs / totalMs);
-  const doneMs    = totalMs - remainMs;
-  const remainMin = Math.ceil(remainMs / 60000);
-  const isUrgent  = remainMin <= 5;
-
-  card.className = 'current-card';
-  card.innerHTML = `
+  const totalMs=cur.end-cur.start, remainMs=Math.max(0,cur.end-now);
+  const pct=Math.max(0,remainMs/totalMs), doneMs=totalMs-remainMs;
+  const remainMin=Math.ceil(remainMs/60000), isUrgent=remainMin<=5;
+  card.className='current-card';
+  card.innerHTML=`
     <div class="ring-wrap">
-      <svg width="160" height="160" viewBox="0 0 160 160">
-        <circle class="ring-track" cx="80" cy="80" r="${RING_R}" stroke-width="5"/>
-        <circle class="${isUrgent ? 'ring-fill urgent' : 'ring-fill'}" cx="80" cy="80" r="${RING_R}"
-          stroke-width="5"
-          stroke-dasharray="${RING_C.toFixed(2)}"
-          stroke-dashoffset="${(RING_C * (1 - pct)).toFixed(2)}"/>
+      <svg width="130" height="130" viewBox="0 0 130 130">
+        <circle class="ring-track" cx="65" cy="65" r="${RING_R}" stroke-width="4"/>
+        <circle class="${isUrgent?'ring-fill urgent':'ring-fill'}" cx="65" cy="65" r="${RING_R}"
+          stroke-width="4" stroke-dasharray="${RING_C.toFixed(2)}"
+          stroke-dashoffset="${(RING_C*(1-pct)).toFixed(2)}"/>
       </svg>
       <div class="ring-center">
-        <div class="${isUrgent ? 'ring-mins urgent' : 'ring-mins'}">${remainMin}</div>
+        <div class="${isUrgent?'ring-mins urgent':'ring-mins'}">${remainMin}</div>
         <div class="ring-sublabel">min</div>
       </div>
     </div>
     <div class="current-info">
-      <div class="current-title">${escHtml(cur.title)}</div>
-      <div class="current-range">${hhmm(cur.start)} – ${hhmm(cur.end)} &nbsp;·&nbsp; ${dur(totalMs)}</div>
-      <div class="progress-track">
-        <div class="progress-fill" style="width:${((doneMs/totalMs)*100).toFixed(1)}%"></div>
-      </div>
+      <div class="current-title">${esc(cur.title)}</div>
+      <div class="current-range">${hhmm(cur.start)} – ${hhmm(cur.end)} · ${dur(totalMs)}</div>
+      <div class="progress-track"><div class="progress-fill" style="width:${((doneMs/totalMs)*100).toFixed(1)}%"></div></div>
       <div class="current-stats">
-        <div class="stat">
-          <div class="stat-val">${dur(remainMs)}</div>
-          <div class="stat-key">verbleibend</div>
-        </div>
-        <div class="stat">
-          <div class="stat-val">${dur(doneMs)}</div>
-          <div class="stat-key">absolviert</div>
-        </div>
-        <div class="stat">
-          <div class="stat-val">${Math.round((doneMs/totalMs)*100)}%</div>
-          <div class="stat-key">Fortschritt</div>
-        </div>
+        <div class="stat"><div class="stat-val">${dur(remainMs)}</div><div class="stat-key">verbleibend</div></div>
+        <div class="stat"><div class="stat-val">${dur(doneMs)}</div><div class="stat-key">absolviert</div></div>
+        <div class="stat"><div class="stat-val">${Math.round((doneMs/totalMs)*100)}%</div><div class="stat-key">Fortschritt</div></div>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
-// ─── Render: Event List ─────────────────────────────────
+function renderNextBlock(now) {
+  const wrap=$('next-block-wrap');
+  const next=events.find(e=>e.start>now);
+  if(!next){
+    wrap.innerHTML=`<div style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--text-dim);font-size:0.9rem;padding:0.75rem 0;">Keine weiteren Termine heute</div>`;
+    return;
+  }
+  const ms=next.start-now, m=Math.round(ms/60000);
+  const countdown=m<60?`${m}m`:(()=>{const h=Math.floor(m/60),r=m%60;return r?`${h}h ${r}m`:`${h}h`;})();
+  wrap.innerHTML=`
+    <div class="next-block">
+      <div>
+        <div class="next-countdown">${countdown}</div>
+        <div class="next-countdown-label">bis Start</div>
+      </div>
+      <div class="next-divider"></div>
+      <div class="next-info">
+        <div class="next-label">Danach</div>
+        <div class="next-title">${esc(next.title)}</div>
+        <div class="next-time">${hhmm(next.start)} – ${hhmm(next.end)} · ${dur(next.end-next.start)}</div>
+      </div>
+    </div>`;
+}
+
 function renderList(now) {
-  const list = $('event-list');
-  if (!events.length) {
-    list.innerHTML = '<div class="empty-msg">Keine Termine heute</div>';
-    $('right-label').textContent = 'Heute';
-    return;
+  const list=$('event-list');
+  if(!events.length){list.innerHTML='<div class="empty-msg">Keine Termine heute</div>';$('right-label').textContent='Heute';return;}
+  const done=events.filter(e=>e.end<=now);
+  const current=events.find(e=>e.start<=now&&e.end>now);
+  const upcoming=events.filter(e=>e.start>now);
+  $('right-label').textContent=`Heute · ${done.length}/${events.length}`;
+  let html='';
+  if(done.length){
+    html+=`<div class="list-divider" style="color:var(--green);opacity:0.8;">✓ Erledigt</div>`;
+    html+=done.map(e=>row(e,'done',now)).join('');
   }
-
-  const nextUp = events.find(e => e.start > now);
-  const done = events.filter(e => e.end <= now).length;
-  const total = events.length;
-  $('right-label').textContent = `Heute · ${done}/${total} erledigt`;
-
-  list.innerHTML = events.map(e => {
-    const isPast = e.end <= now;
-    const isCurrent = e.start <= now && e.end > now;
-    const isNext = e === nextUp;
-    const startsIn = Math.round((e.start - now) / 60000);
-    const isSoon = !isPast && !isCurrent && startsIn <= 30;
-
-    let badge = '';
-    if (isCurrent) badge = `<span class="event-badge" style="color: var(--gold); border-color: rgba(210,170,80,0.5);">LÄUFT</span>`;
-    else if (isNext && startsIn <= 60) badge = `<span class="event-badge">in ${startsIn}m</span>`;
-    else if (isPast) badge = `<span class="done-badge">✓</span>`;
-
-    return `
-      <div class="event-row ${isPast ? 'past-row' : ''} ${isNext ? 'next-up' : ''}" style="${isCurrent ? 'opacity:0.4;' : ''}">
-        <div class="event-time-col">
-          <div class="event-start ${isSoon ? 'soon' : ''}">${hhmm(e.start)}</div>
-          <div class="event-end">${hhmm(e.end)}</div>
-        </div>
-        <div class="event-body">
-          <div class="event-name">${escHtml(e.title)}</div>
-          ${badge}
-        </div>
-        <div class="event-dur">${dur(e.end - e.start)}</div>
-      </div>
-    `;
-  }).join('');
+  if(current){
+    html+=`<div class="list-divider" style="color:var(--gold-dim);">▶ Läuft gerade</div>`;
+    html+=row(current,'current',now);
+  }
+  if(upcoming.length){
+    html+=`<div class="list-divider">Kommend</div>`;
+    upcoming.forEach((e,i)=>{html+=row(e,i===0?'next':'future',now);});
+  }
+  list.innerHTML=html;
 }
 
-// ─── Clock ─────────────────────────────────────────────
-function renderClock() {
-  const now = new Date();
-  const hh = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-  const ss = ':' + String(now.getSeconds()).padStart(2, '0');
-  $('clock').childNodes[0].textContent = hh;
-  $('secs').textContent = ss;
-  $('header-date').textContent = now.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
-  $('greeting').textContent = greet(now.getHours());
-
-  const secsSinceMidnight = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
-  $('day-bar').style.width = (secsSinceMidnight / 86400 * 100).toFixed(2) + '%';
-
-  renderCurrent(now);
-  if (now.getSeconds() === 0) renderList(now);
+function row(e,type,now){
+  const startsIn=Math.round((e.start-now)/60000), totalMs=e.end-e.start;
+  let cls='event-row', badge='';
+  if(type==='done'){cls+=' done-row';badge=`<span class="badge badge-done">✓ erledigt</span>`;}
+  else if(type==='current'){cls+=' current-row';badge=`<span class="badge badge-running">▶ läuft</span>`;}
+  else if(type==='next'){cls+=' next-row';badge=`<span class="badge badge-next">als nächstes</span>`;}
+  else if(startsIn<=30){badge=`<span class="badge badge-soon">in ${startsIn}m</span>`;}
+  return `<div class="${cls}">
+    <div class="event-time-col"><div class="event-start">${hhmm(e.start)}</div><div class="event-end">${hhmm(e.end)}</div></div>
+    <div class="event-body">
+      <div class="event-name">${esc(e.title)}</div>
+      <div class="event-meta"><span class="event-dur">${dur(totalMs)}</span>${badge}</div>
+    </div>
+  </div>`;
 }
 
-// ─── Load events ───────────────────────────────────────
-async function loadEvents() {
-  try {
-    events = await fetchTodayEvents();
-    setStatus(true);
-    renderList(new Date());
-    renderCurrent(new Date());
-    clearTimeout(refreshTimer);
-    refreshTimer = setTimeout(loadEvents, 5 * 60 * 1000);
-  } catch(e) {
-    if (e.message === 'auth_expired') {
-      await handleAuthExpired();
-    } else {
-      setStatus(false, 'Ladefehler');
-    }
+function renderClock(){
+  const now=new Date();
+  const hh=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  const ss=':'+String(now.getSeconds()).padStart(2,'0');
+  $('clock').childNodes[0].textContent=hh; $('secs').textContent=ss;
+  $('header-date').textContent=now.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+  $('greeting').textContent=greet(now.getHours());
+  $('day-bar').style.width=((now.getHours()*3600+now.getMinutes()*60+now.getSeconds())/86400*100).toFixed(2)+'%';
+  renderCurrent(now); renderNextBlock(now);
+  if(now.getSeconds()===0) renderList(now);
+}
+
+async function loadEvents(){
+  try{
+    events=await fetchTodayEvents(); setStatus(true);
+    const now=new Date(); renderList(now); renderCurrent(now); renderNextBlock(now);
+    clearTimeout(refreshTimer); refreshTimer=setTimeout(loadEvents,5*60*1000);
+  }catch(e){
+    if(e.message==='auth_expired'){
+      try{const{token,expiresIn}=await doAuth();accessToken=token;storeSet({[SK_TOKEN]:{token,exp:Date.now()+expiresIn*1000}});await loadEvents();}
+      catch{setStatus(false,'Neu anmelden erforderlich');}
+    }else{setStatus(false,'Ladefehler');}
   }
 }
 
-async function handleAuthExpired() {
-  try {
-    const { token, expiresIn } = await doAuth(true);
-    accessToken = token;
-    storeSet({ [STORAGE_KEY_TOKEN]: { token, exp: Date.now() + expiresIn * 1000 } });
-    await loadEvents();
-  } catch {
-    setStatus(false, 'Neu anmelden erforderlich');
-  }
+function setStatus(ok,msg){
+  $('status-dot').className='dot'+(ok?'':' err');
+  $('status-text').textContent=ok?('Aktualisiert · '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})):(msg||'Fehler');
 }
 
-function setStatus(ok, msg) {
-  $('status-dot').className = 'dot' + (ok ? '' : ' err');
-  $('status-text').textContent = ok
-    ? ('Aktualisiert · ' + new Date().toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}))
-    : (msg || 'Fehler');
-}
-
-// ─── Setup Flow ────────────────────────────────────────
-async function initSetup() {
-  // Show current origin for the Google Console setup
-  $('origin-display').textContent = window.location.origin;
-
-  $('connect-btn').addEventListener('click', async () => {
-    const id = $('client-id-input').value.trim();
-    if (!id) { showSetupErr('Bitte Client-ID eingeben.'); return; }
-    if (!id.includes('apps.googleusercontent.com')) {
-      showSetupErr('Ungültige Client-ID — muss auf .apps.googleusercontent.com enden.'); return;
-    }
-    clientId = id;
-    $('connect-btn').textContent = '…';
-    $('connect-btn').disabled = true;
-    try {
-      const { token, expiresIn } = await doAuth(true);
-      accessToken = token;
-      storeSet({
-        [STORAGE_KEY_CLIENT]: id,
-        [STORAGE_KEY_TOKEN]: { token, exp: Date.now() + expiresIn * 1000 }
-      });
-      hide('setup-screen');
-      show('main-screen');
-      startDashboard();
-    } catch(e) {
-      let msg = 'Verbindung fehlgeschlagen.';
-      if (e.message === 'popup_blocked') msg = 'Popup wurde blockiert — bitte Popups für diese Seite erlauben.';
-      else if (e.message === 'popup_closed') msg = 'Login-Fenster wurde geschlossen.';
-      showSetupErr(msg + ' Bitte JavaScript-Ursprung in der Google Console prüfen.');
-      $('connect-btn').textContent = 'Mit Google verbinden →';
-      $('connect-btn').disabled = false;
+async function initSetup(){
+  $('origin-display').textContent=window.location.origin;
+  $('connect-btn').addEventListener('click',async()=>{
+    const id=$('client-id-input').value.trim();
+    if(!id){showErr('Bitte Client-ID eingeben.');return;}
+    if(!id.includes('apps.googleusercontent.com')){showErr('Ungültige Client-ID.');return;}
+    clientId=id; $('connect-btn').textContent='…'; $('connect-btn').disabled=true;
+    try{
+      const{token,expiresIn}=await doAuth(); accessToken=token;
+      storeSet({[SK_CLIENT]:id,[SK_TOKEN]:{token,exp:Date.now()+expiresIn*1000}});
+      hide('setup-screen'); show('main-screen'); startDashboard();
+    }catch(e){
+      let msg='Verbindung fehlgeschlagen.';
+      if(e.message==='popup_blocked') msg='Popup blockiert — Popups für diese Seite erlauben.';
+      else if(e.message==='popup_closed') msg='Login-Fenster geschlossen.';
+      showErr(msg); $('connect-btn').textContent='Mit Google verbinden →'; $('connect-btn').disabled=false;
     }
   });
 }
+function showErr(m){const el=$('setup-err');el.textContent=m;el.style.display='block';}
 
-function showSetupErr(msg) {
-  const el = $('setup-err');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-
-// ─── Dashboard start ────────────────────────────────────
-function startDashboard() {
-  renderClock();
-  clockTimer = setInterval(renderClock, 1000);
-  loadEvents();
-
-  $('refresh-btn').addEventListener('click', loadEvents);
-
-  $('switch-account-btn').addEventListener('click', async () => {
-    // Clear token but keep client_id, force account picker
-    storeRemove([STORAGE_KEY_TOKEN]);
-    accessToken = null;
-    try {
-      const { token, expiresIn } = await doAuth(true);
-      accessToken = token;
-      storeSet({ [STORAGE_KEY_TOKEN]: { token, exp: Date.now() + expiresIn * 1000 } });
-      await loadEvents();
-    } catch {}
+function startDashboard(){
+  renderClock(); clockTimer=setInterval(renderClock,1000); loadEvents();
+  $('refresh-btn').addEventListener('click',loadEvents);
+  $('switch-account-btn').addEventListener('click',async()=>{
+    storeRemove([SK_TOKEN]); accessToken=null;
+    try{const{token,expiresIn}=await doAuth();accessToken=token;storeSet({[SK_TOKEN]:{token,exp:Date.now()+expiresIn*1000}});await loadEvents();}catch{}
   });
-
-  $('logout-btn').addEventListener('click', () => {
-    clearTimeout(refreshTimer);
-    clearInterval(clockTimer);
-    storeRemove([STORAGE_KEY_CLIENT, STORAGE_KEY_TOKEN]);
-    location.reload();
+  $('logout-btn').addEventListener('click',()=>{
+    clearTimeout(refreshTimer);clearInterval(clockTimer);storeRemove([SK_CLIENT,SK_TOKEN]);location.reload();
   });
 }
 
-// ─── Init ──────────────────────────────────────────────
-async function init() {
-  await new Promise(r => setTimeout(r, 200));
-
-  clientId = storeGet(STORAGE_KEY_CLIENT);
-
-  if (!clientId) {
-    hide('loading-screen');
-    show('setup-screen');
-    initSetup();
-    return;
-  }
-
-  const hasToken = await ensureToken();
-  hide('loading-screen');
-  show('main-screen');
-
-  if (!hasToken) {
-    setStatus(false, 'Bitte neu anmelden');
-    renderList(new Date());
-    renderCurrent(new Date());
-    $('refresh-btn').textContent = 'Anmelden →';
-    $('refresh-btn').addEventListener('click', async () => {
-      try {
-        const { token, expiresIn } = await doAuth(true);
-        accessToken = token;
-        storeSet({ [STORAGE_KEY_TOKEN]: { token, exp: Date.now() + expiresIn * 1000 } });
-        $('refresh-btn').textContent = '↻ Aktualisieren';
-        await loadEvents();
-      } catch {}
+async function init(){
+  await new Promise(r=>setTimeout(r,200));
+  clientId=storeGet(SK_CLIENT);
+  if(!clientId){hide('loading-screen');show('setup-screen');initSetup();return;}
+  const hasToken=await ensureToken();
+  hide('loading-screen');show('main-screen');
+  if(!hasToken){
+    setStatus(false,'Bitte neu anmelden');
+    renderList(new Date());renderCurrent(new Date());renderNextBlock(new Date());
+    $('refresh-btn').textContent='Anmelden →';
+    $('refresh-btn').addEventListener('click',async()=>{
+      try{const{token,expiresIn}=await doAuth();accessToken=token;storeSet({[SK_TOKEN]:{token,exp:Date.now()+expiresIn*1000}});$('refresh-btn').textContent='↻ Aktualisieren';await loadEvents();}catch{}
     });
-    clockTimer = setInterval(renderClock, 1000);
-    renderClock();
-    return;
+    clockTimer=setInterval(renderClock,1000);renderClock();return;
   }
-
   startDashboard();
-}
-
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 init();
