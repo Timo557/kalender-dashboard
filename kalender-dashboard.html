@@ -493,7 +493,7 @@ const AUTO_MS     = 5 * 60 * 1000;
 // ═══ State ═══════════════════════════════════════════
 let events=[], token=null, clientId=null;
 let refreshTmr=null, clockTmr=null;
-let achFired={}; // { eventId: Set of fired milestones }
+let achFired={};
 
 // ═══ Utils ═══════════════════════════════════════════
 const $  = id => document.getElementById(id);
@@ -508,6 +508,9 @@ function dur(ms){
   const h=Math.floor(m/60),r=m%60;
   return r?`${h}h\u202f${r}m`:`${h}h`;
 }
+function isMobile(){
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
 
 // ═══ OAuth ═══════════════════════════════════════════
 function doAuth() {
@@ -515,9 +518,16 @@ function doAuth() {
     const url=new URL('https://accounts.google.com/o/oauth2/v2/auth');
     url.searchParams.set('client_id',clientId);
     url.searchParams.set('response_type','token');
-    url.searchParams.set('redirect_uri', window.location.origin+window.location.pathname);
+    url.searchParams.set('redirect_uri',window.location.origin+window.location.pathname);
     url.searchParams.set('scope',SCOPES);
     url.searchParams.set('prompt','select_account consent');
+
+    if(isMobile()){
+      ss({[SK_CLIENT]:clientId});
+      window.location.href=url.toString();
+      return;
+    }
+
     const W=520,H=620,L=Math.round(screen.width/2-W/2),T=Math.round(screen.height/2-H/2);
     const popup=window.open(url,'_auth',`width=${W},height=${H},left=${L},top=${T},toolbar=no`);
     if(!popup||popup.closed){rej(new Error('popup_blocked'));return;}
@@ -542,7 +552,6 @@ async function ensureToken(){
   return false;
 }
 async function silentRefresh(){
-  // Try implicit grant with prompt=none (works if still logged in to Google)
   return new Promise((res,rej)=>{
     const url=new URL('https://accounts.google.com/o/oauth2/v2/auth');
     url.searchParams.set('client_id',clientId);
@@ -570,6 +579,17 @@ async function silentRefresh(){
   });
 }
 async function doRefreshAuth(){
+  if(isMobile()){
+    ss({[SK_CLIENT]:clientId});
+    const url=new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    url.searchParams.set('client_id',clientId);
+    url.searchParams.set('response_type','token');
+    url.searchParams.set('redirect_uri',window.location.origin+window.location.pathname);
+    url.searchParams.set('scope',SCOPES);
+    url.searchParams.set('prompt','select_account consent');
+    window.location.href=url.toString();
+    return;
+  }
   const{token:tok,expiresIn:exp}=await doAuth();
   token=tok; ss({[SK_TOKEN]:{token:tok,exp:Date.now()+exp*1000}});
 }
@@ -610,9 +630,7 @@ async function loadData(){
 }
 async function handleErr(e){
   if(e.message==='auth_expired'){
-    // First try silent refresh
     try{ await silentRefresh(); await loadData(); return; }catch{}
-    // Then try interactive
     try{ await doRefreshAuth(); await loadData(); }
     catch{ setStatus(false,'Token abgelaufen — ↻ klicken'); }
   } else {
@@ -633,7 +651,6 @@ function renderAll(){
 function renderCurrentCard(now){
   const cur=events.find(e=>e.start<=now&&e.end>now);
   const card=$('cur-card');
-
   if(!cur){
     card.className='cur-card free';
     const next=events.find(e=>e.start>now);
@@ -656,17 +673,14 @@ function renderCurrentCard(now){
       <div class="free-body">${esc(info)}</div>`;
     return;
   }
-
   const totalMs  = cur.end  - cur.start;
   const remainMs = Math.max(0, cur.end - now);
   const doneMs   = totalMs - remainMs;
   const pct      = doneMs / totalMs;
   const remainMin= Math.ceil(remainMs/60000);
   const urgent   = remainMin <= 5;
-
   card.className = 'cur-card' + (urgent?' urgent':'');
   checkAchievements(cur, pct, remainMin);
-
   card.innerHTML=`
     <div class="cc-top">
       <div class="cc-title-wrap">
@@ -729,26 +743,21 @@ function renderSchedule(now){
   const list=$('sched-list');
   const done=events.filter(e=>e.end<=now).length;
   $('sched-count').textContent=`${done} / ${events.length}`;
-
   if(!events.length){
     list.innerHTML='<div style="font-family:\'Cormorant Garamond\',serif;font-style:italic;color:var(--dim);font-size:.9rem;padding:1.5rem .4rem;">Keine Termine.</div>';
     return;
   }
-
   const cur =events.find(e=>e.start<=now&&e.end>now);
   const nxt =events.find(e=>e.start>now);
-
   list.innerHTML=events.map(e=>{
     const isPast = e.end<=now;
     const isCur  = cur&&e.id===cur.id;
     const isNxt  = nxt&&e.id===nxt.id;
     let cls='ev '+(isPast?'past':isCur?'cur':isNxt?'nxt':'fut');
-
     let tag='';
     if(isCur)  tag=`<span class="ev-tag ev-tag-now">▶</span>`;
     else if(isNxt) tag=`<span class="ev-tag ev-tag-next">nächster</span>`;
     else if(isPast) tag=`<span class="ev-tag ev-tag-done">✓</span>`;
-
     return`<div class="${cls}">
       <div class="ev-accent"></div>
       <div class="ev-times">
@@ -781,7 +790,6 @@ function checkAchievements(ev, pct, remainMin){
   const k=ev.id;
   if(!achFired[k]) achFired[k]=new Set();
   const f=achFired[k];
-
   if(!f.has('start')){
     f.add('start'); toast('◆','Block gestartet',ev.title);
   } else if(pct>=.25&&!f.has('q1')){
@@ -802,8 +810,6 @@ function checkAchievements(ev, pct, remainMin){
     if(doneCount===events.length) toast('✦','Alle Blöcke abgeschlossen','');
     else toast('✦','Abgeschlossen',ev.title);
   }
-
-  // Halfway through the day's blocks
   const now=new Date();
   const doneNow=events.filter(e=>e.end<=now).length;
   const halfKey='half_day_'+Math.floor(events.length/2);
@@ -832,7 +838,6 @@ function tick(){
   const p=(now.getHours()*3600+now.getMinutes()*60+now.getSeconds())/86400*100;
   $('day-fill').style.width=p.toFixed(2)+'%';
   $('day-pct').textContent=p.toFixed(0)+'\u202f%';
-  // Per-second renders
   renderCurrentCard(now);
   renderNextBridge(now);
   if(now.getSeconds()===0){renderSchedule(now);renderPills(now);}
@@ -846,7 +851,6 @@ function buildTimeline(){
   const inner=$('tl-inner');
   const totalPx=(TL_E-TL_S)*PX_H;
   inner.style.height=(totalPx+32)+'px';
-
   let html='';
   for(let h=TL_S;h<=TL_E;h++){
     const y=(h-TL_S)*PX_H;
@@ -855,24 +859,19 @@ function buildTimeline(){
       <div class="tl-hrule"></div>
     </div>`;
   }
-
   const now=new Date();
-  // Assign columns to handle overlapping events
   const cols=[];
   const placed=events.map(ev=>{
     const sh=ev.start.getHours()+ev.start.getMinutes()/60;
     const eh=ev.end.getHours()+ev.end.getMinutes()/60;
     let col=0;
-    // A column is free if its last event ended strictly before this one starts
     while(cols[col]!==undefined && cols[col]>sh+0.001) col++;
     cols[col]=eh;
     return{...ev,col,sh,eh};
   });
   const maxCol=Math.max(0,...placed.map(e=>e.col))+1;
-
   placed.forEach(ev=>{
     const top=(ev.sh-TL_S)*PX_H;
-    // Subtract 4px for gap between adjacent events (prevents border overlap)
     const height=Math.max(14,(ev.eh-ev.sh)*PX_H-4);
     const isDone=ev.end<=now, isCur=ev.start<=now&&ev.end>now;
     const wPct=maxCol>1?(94/maxCol):'94%';
@@ -880,20 +879,16 @@ function buildTimeline(){
     const bg  =isDone?'rgba(61,143,96,.09)':isCur?'rgba(210,170,80,.12)':'rgba(80,100,160,.09)';
     const bord=isDone?'rgba(61,143,96,.28)':isCur?'rgba(210,170,80,.42)':'rgba(80,100,160,.2)';
     const tc  =isDone?'var(--green)':isCur?'var(--gold)':'rgba(180,190,225,.7)';
-    const w   =maxCol>1?`${wPct}%`:`${wPct}`;
     html+=`<div class="tl-block" style="top:${top}px;height:${height}px;left:${lOff};width:${maxCol>1?94/maxCol+'%':'94%'};background:${bg};border:.5px solid ${bord};">
       <div class="tl-btitle" style="color:${tc};">${esc(ev.title)}</div>
       ${height>26?`<div class="tl-btime">${hm(ev.start)}–${hm(ev.end)}</div>`:''}
     </div>`;
   });
-
-  // Now line
   const nh=now.getHours()+now.getMinutes()/60;
   if(nh>=TL_S&&nh<=TL_E){
     const y=(nh-TL_S)*PX_H;
     html+=`<div class="tl-now-line" style="top:${y}px;"><div class="tl-now-dot"></div><div class="tl-now-rule"></div></div>`;
   }
-
   inner.innerHTML=html;
   $('tl-scroll').scrollTop=Math.max(0,(nh-TL_S)*PX_H-100);
 }
@@ -949,35 +944,42 @@ function startDashboard(){
 
 // ═══ Init ════════════════════════════════════════════
 async function init(){
+  // ── Rückkehr vom OAuth-Redirect (Mobile) ──────────────────
+  const hashParams=new URLSearchParams(window.location.hash.slice(1));
+  const redirectTok=hashParams.get('access_token');
+  if(redirectTok){
+    const exp=parseInt(hashParams.get('expires_in')||'3600');
+    history.replaceState(null,'',window.location.pathname);
+    clientId=sg(SK_CLIENT)||HARDCODED_CLIENT;
+    token=redirectTok;
+    ss({[SK_TOKEN]:{token:redirectTok,exp:Date.now()+exp*1000}});
+    $('loading-screen').style.display='none';
+    $('main-screen').style.display='';
+    startDashboard();
+    return;
+  }
+
+  // ── Normaler Start ─────────────────────────────────────────
   await new Promise(r=>setTimeout(r,150));
   clientId=sg(SK_CLIENT)||HARDCODED_CLIENT;
-  if(!clientId){
-    $('loading-screen').style.display='none';
-    $('setup-screen').style.display='';
-    initSetup(); return;
-  }
   const ok=await ensureToken();
   $('loading-screen').style.display='none';
   $('main-screen').style.display='';
   if(!ok){
     setStatus(false,'Token abgelaufen');
-    // Try silent first
     setTimeout(async()=>{
-      try{
-        await silentRefresh();
-        startDashboard();
-      }catch{
-        // Need interactive
-        setStatus(false,'Anmelden erforderlich');
-        $('refresh-btn').textContent='Anmelden →';
-        $('refresh-btn').addEventListener('click',async()=>{
-          try{
-            await doRefreshAuth();
-            $('refresh-btn').textContent='↻';
-            startDashboard();
-          }catch{}
-        });
-        clockTmr=setInterval(tick,1000); tick();
+      if(isMobile()){
+        await doRefreshAuth();
+      } else {
+        try{ await silentRefresh(); startDashboard(); }
+        catch{
+          setStatus(false,'Anmelden erforderlich');
+          $('refresh-btn').textContent='Anmelden →';
+          $('refresh-btn').addEventListener('click',async()=>{
+            try{ await doRefreshAuth(); $('refresh-btn').textContent='↻'; startDashboard(); }catch{}
+          });
+          clockTmr=setInterval(tick,1000); tick();
+        }
       }
     },300);
     return;
