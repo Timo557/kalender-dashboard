@@ -69,7 +69,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .day-track{width:120px;height:1.5px;background:rgba(210,170,80,.06);border-radius:2px;overflow:hidden;}
 .day-fill{height:100%;background:linear-gradient(90deg,rgba(210,170,80,.15),rgba(210,170,80,.5));border-radius:2px;transition:width 1s var(--ease-out);}
 
-/* ── Focus column — min-width:0 fixes tablet overflow (Bug 2) ── */
+/* ── Focus column ── */
 .focus-col{display:flex;flex-direction:column;gap:.9rem;min-height:0;min-width:0;}
 
 /* ── Current card ── */
@@ -96,15 +96,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .cc-range{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--gold-dim);letter-spacing:.04em;}
 .manual-badge{font-family:'JetBrains Mono',monospace;font-size:.42rem;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);border:.5px solid rgba(74,127,184,.4);background:rgba(74,127,184,.08);padding:2px 6px;border-radius:3px;display:inline-block;margin-bottom:.4rem;}
 
-/* ── Ring — NO pulse animation ── */
+/* ── Ring — FIX 1: NO animation, no pulse ── */
 .ring-wrap{position:relative;flex-shrink:0;width:clamp(78px,9vw,112px);height:clamp(78px,9vw,112px);}
 .ring-wrap svg{transform:rotate(-90deg);width:100%;height:100%;}
 .ring-track{fill:none;stroke:rgba(210,170,80,.07);}
+/* FIX 1: removed ring-draw animation class entirely — stroke-dashoffset transitions are still smooth */
 .ring-fill{fill:none;stroke:var(--gold);stroke-linecap:round;transition:stroke-dashoffset 1s var(--ease-out),stroke .5s var(--ease-out);}
 .ring-fill.urg{stroke:var(--red);}
 .ring-fill.ring-manual{stroke:var(--blue);}
-.ring-draw{animation:ring-in .8s var(--ease-out) both;}
-@keyframes ring-in{from{opacity:0;}to{opacity:1;}}
 .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .ring-val{font-family:'JetBrains Mono',monospace;font-size:1.9rem;font-weight:200;color:var(--gold);line-height:1;}
 .ring-val.urg{color:var(--red);}
@@ -203,25 +202,20 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .ev.nxt{opacity:.78;}
 .ev.nxt .ev-name{color:rgba(237,232,219,.85);}
 .ev.fut{opacity:.48;}
-/* Clickable future events */
 .ev.clickable{cursor:pointer;}
 .ev.clickable:hover{background:rgba(210,170,80,.05);opacity:.9!important;}
 .ev.clickable:active{background:rgba(210,170,80,.09);}
 .ev.clickable:hover .ev-name{color:rgba(237,232,219,.92);}
 .ev.clickable:hover .ev-accent{background:rgba(210,170,80,.5)!important;}
-/* Bug 1: Timed calendar tasks — blue accent, not clickable for session */
 .ev.is-task .ev-accent{background:rgba(74,127,184,.35)!important;}
 .ev.is-task.cur .ev-accent{background:var(--blue)!important;}
 .ev.is-task.past{opacity:.4;}
-/* Google Tasks API items (no time) */
 .ev.task-row{background:rgba(74,127,184,.04);border:.5px solid rgba(74,127,184,.12);opacity:.85;}
 .ev.task-row.done-task{opacity:.38;}
 .ev.task-row .ev-name{color:rgba(180,200,230,.75);}
 .ev.task-row.done-task .ev-name{text-decoration:line-through;color:var(--muted);}
-/* List entrance */
 .ev.list-anim{animation:li-in .38s var(--ease-out) both;}
 @keyframes li-in{from{opacity:0;transform:translateX(-6px);}to{opacity:1;transform:none;}}
-
 .ev-accent{width:2px;flex-shrink:0;border-radius:2px;margin-right:.55rem;align-self:stretch;transition:background .4s var(--ease-out);}
 .ev.past .ev-accent{background:rgba(61,143,96,.3);}
 .ev.cur  .ev-accent{background:var(--gold);}
@@ -300,8 +294,88 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .toast-main{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--gold);letter-spacing:.07em;}
 .toast-sub{font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--muted);margin-top:1px;}
 
+/* ══════════════════════════════════════════
+   FIX 3 — Planner Overlay
+══════════════════════════════════════════ */
+.planner-overlay{position:fixed;inset:0;background:rgba(7,7,15,.92);z-index:70;display:flex;align-items:stretch;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .28s var(--ease-out);backdrop-filter:blur(8px);}
+.planner-overlay.open{opacity:1;pointer-events:all;}
+.planner-panel{background:var(--surface);border-left:.5px solid rgba(210,170,80,.14);width:min(560px,100vw);display:flex;flex-direction:column;transform:translateX(24px);transition:transform .35s var(--ease-spring);}
+.planner-overlay.open .planner-panel{transform:none;}
+.planner-topbar{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.5rem;border-bottom:.5px solid var(--border);flex-shrink:0;}
+.planner-title{font-family:'JetBrains Mono',monospace;font-size:.54rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-dim);}
+.planner-tabs{display:flex;gap:.25rem;padding:.7rem 1.5rem;border-bottom:.5px solid var(--border);flex-shrink:0;}
+.ptab{font-family:'JetBrains Mono',monospace;font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;padding:.28rem .7rem;border-radius:4px;border:.5px solid transparent;background:transparent;color:var(--muted);cursor:pointer;transition:all .2s var(--ease-out);}
+.ptab.active{border-color:rgba(210,170,80,.3);background:var(--gold-glow);color:var(--gold);}
+.ptab:hover:not(.active){color:var(--text);}
+.planner-body{flex:1;overflow-y:auto;padding:1.2rem 1.5rem;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.planner-body::-webkit-scrollbar{width:2px;}
+.planner-body::-webkit-scrollbar-thumb{background:var(--border);}
+
+/* Planner: form elements */
+.pf-section{margin-bottom:1.4rem;}
+.pf-label{font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;display:block;}
+.pf-input{width:100%;background:rgba(237,232,219,.04);border:.5px solid var(--border);border-radius:6px;padding:.55rem .75rem;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text);outline:none;transition:border-color .2s var(--ease-out);}
+.pf-input:focus{border-color:rgba(210,170,80,.35);}
+.pf-input::placeholder{color:var(--muted);}
+.pf-row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;}
+.pf-select{width:100%;background:rgba(237,232,219,.04);border:.5px solid var(--border);border-radius:6px;padding:.55rem .75rem;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text);outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;}
+.pf-select:focus{border-color:rgba(210,170,80,.35);}
+.pf-select option{background:var(--surface);color:var(--text);}
+.pf-hint{font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--muted);margin-top:.35rem;line-height:1.6;}
+.pf-btn{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1.1rem;border-radius:6px;border:.5px solid rgba(210,170,80,.4);background:var(--gold-glow);color:var(--gold);cursor:pointer;transition:all .2s var(--ease-out);width:100%;}
+.pf-btn:hover{background:rgba(210,170,80,.14);border-color:rgba(210,170,80,.65);}
+.pf-btn:active{transform:scale(.98);}
+.pf-btn.blue{border-color:rgba(74,127,184,.4);background:rgba(74,127,184,.06);color:var(--blue);}
+.pf-btn.blue:hover{background:rgba(74,127,184,.15);}
+.pf-btn.danger{border-color:rgba(184,74,68,.35);background:rgba(184,74,68,.06);color:rgba(184,74,68,.85);}
+.pf-btn.danger:hover{background:rgba(184,74,68,.14);}
+.pf-divider{height:.5px;background:var(--border);margin:1rem 0;}
+
+/* Planner: slot picker */
+.slot-list{display:flex;flex-direction:column;gap:.35rem;margin-top:.7rem;}
+.slot-item{display:flex;align-items:center;gap:.8rem;padding:.55rem .75rem;border-radius:8px;border:.5px solid var(--border);background:rgba(237,232,219,.02);cursor:pointer;transition:all .2s var(--ease-out);}
+.slot-item:hover{border-color:rgba(210,170,80,.3);background:var(--gold-glow);}
+.slot-item.selected{border-color:rgba(74,127,184,.45);background:rgba(74,127,184,.07);}
+.slot-time{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--text);flex-shrink:0;width:90px;}
+.slot-dur{font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted);flex:1;}
+.slot-radio{width:12px;height:12px;border-radius:50%;border:.5px solid var(--border);flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.slot-item.selected .slot-radio{border-color:var(--blue);background:var(--blue);}
+.slot-item.selected .slot-radio::after{content:'';width:5px;height:5px;border-radius:50%;background:white;}
+
+/* Planner: event list for reschedule */
+.planner-ev-list{display:flex;flex-direction:column;gap:.3rem;margin-bottom:1rem;}
+.planner-ev-item{display:flex;align-items:center;gap:.7rem;padding:.48rem .6rem;border-radius:7px;border:.5px solid var(--border);background:rgba(237,232,219,.02);cursor:pointer;transition:all .2s var(--ease-out);}
+.planner-ev-item:hover{border-color:rgba(210,170,80,.25);background:var(--gold-glow);}
+.planner-ev-item.selected{border-color:rgba(210,170,80,.45);background:rgba(210,170,80,.06);}
+.planner-ev-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.planner-ev-name{font-size:.74rem;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.planner-ev-time{font-family:'JetBrains Mono',monospace;font-size:.54rem;color:var(--muted);flex-shrink:0;}
+
+/* Planner: preferences */
+.pref-row{display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:.5px solid rgba(237,232,219,.04);}
+.pref-label{font-size:.72rem;color:var(--text);}
+.pref-sub{font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--muted);margin-top:2px;}
+.pref-val{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--gold);}
+
+/* Planner: result card */
+.plan-result{background:rgba(74,127,184,.05);border:.5px solid rgba(74,127,184,.2);border-radius:10px;padding:.85rem 1rem;margin-top:.85rem;}
+.plan-result-title{font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(74,127,184,.6);margin-bottom:.55rem;}
+.plan-result-row{display:flex;align-items:center;gap:.7rem;padding:.3rem 0;border-bottom:.5px solid rgba(74,127,184,.08);}
+.plan-result-row:last-child{border-bottom:none;}
+.plan-result-time{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text);width:110px;flex-shrink:0;}
+.plan-result-name{font-size:.72rem;color:rgba(237,232,219,.8);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.plan-result-dur{font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--muted);}
+.plan-result-badge{font-family:'JetBrains Mono',monospace;font-size:.42rem;letter-spacing:.08em;padding:1px 5px;border-radius:3px;}
+.prb-pause{color:rgba(61,143,96,.7);border:.5px solid rgba(61,143,96,.25);background:rgba(61,143,96,.06);}
+.prb-event{color:rgba(74,127,184,.8);border:.5px solid rgba(74,127,184,.25);background:rgba(74,127,184,.06);}
+.prb-fixed{color:rgba(210,170,80,.7);border:.5px solid rgba(210,170,80,.2);background:rgba(210,170,80,.04);}
+
+/* Planner: loading spinner */
+.plan-loading{display:flex;align-items:center;gap:.6rem;padding:.8rem 0;font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--muted);}
+.plan-spinner{width:12px;height:12px;border:1.5px solid rgba(210,170,80,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
 /* ── Responsive ── */
-/* Bug 2 fix: Tablet 821–960px — smaller ring/card to prevent right-side clipping */
 @media(max-width:960px) and (min-width:821px){
   .shell{padding:1.2rem 1.4rem .9rem;gap:0 1.2rem;}
   .sched-col{padding-left:1rem;}
@@ -315,13 +389,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   .stat-v{font-size:.68rem;}
   .hdr-date{font-size:.5rem;letter-spacing:.1em;}
 }
-/* Mobile ≤820px */
 @media(max-width:820px){
   .shell{grid-template-columns:1fr;grid-template-rows:auto auto 1fr auto;height:auto;min-height:100svh;overflow-y:auto;}
   body,html{overflow:auto;}
   .sched-col{border-left:none;border-top:.5px solid var(--border);padding-left:0;padding-top:1.1rem;}
   .sched-list{max-height:340px;}
   .footer,.hdr{grid-column:1;}
+  .planner-panel{width:100vw;}
 }
 </style>
 </head>
@@ -375,6 +449,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     <div class="footer">
       <div class="status-row"><div class="sdot" id="sdot"></div><span id="stxt">—</span></div>
       <div class="fbtns">
+        <button class="btn" id="planner-btn">⊕ Planen</button>
         <button class="btn" id="cal-btn">⊞ Kalender</button>
         <button class="btn" id="refresh-btn">↻</button>
         <button class="btn" id="logout-btn">Abmelden</button>
@@ -383,6 +458,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   </div>
 </div>
 
+<!-- ── Calendar overlay ── -->
 <div class="cal-overlay" id="cal-overlay" onclick="if(event.target===this)closeCal()">
   <div class="cal-panel">
     <div class="cal-hdr">
@@ -393,12 +469,28 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   </div>
 </div>
 
+<!-- ── Planner overlay (FIX 3) ── -->
+<div class="planner-overlay" id="planner-overlay" onclick="if(event.target===this)closePlanner()">
+  <div class="planner-panel">
+    <div class="planner-topbar">
+      <div class="planner-title">◆ Planung</div>
+      <button class="btn" onclick="closePlanner()">Schließen</button>
+    </div>
+    <div class="planner-tabs">
+      <button class="ptab active" onclick="switchPTab('reschedule',this)">Termin verschieben</button>
+      <button class="ptab" onclick="switchPTab('new',this)">Neu einplanen</button>
+      <button class="ptab" onclick="switchPTab('prefs',this)">Einstellungen</button>
+    </div>
+    <div class="planner-body" id="planner-body"></div>
+  </div>
+</div>
+
 <script>
-// ═══ Config ════════════════════════════════════════
-// calendar.readonly  → calendarList + read events
-// calendar.events    → patch/update events (manual session)
+// ═══════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════
 const SCOPES        = 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/tasks.readonly';
-const SCOPE_VERSION = 5; // bumped → forces re-auth for new scopes
+const SCOPE_VERSION = 5;
 const CAL_API       = 'https://www.googleapis.com/calendar/v3';
 const TASKS_API     = 'https://tasks.googleapis.com/tasks/v1';
 const RING_R=50, RING_C=2*Math.PI*RING_R;
@@ -409,16 +501,25 @@ const AUTO_MS=5*60*1000, REFRESH_BEFORE=10*60*1000;
 const LS_MIN=900;
 const CAL_COLORS={};
 
-// ═══ State ═════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
 let events=[],tasks=[],token=null;
 let refreshTmr=null,clockTmr=null,tokenRefreshTmr=null;
 let achFired={},eodShown=false,isRefreshing=false;
 let prevCardKey=null,cardAnimating=false,schedFirstRender=true;
 let lsStart=Date.now();
-let manualSession=null;      // {event, sessionStart}
+let manualSession=null;
 let conflictBannerActive=false;
+// Planner state
+let plannerTab='reschedule';
+let plannerSelectedEvId=null;
+let plannerSelectedSlot=null;
+let plannerNewItems=[];   // [{title,durMin}]
 
-// ═══ Utils ═════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════
 const $=id=>document.getElementById(id);
 const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 function sg(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch{return null;}}
@@ -429,8 +530,19 @@ function isMobile(){return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
 function todayStr(){return new Date().toISOString().split('T')[0];}
 function padT(n){return String(n).padStart(2,'0');}
 function fmtWorked(ms){const s=Math.floor(ms/1000),m=Math.floor(s/60),sc=s%60;return`${padT(m)}:${padT(sc)}`;}
+function dateStr(d){return d.toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'});}
 
-// ═══ Startup ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// PREFERENCES (Planner)
+// ═══════════════════════════════════════════════════
+const PREF_KEY='fd_prefs';
+const DEFAULT_PREFS={workStart:'08:00',workEnd:'20:00',minPause:15,maxBlock:120};
+function getPrefs(){return Object.assign({},DEFAULT_PREFS,sg(PREF_KEY)||{});}
+function savePrefs(p){ss({[PREF_KEY]:p});}
+
+// ═══════════════════════════════════════════════════
+// STARTUP
+// ═══════════════════════════════════════════════════
 async function revealApp(){
   const elapsed=Date.now()-lsStart;
   await new Promise(r=>setTimeout(r,Math.max(0,LS_MIN-elapsed)));
@@ -443,7 +555,9 @@ async function revealApp(){
   $('loading-screen').style.display='none';
 }
 
-// ═══ Auth ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════
 function buildAuthUrl(){
   const u=new URL('https://accounts.google.com/o/oauth2/v2/auth');
   u.searchParams.set('client_id',CLIENT_ID);
@@ -478,7 +592,9 @@ async function triggerReauth(){
   finally{isRefreshing=false;}
 }
 
-// ═══ API ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// API
+// ═══════════════════════════════════════════════════
 async function apiFetch(url,method='GET',body=null){
   const h={'Authorization':`Bearer ${token}`};
   const opts={method,headers:h};
@@ -489,14 +605,14 @@ async function apiFetch(url,method='GET',body=null){
   return r.json();
 }
 async function fetchCalendarList(){
-  // No minAccessRole filter → includes Tasks calendar (@tasks)
   const data=await apiFetch(`${CAL_API}/users/me/calendarList`);
   return (data.items||[]).map(c=>({id:c.id,name:c.summary||c.id,color:c.backgroundColor||'#d2aa50'}));
 }
-async function fetchEvents(){
-  const now=new Date();
-  const s=new Date(now);s.setHours(0,0,0,0);
-  const e=new Date(now);e.setHours(23,59,59,999);
+async function fetchEvents(dateISO){
+  // dateISO optional — defaults to today
+  const base=dateISO?new Date(dateISO):new Date();
+  const s=new Date(base);s.setHours(0,0,0,0);
+  const e=new Date(base);e.setHours(23,59,59,999);
   const cals=await fetchCalendarList();
   cals.forEach(c=>{CAL_COLORS[c.id]=c.color;});
   const results=await Promise.allSettled(cals.map(async cal=>{
@@ -507,12 +623,12 @@ async function fetchEvents(){
     url.searchParams.set('orderBy','startTime');
     url.searchParams.set('maxResults','40');
     const data=await apiFetch(url.toString());
-    // Bug 1: flag timed tasks so we can show them with time + task badge
     return (data.items||[]).filter(e=>e.start?.dateTime).map(e=>({
       id:e.id,title:e.summary||'(Kein Titel)',
       start:new Date(e.start.dateTime),end:new Date(e.end.dateTime),
       calId:cal.id,calColor:cal.color,
-      isTask:e.eventType==='task'||cal.id.includes('@tasks')
+      isTask:e.eventType==='task'||cal.id.includes('@tasks'),
+      colorId:e.colorId
     }));
   }));
   const seen=new Set();
@@ -549,7 +665,9 @@ async function handleApiErr(e){
   else setStatus('err','Ladefehler — ↻');
 }
 
-// ═══ Manual Session ════════════════════════════════
+// ═══════════════════════════════════════════════════
+// FIX 2 — Manual Session with Log Entry
+// ═══════════════════════════════════════════════════
 function activateEventModal(evId){
   if(manualSession){toast('◇','Session läuft bereits','Erst beenden');return;}
   const ev=events.find(e=>e.id===evId);if(!ev)return;
@@ -560,7 +678,10 @@ function activateEventModal(evId){
     <div class="act-label">◆ Termin vorziehen</div>
     <div class="act-title">${esc(ev.title)}</div>
     <div class="act-range">${hm(ev.start)} – ${hm(ev.end)} · ${dur(ev.end-ev.start)}</div>
-    <div class="act-hint">Die gearbeitete Zeit wird beim Beenden vom Termin im Google Kalender abgezogen — er wird entsprechend kürzer.</div>
+    <div class="act-hint">
+      Die gearbeitete Zeit wird als neuer Eintrag im Kalender gespeichert (⏩ Vorgezogen).<br>
+      Der Original-Termin wird um die gearbeitete Zeit gekürzt.
+    </div>
     <div class="act-btns">
       <button class="act-btn act-btn-cancel" onclick="closeActModal()">Abbrechen</button>
       <button class="act-btn act-btn-start" onclick="startManualSession('${evId.replace(/'/g,"\\'")}')">Jetzt starten →</button>
@@ -581,6 +702,7 @@ function startManualSession(evId){
   conflictBannerActive=false;prevCardKey=null;
   renderAll();toast('◆','Session gestartet',ev.title);
 }
+
 async function endManualSession(){
   if(!manualSession)return;
   const session=manualSession;
@@ -594,15 +716,63 @@ async function endManualSession(){
   }
   setStatus('warn','Kalender wird aktualisiert …');
   try{
-    await patchEventShorter(session.event,workedMs);
-    toast('✦',`${wMin} min gearbeitet`,`${esc(session.event.title)} im Kalender gekürzt`);
+    await patchAndLogEvent(session.event, session.sessionStart, workedMs);
+    toast('✦',`${wMin} min gearbeitet`,`${esc(session.event.title)} eingetragen & gekürzt`);
     setStatus(true);await loadData();
   }catch(e){
     setStatus('err','Update fehlgeschlagen');toast('◇','Fehler',e.message);
     prevCardKey=null;renderAll();
   }
 }
+
+/**
+ * FIX 2 core:
+ * 1. Fetch full event data (preserves all fields: color, description, location, …)
+ * 2. POST a new event from sessionStart → sessionStart+workedMs with "⏩ Vorgezogen" note
+ * 3. PATCH original event to shorten it by workedMs
+ */
+async function patchAndLogEvent(ev, sessionStart, workedMs){
+  const url=`${CAL_API}/calendars/${encodeURIComponent(ev.calId)}/events/${encodeURIComponent(ev.id)}`;
+  const full=await apiFetch(url);
+
+  const logStart=sessionStart;
+  const logEnd  =new Date(sessionStart.getTime()+workedMs);
+
+  // Build log event — copy all metadata from original
+  const logBody={
+    summary: full.summary,
+    description: [
+      '⏩ Vorgezogen · Original: '+hm(ev.start)+' – '+hm(ev.end),
+      full.description||''
+    ].filter(Boolean).join('\n\n'),
+    location:    full.location    || undefined,
+    colorId:     full.colorId     || undefined,
+    reminders:   {useDefault:false,overrides:[]},  // no reminders for log
+    start:{dateTime:logStart.toISOString(), timeZone:full.start.timeZone||'Europe/Berlin'},
+    end:  {dateTime:logEnd.toISOString(),   timeZone:full.end.timeZone  ||'Europe/Berlin'},
+  };
+  // Remove undefined keys
+  Object.keys(logBody).forEach(k=>logBody[k]===undefined&&delete logBody[k]);
+
+  // POST log entry
+  await apiFetch(
+    `${CAL_API}/calendars/${encodeURIComponent(ev.calId)}/events`,
+    'POST',
+    logBody
+  );
+
+  // PATCH original — shorten by workedMs
+  const origEnd =new Date(full.end.dateTime);
+  const newEnd  =new Date(origEnd.getTime()-workedMs);
+  const minEnd  =new Date(new Date(full.start.dateTime).getTime()+5*60*1000);
+  const finalEnd=newEnd<minEnd?minEnd:newEnd;
+  await apiFetch(url,'PATCH',{
+    end:{dateTime:finalEnd.toISOString(),timeZone:full.end.timeZone||'Europe/Berlin'}
+  });
+}
+
 async function patchEventShorter(ev,workedMs){
+  // Legacy — only used for conflict-end without session log
   const url=`${CAL_API}/calendars/${encodeURIComponent(ev.calId)}/events/${encodeURIComponent(ev.id)}`;
   const full=await apiFetch(url);
   const origEnd=new Date(full.end.dateTime);
@@ -611,6 +781,7 @@ async function patchEventShorter(ev,workedMs){
   const finalEnd=newEnd<minEnd?minEnd:newEnd;
   await apiFetch(url,'PATCH',{end:{dateTime:finalEnd.toISOString(),timeZone:full.end.timeZone||'Europe/Berlin'}});
 }
+
 function showConflictBanner(scheduledEv){
   if(conflictBannerActive)return;conflictBannerActive=true;
   const slot=$('conflict-banner-slot');
@@ -634,7 +805,9 @@ function dismissConflict(end){
   if(end)endManualSession();
 }
 
-// ═══ Card key ══════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// CARD KEY
+// ═══════════════════════════════════════════════════
 function getCardKey(now){
   if(manualSession)return'manual:'+manualSession.event.id;
   const allDone=events.length>0&&events.every(e=>e.end<=now);if(allDone)return'eod';
@@ -644,7 +817,9 @@ function getCardKey(now){
   return'none';
 }
 
-// ═══ Render ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════
 function renderAll(){const now=new Date();renderCurrentCardAnimated(now);renderNextBridge(now);renderSchedule(now);renderPills(now);}
 
 function renderCurrentCardAnimated(now){
@@ -672,6 +847,7 @@ function renderCurrentCard(now){
     const totalMs=ev.end-ev.start,remainMs=Math.max(0,totalMs-workedMs),pct=Math.min(1,workedMs/totalMs);
     const remainMin=Math.ceil(remainMs/60000);
     card.className='cur-card manual';
+    // FIX 1: no ring-draw class → no blink
     card.innerHTML=`<div class="cc-top">
       <div class="cc-title-wrap">
         <span class="manual-badge">◆ Manuell</span>
@@ -681,7 +857,7 @@ function renderCurrentCard(now){
       <div class="ring-wrap">
         <svg viewBox="0 0 112 112" style="width:100%;height:100%;">
           <circle class="ring-track" cx="56" cy="56" r="${RING_R}" stroke-width="4"/>
-          <circle class="ring-fill ring-manual ring-draw" cx="56" cy="56" r="${RING_R}"
+          <circle class="ring-fill ring-manual" cx="56" cy="56" r="${RING_R}"
             stroke-width="4" stroke-dasharray="${RING_C.toFixed(2)}"
             stroke-dashoffset="${(RING_C*pct).toFixed(2)}"/>
         </svg>
@@ -701,7 +877,7 @@ function renderCurrentCard(now){
       <div class="stat"><div class="stat-v">${dur(totalMs)}</div><div class="stat-k">gesamt</div></div>
     </div>
     <div style="margin-top:.85rem;padding-top:.75rem;border-top:.5px solid rgba(74,127,184,.15);">
-      <button class="manual-stop-btn" onclick="endManualSession()">■ Session beenden · Kalender kürzen</button>
+      <button class="manual-stop-btn" onclick="endManualSession()">■ Session beenden · Eintragen & kürzen</button>
     </div>`;
     return;
   }
@@ -765,6 +941,7 @@ function renderCurrentCard(now){
       return`<div class="parallel-item"><div class="parallel-bar" style="background:${urg?'var(--red)':'rgba(210,170,80,.45)'}"></div><div class="parallel-title">${esc(p.title)}</div><div class="parallel-time">${hm(p.start)}–${hm(p.end)}</div><div class="parallel-remain">${pR}m</div></div>`;
     }).join('')}</div></div>`:'';
 
+  // FIX 1: no ring-draw class on active event ring either
   card.innerHTML=`<div class="cc-top">
     <div class="cc-title-wrap">
       <div class="cc-title">${esc(cur.title)}</div>
@@ -773,7 +950,7 @@ function renderCurrentCard(now){
     <div class="ring-wrap">
       <svg viewBox="0 0 112 112" style="width:100%;height:100%;">
         <circle class="ring-track" cx="56" cy="56" r="${RING_R}" stroke-width="4"/>
-        <circle class="${urgent?'ring-fill urg ring-draw':'ring-fill ring-draw'}" cx="56" cy="56" r="${RING_R}"
+        <circle class="${urgent?'ring-fill urg':'ring-fill'}" cx="56" cy="56" r="${RING_R}"
           stroke-width="4" stroke-dasharray="${RING_C.toFixed(2)}"
           stroke-dashoffset="${(RING_C*(1-Math.max(0,remainMs/totalMs))).toFixed(2)}"/>
       </svg>
@@ -794,7 +971,9 @@ function renderCurrentCard(now){
   </div>${parallelHtml}`;
 }
 
-// ═══ Next Bridge ═══════════════════════════════════
+// ═══════════════════════════════════════════════════
+// NEXT BRIDGE
+// ═══════════════════════════════════════════════════
 function renderNextBridge(now){
   const wrap=$('next-bridge');
   const cur=events.find(e=>e.start<=now&&e.end>now),nxt=events.find(e=>e.start>now);
@@ -808,15 +987,15 @@ function renderNextBridge(now){
   </div>`;
 }
 
-// ═══ Schedule ══════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// SCHEDULE
+// ═══════════════════════════════════════════════════
 function renderSchedule(now){
   const list=$('sched-list');
   const dc=events.filter(e=>e.end<=now).length,td=tasks.filter(t=>t.done).length;
   $('sched-count').textContent=`${dc}/${events.length}${tasks.length?` · ${td}/${tasks.length} ☐`:''}`;
   const cur=events.find(e=>e.start<=now&&e.end>now),nxt=events.find(e=>e.start>now);
   let html='';
-
-  // Google Tasks API items (no time, shown separately)
   if(tasks.length>0){
     html+=`<div class="sched-section-label">Aufgaben · heute fällig</div>`;
     html+=tasks.map(t=>{
@@ -829,30 +1008,24 @@ function renderSchedule(now){
     }).join('');
     if(events.length>0)html+=`<div class="sched-section-label" style="margin-top:.35rem">Termine</div>`;
   }
-
   if(!events.length&&!tasks.length){
     list.innerHTML='<div style="font-family:\'Cormorant Garamond\',serif;font-style:italic;color:var(--dim);font-size:.9rem;padding:1.5rem .4rem;">Keine Termine.</div>';
     return;
   }
-
   html+=events.map(e=>{
     const isPast=e.end<=now,isCur=cur&&e.id===cur.id,isNxt=nxt&&e.id===nxt.id;
-    // Bug 1: timed calendar tasks shown with time + badge, but NOT clickable for manual session
     const isClickable=!isPast&&!isCur&&!e.isTask&&!(manualSession&&manualSession.event.id===e.id);
     const cls='ev '+(isPast?'past':isCur?'cur':isNxt?'nxt':'fut')
               +(isClickable?' clickable':'')+(e.isTask?' is-task':'');
     const clickAttr=isClickable?`onclick="activateEventModal('${e.id.replace(/'/g,"\\'")}')"`:'';
-
     let tag='';
     if(isCur)                             tag=`<span class="ev-tag ev-tag-now">◆</span>`;
     else if(manualSession?.event.id===e.id)tag=`<span class="ev-tag ev-tag-start" style="color:var(--blue);border-color:rgba(74,127,184,.3);">▶ Aktiv</span>`;
     else if(isNxt&&!e.isTask)             tag=`<span class="ev-tag ev-tag-next">nächster</span>`;
     else if(isPast&&!e.isTask)            tag=`<span class="ev-tag ev-tag-done">✓</span>`;
     else if(isClickable)                  tag=`<span class="ev-tag ev-tag-start">▷ starten</span>`;
-    // Bug 1: timed tasks get a ☐ badge instead of click tags
     const typeTag=e.isTask?`<span class="ev-tag ev-tag-task">☐</span>`:'';
     const dot=e.calColor&&!e.isTask?`<div class="ev-cal" style="background:${e.calColor}"></div>`:'';
-
     return`<div class="${cls}" ${clickAttr}><div class="ev-accent"></div>
       <div class="ev-times"><div class="ev-st">${hm(e.start)}</div><div class="ev-en">${hm(e.end)}</div></div>
       <div class="ev-body"><div class="ev-name">${esc(e.title)}</div>
@@ -860,7 +1033,6 @@ function renderSchedule(now){
       </div>
     </div>`;
   }).join('');
-
   list.innerHTML=html;
   if(schedFirstRender){
     schedFirstRender=false;
@@ -868,7 +1040,9 @@ function renderSchedule(now){
   }
 }
 
-// ═══ Pills ═════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// PILLS
+// ═══════════════════════════════════════════════════
 function renderPills(now){
   const max=Math.min(events.length,14);
   $('pills').innerHTML=events.slice(0,max).map(e=>{
@@ -877,7 +1051,9 @@ function renderPills(now){
   }).join('');
 }
 
-// ═══ Achievements ══════════════════════════════════
+// ═══════════════════════════════════════════════════
+// ACHIEVEMENTS
+// ═══════════════════════════════════════════════════
 function checkAchievements(ev,pct,remainMin,remainSec){
   const k=ev.id;if(!achFired[k])achFired[k]=new Set();const f=achFired[k];
   if(!f.has('start'))                               {f.add('start');toast('◆','Block gestartet',ev.title);}
@@ -903,7 +1079,9 @@ function toast(icon,main,sub){
   toastTimer=setTimeout(()=>$('toast').classList.remove('show'),3500);
 }
 
-// ═══ Clock ═════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════════════════
 function tick(){
   const now=new Date();
   $('clock').firstChild.textContent=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
@@ -911,9 +1089,7 @@ function tick(){
   $('hdr-date').textContent=now.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
   const p=(now.getHours()*3600+now.getMinutes()*60+now.getSeconds())/86400*100;
   $('day-fill').style.width=p.toFixed(2)+'%';$('day-pct').textContent=p.toFixed(0)+'\u202f%';
-  // Manual session: auto-end when original event time arrives
   if(manualSession&&now>=manualSession.event.start){endManualSession();return;}
-  // Manual session: conflict check — another scheduled event started
   if(manualSession&&!conflictBannerActive){
     const conflict=events.find(e=>e.id!==manualSession.event.id&&e.start<=now&&e.end>now);
     if(conflict)showConflictBanner(conflict);
@@ -923,7 +1099,9 @@ function tick(){
   if(now.getSeconds()===0){renderSchedule(now);renderPills(now);}
 }
 
-// ═══ Calendar Overlay ══════════════════════════════
+// ═══════════════════════════════════════════════════
+// CALENDAR OVERLAY
+// ═══════════════════════════════════════════════════
 function openCal(){buildTimeline();$('cal-overlay').classList.add('open');}
 function closeCal(){$('cal-overlay').classList.remove('open');}
 function buildTimeline(){
@@ -949,7 +1127,359 @@ function buildTimeline(){
   inner.innerHTML=html;$('tl-scroll').scrollTop=Math.max(0,(nh-TL_S)*PX_H-100);
 }
 
-// ═══ Status ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// FIX 3 — PLANNER OVERLAY
+// ═══════════════════════════════════════════════════
+
+function openPlanner(){$('planner-overlay').classList.add('open');renderPlannerTab();}
+function closePlanner(){$('planner-overlay').classList.remove('open');}
+function switchPTab(tab,btn){
+  plannerTab=tab;plannerSelectedEvId=null;plannerSelectedSlot=null;plannerNewItems=[];
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPlannerTab();
+}
+
+function renderPlannerTab(){
+  const body=$('planner-body');
+  if(plannerTab==='reschedule')renderRescheduleTab(body);
+  else if(plannerTab==='new')renderNewTab(body);
+  else renderPrefsTab(body);
+}
+
+// ── Tab: Reschedule ──────────────────────────────
+function renderRescheduleTab(body){
+  const prefs=getPrefs();
+  const futureEvents=events.filter(e=>e.end>new Date()&&!e.isTask);
+  body.innerHTML=`
+    <div class="pf-section">
+      <label class="pf-label">Welchen Termin verschieben?</label>
+      <div class="planner-ev-list" id="pl-ev-list">
+        ${futureEvents.length===0
+          ? '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.58rem;color:var(--muted);">Keine zukünftigen Termine heute.</div>'
+          : futureEvents.map(e=>`
+          <div class="planner-ev-item${plannerSelectedEvId===e.id?' selected':''}" onclick="selectPlannerEv('${e.id.replace(/'/g,"\\'")}')">
+            <div class="planner-ev-dot" style="background:${e.calColor||'var(--gold)'}"></div>
+            <div class="planner-ev-name">${esc(e.title)}</div>
+            <div class="planner-ev-time">${hm(e.start)} – ${hm(e.end)}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    ${plannerSelectedEvId ? renderDateAndSlotPicker(prefs) : ''}
+    <div id="pl-reschedule-confirm"></div>`;
+}
+
+function selectPlannerEv(id){
+  plannerSelectedEvId=id;plannerSelectedSlot=null;
+  renderPlannerTab();
+}
+
+function renderDateAndSlotPicker(prefs){
+  const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
+  const tStr=tomorrow.toISOString().split('T')[0];
+  return`
+    <div class="pf-divider"></div>
+    <div class="pf-section">
+      <label class="pf-label">Neues Datum</label>
+      <input type="date" class="pf-input" id="pl-date" value="${tStr}" min="${todayStr()}"
+        onchange="plannerDateChanged()">
+      <div class="pf-hint">Freie Slots werden basierend auf deinen Arbeitszeiten (${prefs.workStart}–${prefs.workEnd}) berechnet.</div>
+    </div>
+    <div class="pf-section" id="pl-slots-section">
+      <label class="pf-label">Freie Zeitfenster</label>
+      <div class="plan-loading" id="pl-slots-loading"><div class="plan-spinner"></div>Lade Termine …</div>
+      <div class="slot-list" id="pl-slots"></div>
+    </div>`;
+}
+
+async function plannerDateChanged(){
+  const dateInput=document.getElementById('pl-date');
+  if(!dateInput)return;
+  const dateVal=dateInput.value;
+  const slotsEl=document.getElementById('pl-slots');
+  const loadEl=document.getElementById('pl-slots-loading');
+  const ev=events.find(e=>e.id===plannerSelectedEvId);
+  if(!ev||!slotsEl)return;
+  if(loadEl)loadEl.style.display='flex';
+  slotsEl.innerHTML='';
+  plannerSelectedSlot=null;
+  document.getElementById('pl-reschedule-confirm').innerHTML='';
+
+  try{
+    const dayEvents=await fetchEvents(dateVal);
+    const slots=computeFreeSlots(dayEvents,ev.end-ev.start,dateVal);
+    if(loadEl)loadEl.style.display='none';
+    if(slots.length===0){
+      slotsEl.innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:.58rem;color:var(--muted);">Kein freier Slot gefunden. Anderes Datum wählen.</div>';
+      return;
+    }
+    slotsEl.innerHTML=slots.map((s,i)=>`
+      <div class="slot-item${plannerSelectedSlot===i?' selected':''}" onclick="selectSlot(${i},${s.start.getTime()},${s.end.getTime()})">
+        <div class="slot-time">${hm(s.start)} – ${hm(s.end)}</div>
+        <div class="slot-dur">${dur(s.end-s.start)} frei</div>
+        <div class="slot-radio"></div>
+      </div>`).join('');
+  }catch(e){
+    if(loadEl)loadEl.style.display='none';
+    slotsEl.innerHTML=`<div style="color:var(--red);font-family:'JetBrains Mono',monospace;font-size:.58rem;">Fehler: ${esc(e.message)}</div>`;
+  }
+}
+
+function selectSlot(i,startMs,endMs){
+  plannerSelectedSlot={i,start:new Date(startMs),end:new Date(endMs)};
+  document.querySelectorAll('.slot-item').forEach((el,j)=>el.classList.toggle('selected',j===i));
+  const confirm=document.getElementById('pl-reschedule-confirm');
+  const ev=events.find(e=>e.id===plannerSelectedEvId);
+  if(!ev||!confirm)return;
+  const dateInput=document.getElementById('pl-date');
+  const dateLbl=dateInput?new Date(dateInput.value+'T12:00:00').toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'}):'';
+  confirm.innerHTML=`
+    <div class="pf-divider"></div>
+    <div class="plan-result">
+      <div class="plan-result-title">Geplante Verschiebung</div>
+      <div class="plan-result-row">
+        <div class="plan-result-time">${hm(new Date(startMs))} – ${hm(new Date(endMs))}</div>
+        <div class="plan-result-name">${esc(ev.title)}</div>
+        <div class="plan-result-dur">${dateLbl}</div>
+      </div>
+    </div>
+    <div style="margin-top:.85rem;">
+      <button class="pf-btn" onclick="confirmReschedule(${startMs},${endMs})">✓ Termin verschieben</button>
+    </div>`;
+}
+
+async function confirmReschedule(startMs,endMs){
+  const ev=events.find(e=>e.id===plannerSelectedEvId);
+  if(!ev){toast('◇','Fehler','Kein Termin gewählt');return;}
+  const newStart=new Date(startMs),newEnd=new Date(endMs);
+  setStatus('warn','Termin wird verschoben …');
+  try{
+    const url=`${CAL_API}/calendars/${encodeURIComponent(ev.calId)}/events/${encodeURIComponent(ev.id)}`;
+    const full=await apiFetch(url);
+    await apiFetch(url,'PATCH',{
+      start:{dateTime:newStart.toISOString(),timeZone:full.start.timeZone||'Europe/Berlin'},
+      end:  {dateTime:newEnd.toISOString(),  timeZone:full.end.timeZone  ||'Europe/Berlin'}
+    });
+    toast('✦','Termin verschoben',`${esc(ev.title)} → ${hm(newStart)}`);
+    setStatus(true);
+    plannerSelectedEvId=null;plannerSelectedSlot=null;
+    await loadData();
+    renderPlannerTab();
+  }catch(e){
+    setStatus('err','Fehler');toast('◇','Fehler beim Verschieben',e.message);
+  }
+}
+
+// ── Tab: New Event Planner ───────────────────────
+function renderNewTab(body){
+  const prefs=getPrefs();
+  const itemsHtml=plannerNewItems.map((it,i)=>`
+    <div style="display:flex;align-items:center;gap:.5rem;padding:.35rem 0;border-bottom:.5px solid var(--border);">
+      <div style="flex:1;font-size:.72rem;color:var(--text);">${esc(it.title)}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--muted);">${it.durMin}m</div>
+      <button onclick="removeNewItem(${i})" style="font-family:'JetBrains Mono',monospace;font-size:.5rem;background:none;border:none;color:var(--muted);cursor:pointer;">✕</button>
+    </div>`).join('');
+
+  body.innerHTML=`
+    <div class="pf-section">
+      <label class="pf-label">Neue Aufgaben hinzufügen</label>
+      <input type="text" class="pf-input" id="pn-title" placeholder="Titel der Aufgabe" style="margin-bottom:.5rem;">
+      <div class="pf-row">
+        <div>
+          <label class="pf-label">Dauer (Minuten)</label>
+          <input type="number" class="pf-input" id="pn-dur" value="60" min="5" max="480">
+        </div>
+        <div style="display:flex;align-items:flex-end;">
+          <button class="pf-btn blue" onclick="addNewItem()" style="margin-bottom:0;">+ Hinzufügen</button>
+        </div>
+      </div>
+    </div>
+    ${plannerNewItems.length>0?`
+    <div class="pf-section">
+      <label class="pf-label">Eingeplant (${plannerNewItems.length})</label>
+      ${itemsHtml}
+    </div>`:''}
+    ${plannerNewItems.length>0?`
+    <div class="pf-divider"></div>
+    <div class="pf-section">
+      <label class="pf-label">Datum</label>
+      <input type="date" class="pf-input" id="pn-date" value="${todayStr()}" min="${todayStr()}" style="margin-bottom:.5rem;">
+      <label class="pf-label" style="margin-top:.5rem;">Startzeit (frühestens)</label>
+      <input type="time" class="pf-input" id="pn-from" value="${prefs.workStart}">
+      <div class="pf-hint">Pausen von min. ${prefs.minPause}m werden automatisch zwischen Blöcke eingefügt.</div>
+    </div>
+    <button class="pf-btn" onclick="computeNewPlan()">◆ Plan berechnen</button>
+    <div id="pn-result"></div>`:''}`;
+}
+
+function addNewItem(){
+  const title=(document.getElementById('pn-title')||{}).value||'';
+  const durMin=parseInt((document.getElementById('pn-dur')||{}).value||'60');
+  if(!title.trim()){toast('◇','Kein Titel','');return;}
+  if(isNaN(durMin)||durMin<5){toast('◇','Ungültige Dauer','');return;}
+  plannerNewItems.push({title:title.trim(),durMin});
+  renderPlannerTab();
+}
+function removeNewItem(i){
+  plannerNewItems.splice(i,1);
+  renderPlannerTab();
+}
+
+async function computeNewPlan(){
+  const dateVal=(document.getElementById('pn-date')||{}).value||todayStr();
+  const fromVal=(document.getElementById('pn-from')||{}).value||'08:00';
+  const prefs=getPrefs();
+  const resultEl=document.getElementById('pn-result');
+  if(!resultEl)return;
+  resultEl.innerHTML='<div class="plan-loading"><div class="plan-spinner"></div>Berechne Plan …</div>';
+
+  try{
+    const dayEvents=await fetchEvents(dateVal);
+    const [fH,fM]=fromVal.split(':').map(Number);
+    const base=new Date(dateVal+'T00:00:00');
+    let cursor=new Date(base);cursor.setHours(fH,fM,0,0);
+    const [wEH,wEM]=prefs.workEnd.split(':').map(Number);
+    const workEnd=new Date(base);workEnd.setHours(wEH,wEM,0,0);
+    const minPauseMs=prefs.minPause*60*1000;
+    const plan=[];
+
+    for(const item of plannerNewItems){
+      const durMs=item.durMin*60*1000;
+      // Skip over existing events
+      let placed=false;
+      for(let attempt=0;attempt<48;attempt++){
+        // Check if cursor overlaps any existing event
+        const overlap=dayEvents.find(e=>e.start<new Date(cursor.getTime()+durMs)&&e.end>cursor);
+        if(overlap){cursor=new Date(overlap.end.getTime()+minPauseMs);continue;}
+        // Check workEnd
+        if(new Date(cursor.getTime()+durMs)>workEnd){break;}
+        plan.push({title:item.title,start:new Date(cursor),end:new Date(cursor.getTime()+durMs),type:'event'});
+        cursor=new Date(cursor.getTime()+durMs+minPauseMs);
+        placed=true;break;
+      }
+      if(!placed){plan.push({title:item.title,start:null,end:null,type:'no-slot'});}
+    }
+
+    if(plan.length===0){resultEl.innerHTML='<div style="color:var(--muted);font-size:.6rem;font-family:\'JetBrains Mono\',monospace;margin-top:.8rem;">Kein Plan möglich.</div>';return;}
+
+    const dateLbl=new Date(dateVal+'T12:00:00').toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+    const rows=plan.map((p,i)=>p.start
+      ?`<div class="plan-result-row">
+          <div class="plan-result-time">${hm(p.start)} – ${hm(p.end)}</div>
+          <div class="plan-result-name">${esc(p.title)}</div>
+          <span class="plan-result-badge prb-event">Termin</span>
+        </div>`
+      :`<div class="plan-result-row">
+          <div class="plan-result-time" style="color:var(--red);">Kein Slot</div>
+          <div class="plan-result-name">${esc(p.title)}</div>
+        </div>`
+    ).join('');
+
+    const canCreate=plan.some(p=>p.start);
+    resultEl.innerHTML=`
+      <div class="plan-result" style="margin-top:.85rem;">
+        <div class="plan-result-title">Vorgeschlagener Plan · ${dateLbl}</div>
+        ${rows}
+      </div>
+      ${canCreate?`<div style="margin-top:.85rem;">
+        <button class="pf-btn" onclick="createNewPlan(${JSON.stringify(plan.map(p=>p.start?{title:p.title,start:p.start.getTime(),end:p.end.getTime()}:null)).replace(/"/g,'&quot;')})">✓ Alle Termine erstellen</button>
+      </div>`:''}`;
+  }catch(e){
+    resultEl.innerHTML=`<div style="color:var(--red);font-family:'JetBrains Mono',monospace;font-size:.58rem;margin-top:.5rem;">Fehler: ${esc(e.message)}</div>`;
+  }
+}
+
+async function createNewPlan(planJSON){
+  const plan=JSON.parse(planJSON.replace(/&quot;/g,'"'));
+  const calId=await getPrimaryCalendarId();
+  setStatus('warn','Termine werden erstellt …');
+  let created=0;
+  for(const p of plan){
+    if(!p)continue;
+    try{
+      await apiFetch(`${CAL_API}/calendars/${encodeURIComponent(calId)}/events`,'POST',{
+        summary:p.title,
+        start:{dateTime:new Date(p.start).toISOString(),timeZone:'Europe/Berlin'},
+        end:  {dateTime:new Date(p.end).toISOString(),  timeZone:'Europe/Berlin'}
+      });
+      created++;
+    }catch(e){console.warn('Create failed:',e.message);}
+  }
+  toast('✦',`${created} Termin${created!==1?'e':''} erstellt`,'');
+  setStatus(true);plannerNewItems=[];await loadData();renderPlannerTab();
+}
+
+async function getPrimaryCalendarId(){
+  // Use the first non-task calendar that looks like the primary
+  const cals=await fetchCalendarList();
+  const primary=cals.find(c=>c.id.includes('@')&&!c.id.includes('@resource')&&!c.id.includes('@group')&&!c.id.includes('@tasks'));
+  return primary?primary.id:'primary';
+}
+
+// ── Tab: Preferences ────────────────────────────
+function renderPrefsTab(body){
+  const p=getPrefs();
+  body.innerHTML=`
+    <div class="pf-section">
+      <label class="pf-label">Arbeitszeit</label>
+      <div class="pf-row">
+        <div>
+          <label class="pf-label">Von</label>
+          <input type="time" class="pf-input" id="pr-ws" value="${p.workStart}">
+        </div>
+        <div>
+          <label class="pf-label">Bis</label>
+          <input type="time" class="pf-input" id="pr-we" value="${p.workEnd}">
+        </div>
+      </div>
+    </div>
+    <div class="pf-section">
+      <label class="pf-label">Mindestpause zwischen Blöcken (Minuten)</label>
+      <input type="number" class="pf-input" id="pr-mp" value="${p.minPause}" min="0" max="120">
+    </div>
+    <div class="pf-section">
+      <label class="pf-label">Maximale Blockgröße (Minuten)</label>
+      <input type="number" class="pf-input" id="pr-mb" value="${p.maxBlock}" min="15" max="480">
+      <div class="pf-hint">Blöcke die länger sind werden zur Erinnerung markiert (noch nicht automatisch gesplittet).</div>
+    </div>
+    <div class="pf-divider"></div>
+    <button class="pf-btn" onclick="savePrefsFromUI()">✓ Einstellungen speichern</button>`;
+}
+function savePrefsFromUI(){
+  const p={
+    workStart:(document.getElementById('pr-ws')||{}).value||'08:00',
+    workEnd:  (document.getElementById('pr-we')||{}).value||'20:00',
+    minPause: parseInt((document.getElementById('pr-mp')||{}).value||'15'),
+    maxBlock: parseInt((document.getElementById('pr-mb')||{}).value||'120'),
+  };
+  savePrefs(p);toast('✦','Einstellungen gespeichert','');
+}
+
+// ── Free slot calculator ────────────────────────
+function computeFreeSlots(dayEvts,neededMs,dateStr){
+  const prefs=getPrefs();
+  const base=new Date(dateStr+'T00:00:00');
+  const [sH,sM]=prefs.workStart.split(':').map(Number);
+  const [eH,eM]=prefs.workEnd.split(':').map(Number);
+  const wS=new Date(base);wS.setHours(sH,sM,0,0);
+  const wE=new Date(base);wE.setHours(eH,eM,0,0);
+  const minPauseMs=prefs.minPause*60*1000;
+  const sorted=[...dayEvts].sort((a,b)=>a.start-b.start);
+  const gaps=[];
+  let cursor=wS;
+  for(const ev of sorted){
+    if(ev.start>cursor&&ev.start-cursor>=neededMs){
+      gaps.push({start:new Date(cursor),end:new Date(ev.start)});
+    }
+    if(ev.end>cursor)cursor=new Date(ev.end.getTime()+minPauseMs);
+  }
+  if(wE-cursor>=neededMs)gaps.push({start:new Date(cursor),end:new Date(wE)});
+  return gaps;
+}
+
+// ═══════════════════════════════════════════════════
+// STATUS
+// ═══════════════════════════════════════════════════
 function setStatus(state,msg){
   const dot=$('sdot'),txt=$('stxt');
   if(state===true){dot.className='sdot';txt.textContent='Aktualisiert · '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}
@@ -957,11 +1487,14 @@ function setStatus(state,msg){
   else{dot.className='sdot err';txt.textContent=msg||'Fehler';}
 }
 
-// ═══ Dashboard ═════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// DASHBOARD INIT
+// ═══════════════════════════════════════════════════
 function startDashboard(){
   renderAll();tick();if(!clockTmr)clockTmr=setInterval(tick,1000);
   loadData();scheduleTokenRefresh();
   $('cal-btn').onclick=openCal;
+  $('planner-btn').onclick=openPlanner;
   $('logout-btn').onclick=()=>{
     clearTimeout(refreshTmr);clearTimeout(tokenRefreshTmr);clearInterval(clockTmr);
     ['fd_tok','fd_tok3','fd_tok4','fd_tok5','fd_client','pending_auth'].forEach(k=>localStorage.removeItem(k));
@@ -977,10 +1510,11 @@ function startDashboard(){
   };
 }
 
-// ═══ Init ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
 async function init(){
   lsStart=Date.now();
-  // Mobile OAuth redirect return
   const hp=new URLSearchParams(window.location.hash.slice(1)),rt=hp.get('access_token');
   if(rt){
     const exp=parseInt(hp.get('expires_in')||'3600');
@@ -988,15 +1522,12 @@ async function init(){
     saveToken(rt,exp);localStorage.removeItem('pending_auth');
     await revealApp();startDashboard();return;
   }
-  // Valid token — start
   if(tokenValid()){loadToken();await revealApp();startDashboard();return;}
-  // No valid token
   $('load-txt').textContent='Anmeldung …';
   if(isMobile()){
     await new Promise(r=>setTimeout(r,600));
     ss({pending_auth:'1'});window.location.href=buildAuthUrl();return;
   }
-  // Desktop: show app, open popup
   await revealApp();
   clockTmr=setInterval(tick,1000);tick();
   setStatus('warn','Anmeldung …');
