@@ -399,7 +399,10 @@ const $ = id => document.getElementById(id);
 const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 function sg(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch{return null;}}
 function ss(k,v){localStorage.setItem(k,JSON.stringify(v));}
-function isoDate(d=new Date()){return new Date(d).toISOString().split('T')[0];}
+function isoDate(d=new Date()){
+  const dt=new Date(d);
+  return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+}
 function hm(d){return new Date(d).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}
 function fmtDate(s){return new Date(s+'T12:00').toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});}
 function fmtShort(s){return new Date(s+'T12:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'});}
@@ -496,6 +499,26 @@ async function getPrimCalId(){
 // ═══════════════════════════════════════════════
 const DAYS_DE = ['Mo','Di','Mi','Do','Fr','Sa','So'];
 
+function layoutDayEvents(dayEvs){
+  if(!dayEvs.length)return[];
+  const sorted=[...dayEvs].sort((a,b)=>a.start-b.start);
+  const colEnds=[];
+  const colMap=new Map();
+  for(const ev of sorted){
+    let col=0;
+    while(col<colEnds.length&&colEnds[col]>ev.start.getTime())col++;
+    colEnds[col]=ev.end.getTime();
+    colMap.set(ev.id,col);
+  }
+  return sorted.map(ev=>{
+    const myCol=colMap.get(ev.id);
+    const overlapping=sorted.filter(o=>o.id!==ev.id&&o.start<ev.end&&o.end>ev.start);
+    const localMax=overlapping.length>0
+      ?Math.max(myCol,...overlapping.map(o=>colMap.get(o.id)))+1:1;
+    return{...ev,col:myCol,totalCols:localMax};
+  });
+}
+
 async function renderWeek(){
   if(weekLoading)return;
   weekLoading=true;
@@ -552,17 +575,20 @@ async function renderWeek(){
     }
     // Events for this day
     const dayEvs=weekEvents.filter(e=>isSameDay(e.start,day));
-    dayEvs.forEach(ev=>{
+    const laidOut=layoutDayEvents(dayEvs);
+    laidOut.forEach(ev=>{
       const top=evTop(ev.start);
-      const height=Math.max(evHeight(ev.start,ev.end),14);
+      const height=Math.max(evHeight(ev.start,ev.end)-1,12);
       const bg=hexToRgba(ev.calColor||'#d2aa50',.22);
       const border=hexToRgba(ev.calColor||'#d2aa50',.55);
       const color=hexToRgba(ev.calColor||'#d2aa50',1);
       const isSelectable=getCurrentTab()==='move'&&ev.end>new Date();
       const isSelected=moveSelectedId===ev.id;
+      const pW=(100/ev.totalCols).toFixed(1);
+      const pL=(ev.col*100/ev.totalCols).toFixed(1);
       html+=`<div class="cal-ev${isSelectable?' selectable':''}${isSelected?' ev-selected':''}"
         data-id="${esc(ev.id)}"
-        style="top:${top}px;height:${height}px;background:${bg};border-color:${border};"
+        style="top:${top}px;height:${height}px;left:calc(${pL}% + 2px);right:auto;width:calc(${pW}% - ${ev.totalCols>1?3:4}px);background:${bg};border-color:${border};"
         ${isSelectable?`onclick="calEvClick('${ev.id.replace(/'/g,"\\'")}')"`:''}
         title="${esc(ev.title)} · ${hm(ev.start)}–${hm(ev.end)}">
         <div class="cal-ev-title" style="color:${color};">${esc(ev.title)}</div>
@@ -570,6 +596,10 @@ async function renderWeek(){
       </div>`;
     });
     html+='</div>';
+  }
+  inner.innerHTML=html;
+  $('cal-loading').style.display='none';
+  weekLoading=false;
   }
 
   inner.innerHTML=html;
