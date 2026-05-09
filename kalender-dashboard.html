@@ -583,13 +583,65 @@ function tokenValid(){const s=sg(SK_TOKEN);return s&&s.token&&s.exp>Date.now()+6
 function loadToken(){const s=sg(SK_TOKEN);if(s&&s.token){token=s.token;return true;}return false;}
 function saveToken(tok,exp){token=tok;ss({[SK_TOKEN]:{token:tok,exp:Date.now()+exp*1000,sv:SCOPE_VERSION}});}
 function scheduleTokenRefresh(){clearTimeout(tokenRefreshTmr);const s=sg(SK_TOKEN);if(!s||!s.exp)return;const ms=s.exp-Date.now()-REFRESH_BEFORE;tokenRefreshTmr=setTimeout(()=>triggerReauth(),ms>0?ms:0);}
+
+// Silent refresh via hidden iframe — no popup, no white flash
+// Works as long as user is still logged into Google in the browser
+function silentRefresh(){
+  return new Promise((res,rej)=>{
+    const iframe=document.createElement('iframe');
+    iframe.style.cssText='position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:none;visibility:hidden;';
+    const u=new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    u.searchParams.set('client_id',CLIENT_ID);
+    u.searchParams.set('response_type','token');
+    u.searchParams.set('redirect_uri',window.location.origin+window.location.pathname);
+    u.searchParams.set('scope',SCOPES);
+    u.searchParams.set('prompt','none'); // KEY: no UI shown
+    iframe.src=u.toString();
+    document.body.appendChild(iframe);
+    let done=false;
+    const cleanup=()=>{if(!done){done=true;try{document.body.removeChild(iframe);}catch{}}};
+    const timeout=setTimeout(()=>{cleanup();rej(new Error('silent_timeout'));},12000);
+    // Poll for redirect back to our origin
+    const poll=setInterval(()=>{
+      try{
+        const loc=iframe.contentWindow.location.href;
+        if(loc.startsWith(window.location.origin)){
+          clearInterval(poll);clearTimeout(timeout);cleanup();
+          const p=new URLSearchParams(new URL(loc).hash.slice(1));
+          const tok=p.get('access_token'),exp=parseInt(p.get('expires_in')||'3600');
+          if(tok)res({token:tok,expiresIn:exp});
+          else rej(new Error('no_token_silent'));
+        }
+      }catch(_){/* cross-origin while Google is loading — normal */}
+    },250);
+  });
+}
+
 async function triggerReauth(){
-  if(isRefreshing)return;isRefreshing=true;setStatus('warn','Sitzung wird erneuert …');
+  if(isRefreshing)return;isRefreshing=true;
+  // 1. Try completely silent refresh first — user sees nothing
   try{
-    if(isMobile()){ss({pending_auth:'1'});window.location.href=buildAuthUrl();return;}
-    const{token:tok,expiresIn:exp}=await doAuth();saveToken(tok,exp);setStatus(true);scheduleTokenRefresh();await loadData();
-  }catch{setStatus('err','Sitzung abgelaufen');const b=$('refresh-btn');b.textContent='Anmelden →';b.classList.add('login-needed');}
-  finally{isRefreshing=false;}
+    const{token:tok,expiresIn:exp}=await silentRefresh();
+    saveToken(tok,exp);scheduleTokenRefresh();
+    token=tok; // update in-memory token immediately
+    isRefreshing=false;
+    setStatus(true);
+    // Reload data silently, keep manual session intact
+    await loadData();
+    return;
+  }catch(e){
+    console.info('Silent refresh failed, falling back to popup:',e.message);
+  }
+  // 2. Silent failed — need user interaction
+  setStatus('warn','Neu-Anmeldung …');
+  try{
+    if(isMobile()){saveManualSession();ss({pending_auth:'1'});window.location.href=buildAuthUrl();return;}
+    const{token:tok,expiresIn:exp}=await doAuth();
+    saveToken(tok,exp);setStatus(true);scheduleTokenRefresh();await loadData();
+  }catch{
+    setStatus('err','Sitzung abgelaufen');
+    const b=$('refresh-btn');b.textContent='Anmelden →';b.classList.add('login-needed');
+  }finally{isRefreshing=false;}
 }
 
 // ═══════════════════════════════════════════════════
@@ -666,6 +718,43 @@ async function handleApiErr(e){
 }
 
 // ═══════════════════════════════════════════════════
+// MANUAL SESSION PERSISTENCE
+// Survives token refresh, page reload, re-auth
+// ═══════════════════════════════════════════════════
+const SK_SESSION='fd_manual_session';
+
+function saveManualSession(){
+  if(!manualSession)return;
+  ss(SK_SESSION,{
+    sessionStart:manualSession.sessionStart.getTime(),
+    event:{
+      id:manualSession.event.id,title:manualSession.event.title,
+      start:manualSession.event.start.getTime(),end:manualSession.event.end.getTime(),
+      calId:manualSession.event.calId,calColor:manualSession.event.calColor,
+      isTask:manualSession.event.isTask||false,colorId:manualSession.event.colorId||null
+    }
+  });
+}
+
+function clearManualSession(){
+  localStorage.removeItem(SK_SESSION);
+}
+
+function restoreManualSession(){
+  const s=sg(SK_SESSION);
+  if(!s||!s.sessionStart)return;
+  const ev={
+    ...s.event,
+    start:new Date(s.event.start),
+    end:new Date(s.event.end)
+  };
+  // Only restore if original event end hasn't passed yet
+  if(new Date()>=ev.end){clearManualSession();return;}
+  manualSession={event:ev,sessionStart:new Date(s.sessionStart)};
+  toast('◆','Session wiederhergestellt',ev.title);
+}
+
+// ═══════════════════════════════════════════════════
 // FIX 2 — Manual Session with Log Entry
 // ═══════════════════════════════════════════════════
 function activateEventModal(evId){
@@ -700,6 +789,7 @@ function startManualSession(evId){
   const ev=events.find(e=>e.id===evId);if(!ev)return;
   manualSession={event:ev,sessionStart:new Date()};
   conflictBannerActive=false;prevCardKey=null;
+  saveManualSession(); // persist immediately
   renderAll();toast('◆','Session gestartet',ev.title);
 }
 
@@ -707,6 +797,7 @@ async function endManualSession(){
   if(!manualSession)return;
   const session=manualSession;
   manualSession=null;conflictBannerActive=false;
+  clearManualSession(); // remove from localStorage
   const slot=$('conflict-banner-slot');if(slot)slot.innerHTML='';
   const workedMs=Date.now()-session.sessionStart.getTime();
   const wMin=Math.round(workedMs/60000);
@@ -1491,13 +1582,14 @@ function setStatus(state,msg){
 // DASHBOARD INIT
 // ═══════════════════════════════════════════════════
 function startDashboard(){
+  restoreManualSession(); // restore before first render
   renderAll();tick();if(!clockTmr)clockTmr=setInterval(tick,1000);
   loadData();scheduleTokenRefresh();
   $('cal-btn').onclick=openCal;
   $('planner-btn').onclick=openPlanner;
   $('logout-btn').onclick=()=>{
     clearTimeout(refreshTmr);clearTimeout(tokenRefreshTmr);clearInterval(clockTmr);
-    ['fd_tok','fd_tok3','fd_tok4','fd_tok5','fd_client','pending_auth'].forEach(k=>localStorage.removeItem(k));
+    ['fd_tok','fd_tok3','fd_tok4','fd_tok5','fd_client','pending_auth',SK_SESSION].forEach(k=>localStorage.removeItem(k));
     location.reload();
   };
   $('refresh-btn').onclick=async()=>{
