@@ -1586,7 +1586,7 @@ function startDashboard(){
   renderAll();tick();if(!clockTmr)clockTmr=setInterval(tick,1000);
   loadData();scheduleTokenRefresh();
   $('cal-btn').onclick=openCal;
-  $('planner-btn').onclick=openPlanner;
+  $('planner-btn').onclick=()=>location.href='planner.html';
   $('logout-btn').onclick=()=>{
     clearTimeout(refreshTmr);clearTimeout(tokenRefreshTmr);clearInterval(clockTmr);
     ['fd_tok','fd_tok3','fd_tok4','fd_tok5','fd_client','pending_auth',SK_SESSION].forEach(k=>localStorage.removeItem(k));
