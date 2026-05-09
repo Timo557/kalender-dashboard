@@ -797,9 +797,92 @@ function computeFreeSlots(dayEvts,neededMs,dateStr){
   return gaps;
 }
 
-function selectMoveSlot(i,startMs,endMs){
-  moveSelectedSlot={start:new Date(startMs),end:new Date(endMs)};
-  document.querySelectorAll('.slot-item').forEach((el,j)=>el.classList.toggle('selected',j===i));
+function selectMoveSlot(i, startMs, endMs) {
+  const ev = weekEvents.find(e => e.id === moveSelectedId);
+  if (!ev) return;
+  const durMs = ev.end - ev.start;
+  const slotStart = new Date(startMs);
+  const slotEnd = new Date(endMs);
+
+  document.querySelectorAll('.slot-item').forEach((el, j) => el.classList.toggle('selected', j === i));
+
+  const latestStart = new Date(slotEnd.getTime() - durMs);
+  const durLabel = durLbl(durMs / 60000);
+
+  const existingPicker = $('slot-time-picker');
+  if (existingPicker) existingPicker.remove();
+
+  const picker = document.createElement('div');
+  picker.id = 'slot-time-picker';
+  picker.style.cssText = 'margin-top:.75rem;padding:.75rem;background:rgba(74,127,184,.05);border:.5px solid rgba(74,127,184,.22);border-radius:8px;';
+  picker.innerHTML = `
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(74,127,184,.7);margin-bottom:.5rem;">
+      Wann im Zeitfenster? (${durLabel})
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--mu);margin-bottom:.5rem;">
+      Frühestens ${hm(slotStart)} · Spätestens ${hm(latestStart)}
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem;">
+      <input class="fi" id="slot-pick-time" type="time"
+        value="${toTimeInput(slotStart)}"
+        style="width:90px;"
+        oninput="updateSlotPreview(${startMs},${endMs})">
+      <button class="btn btn-blue" onclick="confirmSlotTime(${startMs},${endMs})">Übernehmen</button>
+    </div>
+    <div id="slot-preview" style="margin-top:.5rem;font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--tx);"></div>
+  `;
+  $('move-slots-wrap').appendChild(picker);
+
+  updateSlotPreview(startMs, endMs);
+  moveSelectedSlot = null;
+  $('move-step3').style.display = 'none';
+}
+
+function toTimeInput(d) {
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
+function updateSlotPreview(startMs, endMs) {
+  const ev = weekEvents.find(e => e.id === moveSelectedId);
+  if (!ev) return;
+  const durMs = ev.end - ev.start;
+  const slotStart = new Date(startMs);
+  const slotEnd = new Date(endMs);
+  const timeVal = $('slot-pick-time')?.value;
+  if (!timeVal) return;
+  const dateVal = $('move-date').value;
+  const newStart = new Date(dateVal + 'T' + timeVal + ':00');
+  const newEnd = new Date(newStart.getTime() + durMs);
+  const preview = $('slot-preview');
+  if (!preview) return;
+  if (newEnd > slotEnd) {
+    preview.style.color = 'rgba(184,74,68,.8)';
+    preview.textContent = '⚠ Zu spät — Termin würde über das Zeitfenster hinausgehen';
+  } else if (newStart < slotStart) {
+    preview.style.color = 'rgba(184,74,68,.8)';
+    preview.textContent = '⚠ Zu früh — vor dem freien Zeitfenster';
+  } else {
+    preview.style.color = 'rgba(61,143,96,.85)';
+    preview.textContent = `✓ ${hm(newStart)} – ${hm(newEnd)}`;
+  }
+}
+
+function confirmSlotTime(startMs, endMs) {
+  const ev = weekEvents.find(e => e.id === moveSelectedId);
+  if (!ev) return;
+  const durMs = ev.end - ev.start;
+  const slotStart = new Date(startMs);
+  const slotEnd = new Date(endMs);
+  const timeVal = $('slot-pick-time')?.value;
+  const dateVal = $('move-date').value;
+  if (!timeVal || !dateVal) return;
+  const newStart = new Date(dateVal + 'T' + timeVal + ':00');
+  const newEnd = new Date(newStart.getTime() + durMs);
+  if (newStart < slotStart || newEnd > slotEnd) {
+    toast('◇', 'Uhrzeit liegt außerhalb des Slots', `${hm(slotStart)}–${hm(slotEnd)}`);
+    return;
+  }
+  moveSelectedSlot = { start: newStart, end: newEnd };
   showMoveConfirm();
 }
 
