@@ -14,12 +14,11 @@
   --tx:#ede8db;--mu:#6d6858;--dim:rgba(237,232,219,.22);
   --red:#b84a44;--green:#3d8f60;--blue:#4a7fb8;--purple:#7b5ea7;
   --out:cubic-bezier(.25,.46,.45,.94);--sp:cubic-bezier(.34,1.20,.64,1);
-  --hr:54px; /* pixels per hour in calendar */
+  --hr:54px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;overflow:hidden;}
 
-/* ── Topbar ── */
 .topbar{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 1.4rem;border-bottom:.5px solid var(--bd);background:rgba(7,7,15,.9);backdrop-filter:blur(12px);flex-shrink:0;z-index:30;}
 .logo{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:300;letter-spacing:.1em;}
 .logo em{color:var(--gold);font-style:normal;}
@@ -29,15 +28,9 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
 @keyframes dp{0%,100%{opacity:1;}50%{opacity:.3;}}
 .clbl{font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--mu);}
 
-/* ── Main layout ── */
 .main{display:grid;grid-template-columns:1fr 380px;height:calc(100vh - 48px);overflow:hidden;}
 
-/* ══════════════════════════════════
-   LEFT — WEEK CALENDAR
-══════════════════════════════════ */
 .cal-side{display:flex;flex-direction:column;border-right:.5px solid var(--bd);overflow:hidden;background:var(--bg);}
-
-/* Week nav */
 .week-nav{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;border-bottom:.5px solid var(--bd);flex-shrink:0;gap:.5rem;}
 .week-nav-label{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.08em;color:var(--gdim);flex:1;text-align:center;}
 .wn-btn{font-family:'JetBrains Mono',monospace;font-size:.52rem;padding:.25rem .6rem;border-radius:5px;border:.5px solid var(--bd);background:transparent;color:var(--mu);cursor:pointer;transition:all .15s;}
@@ -45,9 +38,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
 .wn-today{font-family:'JetBrains Mono',monospace;font-size:.46rem;padding:.22rem .55rem;border-radius:4px;border:.5px solid var(--bd2);background:transparent;color:var(--mu);cursor:pointer;transition:all .15s;}
 .wn-today:hover{color:var(--gold);}
 
-/* Calendar grid */
 .cal-grid-wrap{flex:1;overflow:hidden;display:flex;flex-direction:column;}
-/* Day headers */
 .cal-day-headers{display:grid;grid-template-columns:36px repeat(7,1fr);border-bottom:.5px solid var(--bd);flex-shrink:0;padding-right:6px;}
 .cal-day-hdr{padding:.4rem .2rem;text-align:center;}
 .cdh-name{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);}
@@ -55,45 +46,34 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
 .cdh-num.today{color:var(--gold);}
 .cal-day-hdr.today-col .cdh-name{color:var(--gdim);}
 
-/* Scrollable body */
 .cal-body{flex:1;overflow-y:scroll;position:relative;scrollbar-width:thin;scrollbar-color:var(--bd) transparent;}
 .cal-body::-webkit-scrollbar{width:4px;}
 .cal-body::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px;}
 .cal-inner{display:grid;grid-template-columns:36px repeat(7,1fr);position:relative;}
 
-/* Hour rows */
 .cal-time-col{display:flex;flex-direction:column;}
 .cal-hour-label{height:var(--hr);display:flex;align-items:flex-start;justify-content:flex-end;padding-right:6px;padding-top:2px;font-family:'JetBrains Mono',monospace;font-size:.42rem;color:rgba(109,104,88,.4);flex-shrink:0;}
 .cal-day-col{position:relative;border-left:.5px solid var(--bd2);}
 .cal-day-col.today-col{background:rgba(210,170,80,.018);}
 .hour-line{position:absolute;left:0;right:0;border-top:.5px solid var(--bd2);pointer-events:none;}
 
-/* Events */
 .cal-ev{position:absolute;left:2px;right:2px;border-radius:4px;padding:2px 5px;overflow:hidden;cursor:default;border:.5px solid transparent;transition:opacity .15s;}
 .cal-ev:hover{opacity:.85;z-index:5;}
 .cal-ev-title{font-size:.58rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
 .cal-ev-time{font-family:'JetBrains Mono',monospace;font-size:.44rem;opacity:.7;margin-top:1px;}
-/* Clickable for "Verschieben" selection */
 .cal-ev.selectable{cursor:pointer;outline:.5px dashed transparent;}
 .cal-ev.selectable:hover{outline-color:var(--gold);}
 .cal-ev.ev-selected{outline:.5px solid var(--gold)!important;z-index:6;}
 
-/* Current time line */
 .now-line{position:absolute;left:0;right:0;z-index:10;pointer-events:none;display:flex;align-items:center;}
 .now-dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;box-shadow:0 0 5px rgba(184,74,68,.5);}
 .now-rule{flex:1;height:1px;background:rgba(184,74,68,.45);}
 
-/* Cal loading */
 .cal-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(7,7,15,.5);z-index:20;}
 .spinner{width:18px;height:18px;border:2px solid rgba(210,170,80,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* ══════════════════════════════════
-   RIGHT — ACTION PANELS
-══════════════════════════════════ */
 .right-side{display:flex;flex-direction:column;overflow:hidden;background:var(--sf);}
-
-/* Tabs */
 .tabs{display:flex;border-bottom:.5px solid var(--bd);flex-shrink:0;}
 .tab{flex:1;font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;padding:.65rem .5rem;background:transparent;border:none;color:var(--mu);cursor:pointer;border-bottom:1.5px solid transparent;transition:all .18s;margin-bottom:-1px;}
 .tab.active{color:var(--gold);border-bottom-color:var(--gold);}
@@ -103,7 +83,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
 .tab-body::-webkit-scrollbar{width:2px;}
 .tab-body::-webkit-scrollbar-thumb{background:var(--bd);}
 
-/* ── Shared form elements ── */
 .sec-lbl{font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);display:block;margin-bottom:.42rem;}
 .fi{width:100%;background:rgba(237,232,219,.04);border:.5px solid var(--bd);border-radius:7px;padding:.48rem .72rem;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--tx);outline:none;transition:border-color .2s;}
 .fi:focus{border-color:rgba(210,170,80,.4);}
@@ -121,14 +100,12 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
 .btn-blue:hover{background:rgba(74,127,184,.18);}
 .mb{margin-bottom:.75rem;}
 
-/* ── Key banner ── */
 .key-banner{background:rgba(74,127,184,.05);border:.5px solid rgba(74,127,184,.22);border-radius:10px;padding:.85rem 1rem;margin-bottom:1.2rem;}
 .key-banner.hidden{display:none;}
 .kb-title{font-size:.76rem;font-weight:500;margin-bottom:.2rem;}
 .kb-desc{font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--mu);line-height:1.75;margin-bottom:.55rem;}
 .kb-row{display:flex;gap:.4rem;}
 
-/* ── KI Plan tab ── */
 .nl-area{width:100%;min-height:90px;resize:vertical;background:rgba(237,232,219,.035);border:.5px solid var(--bd);border-radius:9px;padding:.75rem .9rem;font-family:'Inter',sans-serif;font-size:.8rem;color:var(--tx);outline:none;line-height:1.75;transition:border-color .2s;margin-bottom:.45rem;}
 .nl-area:focus{border-color:rgba(210,170,80,.38);}
 .nl-area::placeholder{color:var(--mu);}
@@ -141,7 +118,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
 .gen-btn:hover:not(:disabled){background:rgba(210,170,80,.18);}
 .gen-btn:disabled{opacity:.35;cursor:not-allowed;}
 
-/* Plan output */
 .plan-out{margin-top:1rem;}
 .reasoning{background:rgba(123,94,167,.05);border:.5px solid rgba(123,94,167,.16);border-radius:8px;padding:.7rem .9rem;margin-bottom:.85rem;}
 .reasoning-lbl{font-family:'JetBrains Mono',monospace;font-size:.43rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(123,94,167,.5);margin-bottom:.35rem;}
@@ -169,12 +145,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
 .conf-sum strong{color:var(--tx);}
 .conf-btns{display:flex;gap:.4rem;flex-shrink:0;}
 
-/* ── Verschieben tab ── */
 .move-step{margin-bottom:1.1rem;padding-bottom:1.1rem;border-bottom:.5px solid var(--bd2);}
 .move-step:last-child{border-bottom:none;}
 .step-title{font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gdim);margin-bottom:.6rem;}
 
-/* Event list for selection */
 .ev-list{display:flex;flex-direction:column;gap:.25rem;max-height:200px;overflow-y:auto;}
 .ev-list::-webkit-scrollbar{width:2px;}
 .ev-list::-webkit-scrollbar-thumb{background:var(--bd);}
@@ -185,7 +159,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
 .ev-name{font-size:.72rem;color:var(--tx);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ev-time{font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--mu);flex-shrink:0;}
 
-/* Slot list */
 .slot-list{display:flex;flex-direction:column;gap:.25rem;}
 .slot-item{display:flex;align-items:center;gap:.7rem;padding:.48rem .65rem;border-radius:7px;border:.5px solid var(--bd);background:rgba(237,232,219,.02);cursor:pointer;transition:all .16s;}
 .slot-item:hover{border-color:rgba(210,170,80,.28);background:var(--gg);}
@@ -196,30 +169,25 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
 .slot-item.selected .slot-radio{border-color:var(--blue);background:var(--blue);}
 .slot-item.selected .slot-radio::after{content:'';width:4px;height:4px;border-radius:50%;background:#fff;}
 
-/* Custom time row */
 .custom-time-row{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;}
 .custom-time-lbl{font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--mu);flex-shrink:0;}
 
-/* Info / warn boxes */
 .info-box{font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--mu);padding:.55rem .7rem;background:rgba(237,232,219,.025);border:.5px solid var(--bd2);border-radius:7px;line-height:1.65;}
 .warn-box{font-family:'JetBrains Mono',monospace;font-size:.5rem;color:rgba(184,74,68,.8);padding:.5rem .7rem;background:rgba(184,74,68,.05);border:.5px solid rgba(184,74,68,.2);border-radius:7px;line-height:1.6;}
 .ok-box{font-family:'JetBrains Mono',monospace;font-size:.5rem;color:rgba(61,143,96,.85);padding:.5rem .7rem;background:rgba(61,143,96,.05);border:.5px solid rgba(61,143,96,.2);border-radius:7px;line-height:1.6;}
 
-/* ── History ── */
 .hist-bar{display:flex;align-items:center;gap:.5rem;margin-top:1rem;padding:.45rem .7rem;background:rgba(123,94,167,.04);border:.5px solid rgba(123,94,167,.13);border-radius:7px;}
 .hist-bar.hidden{display:none;}
 .hist-txt{font-family:'JetBrains Mono',monospace;font-size:.48rem;color:rgba(123,94,167,.55);flex:1;}
 .hist-clr{font-family:'JetBrains Mono',monospace;font-size:.42rem;background:none;border:none;color:rgba(184,74,68,.45);cursor:pointer;}
 .hist-clr:hover{color:var(--red);}
 
-/* ── Toast ── */
 .toast{position:fixed;top:.9rem;left:50%;transform:translateX(-50%) translateY(-7px) scale(.97);background:var(--sf);border:.5px solid rgba(210,170,80,.3);border-radius:8px;padding:.45rem 1.1rem;display:flex;align-items:center;gap:.55rem;z-index:999;opacity:0;pointer-events:none;transition:opacity .25s,transform .28s var(--sp);white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}
 .ti{color:var(--gold);font-size:.85rem;}
 .tm{font-family:'JetBrains Mono',monospace;font-size:.54rem;color:var(--gold);}
 .ts{font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--mu);}
 
-/* ── Mobile ── */
 @media(max-width:768px){
   html,body{overflow:auto;}
   .main{grid-template-columns:1fr;grid-template-rows:auto 1fr;height:auto;}
@@ -245,7 +213,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
 
 <div class="main">
 
-  <!-- ══ LEFT: WEEK CALENDAR ══ -->
   <div class="cal-side">
     <div class="week-nav">
       <button class="wn-btn" onclick="shiftWeek(-1)">←</button>
@@ -254,11 +221,9 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
       <button class="wn-btn" onclick="shiftWeek(1)">→</button>
     </div>
     <div class="cal-grid-wrap">
-      <!-- Day headers -->
       <div class="cal-day-headers" id="cal-day-hdrs">
-        <div></div><!-- time col spacer -->
+        <div></div>
       </div>
-      <!-- Scrollable body -->
       <div class="cal-body" id="cal-body">
         <div class="cal-loading" id="cal-loading"><div class="spinner"></div></div>
         <div class="cal-inner" id="cal-inner"></div>
@@ -266,14 +231,12 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
     </div>
   </div>
 
-  <!-- ══ RIGHT: PANELS ══ -->
   <div class="right-side">
     <div class="tabs">
       <button class="tab active" id="tab-plan-btn" onclick="switchTab('plan')">◆ KI-Plan</button>
       <button class="tab" id="tab-move-btn" onclick="switchTab('move')">⇄ Verschieben</button>
     </div>
 
-    <!-- ── KI-Plan tab ── -->
     <div class="tab-body" id="tab-plan">
       <div class="key-banner" id="key-banner">
         <div class="kb-title">Gemini API-Key einrichten</div>
@@ -288,7 +251,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
       <div class="mb">
         <label class="sec-lbl">Was muss erledigt werden?</label>
         <textarea class="nl-area" id="nl" rows="4"
-          placeholder="Schreib einfach was du brauchst — so wie du denkst.&#10;&#10;z.B. Mathe Kap. 5 lernen ca. 2h, wichtig bis Freitag&#10;     Python Projekt täglich 1h weitermachen&#10;     Englisch-Aufsatz fertig schreiben, 3h, bis Di"></textarea>
+          placeholder="Schreib einfach was du brauchst — so wie du denkst.&#10;&#10;z.B. Mathe Kap. 5 lernen ca. 2h, wichtig bis Freitag&#10;     Beat fertigstellen 3h&#10;     Content für Instagram aufnehmen, 1h"></textarea>
         <div class="nl-hint"><strong>Tipp:</strong> Dauer, Deadline, Priorität einfach dazuschreiben. Strg+Enter = generieren.</div>
         <div class="chips" id="chips"></div>
       </div>
@@ -334,9 +297,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
       <div id="plan-out"></div>
     </div>
 
-    <!-- ── Verschieben tab ── -->
     <div class="tab-body" id="tab-move" style="display:none;">
-
       <div class="move-step">
         <div class="step-title">1 · Welchen Termin verschieben?</div>
         <div class="ev-list" id="move-ev-list">
@@ -350,7 +311,6 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
         <div id="move-slots-wrap">
           <div class="info-box">Datum wählen um freie Zeiten zu sehen.</div>
         </div>
-        <!-- Custom time -->
         <div class="custom-time-row" style="margin-top:.65rem;">
           <span class="custom-time-lbl">Oder eigene Zeit:</span>
           <input class="fi" id="move-custom-time" type="time" style="width:85px;">
@@ -363,34 +323,63 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
         <div id="move-confirm-content"></div>
       </div>
     </div>
-
-  </div><!-- /right-side -->
+  </div>
 </div>
 
 <script>
 // ═══════════════════════════════════════════════
 // CONSTANTS
 // ═══════════════════════════════════════════════
-const CAL_API   = 'https://www.googleapis.com/calendar/v3';
-const GEM_URL   = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
-const SK_TOK    = 'fd_tok5';
-const SK_KEY    = 'fd_gem_key';
-const SK_HIST   = 'fd_phist4';
-// Calendar display
-const CAL_START = 7;  // 07:00
-const CAL_END   = 23; // 23:00
-const HR_PX     = 54; // pixels per hour
+const CAL_API  = 'https://www.googleapis.com/calendar/v3';
+const GEM_URL  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
+const SK_TOK   = 'fd_tok5';
+const SK_KEY   = 'fd_gem_key';
+const SK_HIST  = 'fd_phist4';
+const CAL_START = 7;
+const CAL_END   = 23;
+const HR_PX     = 54;
+
+// ═══════════════════════════════════════════════
+// KALENDER-ROUTING
+// ═══════════════════════════════════════════════
+const CAL_ROUTING = {
+  production: {
+    id: '4c817ff366e9debb354e1fa71d57a02a13f6848fa934171ecbc0fffe77cb50fa@group.calendar.google.com',
+    keywords: ['production','mixing','mastering','musik lernen','music lernen','studio','beat','track','song','arrangement','sound design','audio','ableton','fl studio','logic','pro tools','recording','aufnahme','mischen','master','sample','plugin','midi','synth','bass house','house track','musik produktion','produzieren']
+  },
+  brand: {
+    id: '21b956159db86c001177df19fa7fa0a6c687997ee74c8b5583861488b9a1d6b5@group.calendar.google.com',
+    keywords: ['brand','content','video','reel','post','instagram','youtube','tiktok','social media','marketing','strategie','strategy','brand planung','thumbnail','cover','promo','release','kampagne','community','newsletter','brand identity','reichweite','audience','filmen','schneiden','uploaden','video uploaden','content uploaden','content filmen','content schneiden','caption','analyse']
+  },
+  timo: {
+    id: 'timelezmusic021@gmail.com',
+    keywords: []
+  }
+};
+
+function routeToCalendar(title, why) {
+  const text = ((title || '') + ' ' + (why || '')).toLowerCase();
+  if (CAL_ROUTING.production.keywords.some(k => text.includes(k))) return CAL_ROUTING.production.id;
+  if (CAL_ROUTING.brand.keywords.some(k => text.includes(k))) return CAL_ROUTING.brand.id;
+  return CAL_ROUTING.timo.id;
+}
+
+function calNameFromId(id) {
+  if (id === CAL_ROUTING.production.id) return 'Production';
+  if (id === CAL_ROUTING.brand.id) return 'Brand';
+  return 'Timo';
+}
 
 // ═══════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════
 let gcToken = null;
 let currentPlan = null;
-let weekStart = getMonday(new Date()); // Monday of displayed week
-let weekEvents = [];   // all events for displayed week
+let weekStart = getMonday(new Date());
+let weekEvents = [];
 let weekLoading = false;
 let moveSelectedId = null;
-let moveSelectedSlot = null; // {start, end} Date objects
+let moveSelectedSlot = null;
 
 // ═══════════════════════════════════════════════
 // UTILS
@@ -398,7 +387,9 @@ let moveSelectedSlot = null; // {start, end} Date objects
 const $ = id => document.getElementById(id);
 const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 function sg(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch{return null;}}
-function ss(k,v){localStorage.setItem(k,JSON.stringify(v));}
+function ss(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){console.warn('localStorage voll:',e);toast('◇','Speicher voll','Lernhistorie wird geleert');localStorage.removeItem(SK_HIST);try{localStorage.setItem(k,JSON.stringify(v));}catch{}}}
+// Normalisiert "9:00" → "09:00" damit Date-Parsing nicht crasht
+function normalizeTime(t){if(!t)return'00:00';const[h,m]=(t+':00').split(':');return String(+h).padStart(2,'0')+':'+String(+(m||0)).padStart(2,'0');}
 function isoDate(d=new Date()){
   const dt=new Date(d);
   return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
@@ -429,7 +420,14 @@ function initAuth(){
   if(s&&s.token&&s.exp>Date.now()+30000){
     gcToken=s.token;
     $('cdot').className='cdot';$('clbl').textContent='Google Kalender verbunden';
+    // Proaktiv warnen wenn Token in <10min abläuft
+    const msLeft=s.exp-Date.now();
+    if(msLeft<600000)setTimeout(()=>{
+      $('cdot').className='cdot err';$('clbl').textContent='Token läuft bald ab — neu anmelden';
+      toast('◇','Google-Session läuft ab','Bitte in Focus neu anmelden');
+    },msLeft-30000);
   } else {
+    gcToken=null;
     $('cdot').className='cdot err';$('clbl').textContent='Nicht angemeldet — Focus öffnen';
     toast('◇','Bitte zuerst in Focus anmelden','Dann Seite neu laden');
   }
@@ -449,12 +447,18 @@ function saveKey(){
 // GOOGLE CALENDAR API
 // ═══════════════════════════════════════════════
 async function apiFetch(url,method='GET',body=null){
-  if(!gcToken)throw new Error('Nicht angemeldet');
+  if(!gcToken)throw new Error('Nicht angemeldet — bitte in Focus einloggen');
   const h={'Authorization':`Bearer ${gcToken}`};
   const o={method,headers:h};
   if(body){h['Content-Type']='application/json';o.body=JSON.stringify(body);}
-  const r=await fetch(url,o);
-  if(r.status===401)throw new Error('auth_expired');
+  let r;
+  try{r=await fetch(url,o);}catch(e){throw new Error('Netzwerkfehler: '+e.message);}
+  if(r.status===401){
+    gcToken=null;
+    $('cdot').className='cdot err';$('clbl').textContent='Session abgelaufen — neu anmelden';
+    toast('◇','Google-Session abgelaufen','Bitte in Focus neu anmelden und Seite laden');
+    throw new Error('auth_expired');
+  }
   if(!r.ok)throw new Error('GCal '+r.status);
   return r.json();
 }
@@ -464,13 +468,12 @@ async function fetchCalList(){
   return (d.items||[]).map(c=>({id:c.id,name:c.summary,color:c.backgroundColor||'#d2aa50'}));
 }
 
-  async function debugCalendars() {
-  const cals = await fetchCalList();
-  console.table(cals.map(c => ({ name: c.name, id: c.id })));
+async function debugCalendars(){
+  const cals=await fetchCalList();
+  console.table(cals.map(c=>({name:c.name,id:c.id})));
 }
 
-// Fetch events for a date range; returns sorted array
-async function fetchEventsRange(fromISO, toISO){
+async function fetchEventsRange(fromISO,toISO){
   let cals=[];
   try{cals=await fetchCalList();}catch(e){console.warn('CalList:',e.message);return[];}
   const sISO=new Date(fromISO+'T00:00:00').toISOString();
@@ -493,16 +496,10 @@ async function fetchEventsRange(fromISO, toISO){
     .sort((a,b)=>a.start-b.start);
 }
 
-async function getPrimCalId(){
-  let c=[];try{c=await fetchCalList();}catch{}
-  const p=c.find(x=>!x.id.includes('@group')&&!x.id.includes('@resource')&&!x.id.includes('@tasks'));
-  return p?p.id:'primary';
-}
-
 // ═══════════════════════════════════════════════
 // WEEK CALENDAR RENDERING
 // ═══════════════════════════════════════════════
-const DAYS_DE = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+const DAYS_DE=['Mo','Di','Mi','Do','Fr','Sa','So'];
 
 function layoutDayEvents(dayEvs){
   if(!dayEvs.length)return[];
@@ -518,8 +515,7 @@ function layoutDayEvents(dayEvs){
   return sorted.map(ev=>{
     const myCol=colMap.get(ev.id);
     const overlapping=sorted.filter(o=>o.id!==ev.id&&o.start<ev.end&&o.end>ev.start);
-    const localMax=overlapping.length>0
-      ?Math.max(myCol,...overlapping.map(o=>colMap.get(o.id)))+1:1;
+    const localMax=overlapping.length>0?Math.max(myCol,...overlapping.map(o=>colMap.get(o.id)))+1:1;
     return{...ev,col:myCol,totalCols:localMax};
   });
 }
@@ -529,13 +525,11 @@ async function renderWeek(){
   weekLoading=true;
   $('cal-loading').style.display='flex';
 
-  // Update week label
   const end=addDays(weekStart,6);
   $('week-label').textContent=
     weekStart.toLocaleDateString('de-DE',{day:'numeric',month:'short'})+
     ' – '+end.toLocaleDateString('de-DE',{day:'numeric',month:'short',year:'numeric'});
 
-  // Day headers
   const hdrs=$('cal-day-hdrs');
   hdrs.innerHTML='<div></div>'+DAYS_DE.map((d,i)=>{
     const day=addDays(weekStart,i);
@@ -546,39 +540,27 @@ async function renderWeek(){
     </div>`;
   }).join('');
 
-  // Fetch events
-  try{
-    weekEvents=await fetchEventsRange(isoDate(weekStart),isoDate(end));
-  }catch(e){
-    weekEvents=[];console.warn('fetchWeek:',e.message);
-  }
+  try{weekEvents=await fetchEventsRange(isoDate(weekStart),isoDate(end));}
+  catch(e){weekEvents=[];console.warn('fetchWeek:',e.message);}
 
-  // Build grid
   const inner=$('cal-inner');
   const totalHours=CAL_END-CAL_START;
   const totalH=totalHours*HR_PX;
   inner.style.height=totalH+'px';
 
-  let html='';
-
-  // Time labels column
-  html+='<div class="cal-time-col">';
+  let html='<div class="cal-time-col">';
   for(let h=CAL_START;h<CAL_END;h++){
     html+=`<div class="cal-hour-label" style="height:${HR_PX}px">${String(h).padStart(2,'0')}</div>`;
   }
   html+='</div>';
 
-  // Day columns
   for(let di=0;di<7;di++){
     const day=addDays(weekStart,di);
     const isToday=isSameDay(day,new Date());
-    const dayISO=isoDate(day);
     html+=`<div class="cal-day-col${isToday?' today-col':''}" id="day-col-${di}" style="height:${totalH}px;">`;
-    // Hour lines
     for(let h=0;h<totalHours;h++){
       html+=`<div class="hour-line" style="top:${h*HR_PX}px"></div>`;
     }
-    // Events for this day
     const dayEvs=weekEvents.filter(e=>isSameDay(e.start,day));
     const laidOut=layoutDayEvents(dayEvs);
     laidOut.forEach(ev=>{
@@ -602,14 +584,13 @@ async function renderWeek(){
     });
     html+='</div>';
   }
+
   inner.innerHTML=html;
   $('cal-loading').style.display='none';
   weekLoading=false;
 
-  // Now line
   renderNowLine();
 
-  // Scroll to current time or 8am
   const now=new Date();
   const isCurrentWeek=now>=weekStart&&now<addDays(weekStart,7);
   const scrollTo=isCurrentWeek?Math.max(0,evTop(now)-80):(8-CAL_START)*HR_PX;
@@ -628,16 +609,12 @@ function evHeight(s,e){
 
 function renderNowLine(){
   const inner=$('cal-inner');
-  // Remove old
   inner.querySelectorAll('.now-line').forEach(el=>el.remove());
   const now=new Date();
-  if(!isSameDay(now,weekStart)&&!weekEvents.some((_,i)=>true)){
-    // Check if current week
-  }
   const isCurrentWeek=now>=weekStart&&now<addDays(weekStart,7);
   if(!isCurrentWeek)return;
-  const di=((now.getDay()+6)%7); // 0=Mon
-  const col=inner.children[di+1]; // +1 for time col
+  const di=((now.getDay()+6)%7);
+  const col=inner.children[di+1];
   if(!col)return;
   const top=evTop(now);
   const line=document.createElement('div');
@@ -648,13 +625,19 @@ function renderNowLine(){
 }
 
 function hexToRgba(hex,a){
-  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  return`rgba(${r},${g},${b},${a})`;
+  // Normalize short hex (#abc → #aabbcc) and handle missing #
+  try{
+    let h=(hex||'#d2aa50').replace('#','');
+    if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    if(h.length!==6)h='d2aa50';
+    const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+    if(isNaN(r)||isNaN(g)||isNaN(b))return`rgba(210,170,80,${a})`;
+    return`rgba(${r},${g},${b},${a})`;
+  }catch{return`rgba(210,170,80,${a})`;}
 }
 
-// Navigation
-function shiftWeek(n){weekStart=addDays(weekStart,n*7);renderWeek();if(getCurrentTab()==='move')refreshMoveList();}
-function goToday(){weekStart=getMonday(new Date());renderWeek();if(getCurrentTab()==='move')refreshMoveList();}
+function shiftWeek(n){if(weekLoading)return;weekStart=addDays(weekStart,n*7);renderWeek();if(getCurrentTab()==='move')refreshMoveList();}
+function goToday(){if(weekLoading)return;weekStart=getMonday(new Date());renderWeek();if(getCurrentTab()==='move')refreshMoveList();}
 
 // ═══════════════════════════════════════════════
 // TABS
@@ -669,30 +652,27 @@ function switchTab(t){
   else{rerenderCalNonSelectable();}
 }
 function rerenderCalSelectable(){
-  // Add selectable class to future events in calendar
   document.querySelectorAll('.cal-ev').forEach(el=>{
     const id=el.dataset.id;
     const ev=weekEvents.find(e=>e.id===id);
-    if(ev&&ev.end>new Date()){
-      el.classList.add('selectable');
-      el.onclick=()=>calEvClick(ev.id);
-    }
+    if(ev&&ev.end>new Date()){el.classList.add('selectable');el.onclick=()=>calEvClick(ev.id);}
   });
 }
 function rerenderCalNonSelectable(){
   document.querySelectorAll('.cal-ev').forEach(el=>{
-    el.classList.remove('selectable','ev-selected');
-    el.onclick=null;
+    el.classList.remove('selectable','ev-selected');el.onclick=null;
   });
 }
 
 // ═══════════════════════════════════════════════
 // VERSCHIEBEN TAB
 // ═══════════════════════════════════════════════
+// undo state für Verschieben
+let lastMove=null; // {evId, evTitle, calId, oldStart, oldEnd, newStart, newEnd}
+
 function refreshMoveList(){
   const list=$('move-ev-list');
   const now=new Date();
-  // Show events from current displayed week + one more week that are in the future
   const futureEvs=weekEvents.filter(e=>e.end>now);
   if(!futureEvs.length){
     list.innerHTML='<div class="info-box">Keine zukünftigen Termine in dieser Woche.<br>Navigiere zur nächsten Woche.</div>';
@@ -701,32 +681,22 @@ function refreshMoveList(){
   list.innerHTML=futureEvs.map(ev=>`
     <div class="ev-item${moveSelectedId===ev.id?' selected':''}" onclick="selectMoveEv('${ev.id.replace(/'/g,"\\'")}')">
       <div class="ev-dot" style="background:${ev.calColor||'var(--gold)'}"></div>
-      <div class="ev-name">${esc(ev.title)}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="ev-name">${esc(ev.title)}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.44rem;color:var(--mu);margin-top:1px;">${fmtShort(isoDate(ev.start))}</div>
+      </div>
       <div class="ev-time">${hm(ev.start)} – ${hm(ev.end)}</div>
     </div>`).join('');
 }
 
-function calEvClick(id){
-  if(getCurrentTab()!=='move')return;
-  selectMoveEv(id);
-}
+function calEvClick(id){if(getCurrentTab()!=='move')return;selectMoveEv(id);}
 
 function selectMoveEv(id){
-  moveSelectedId=id;
-  moveSelectedSlot=null;
-  // Highlight in calendar
-  document.querySelectorAll('.cal-ev').forEach(el=>{
-    el.classList.toggle('ev-selected',el.dataset.id===id);
-  });
-  // Update list
-  document.querySelectorAll('.ev-item').forEach(el=>{
-    el.classList.toggle('selected',el.onclick&&el.onclick.toString().includes(id));
-  });
+  moveSelectedId=id;moveSelectedSlot=null;
+  document.querySelectorAll('.cal-ev').forEach(el=>el.classList.toggle('ev-selected',el.dataset.id===id));
   refreshMoveList();
-  // Show step 2
   $('move-step2').style.display='';
   $('move-step3').style.display='none';
-  // Set min date to today
   const today=isoDate();
   $('move-date').min=today;
   $('move-date').value='';
@@ -739,38 +709,26 @@ async function loadMoveSlots(){
   if(!dateVal)return;
   const ev=weekEvents.find(e=>e.id===moveSelectedId);
   if(!ev)return;
-
-  // Validate: no past dates
   const today=isoDate();
   if(dateVal<today){
     $('move-slots-wrap').innerHTML='<div class="warn-box">⚠ Dieses Datum liegt in der Vergangenheit.</div>';
     return;
   }
-
   const durMs=ev.end-ev.start;
   $('move-slots-wrap').innerHTML='<div style="display:flex;align-items:center;gap:.6rem;font-family:\'JetBrains Mono\',monospace;font-size:.54rem;color:var(--mu);"><div class="spinner"></div>Lade Termine …</div>';
-
-  // Fetch events for target day (separate call, not dependent on weekEvents)
   let dayEvs=[];
   try{
     dayEvs=await fetchEventsRange(dateVal,dateVal);
-    // Exclude the event being moved itself
     dayEvs=dayEvs.filter(e=>e.id!==ev.id);
-  }catch(e){
-    console.warn('Slot fetch error:',e.message);
-    // Continue with empty — assume day is free
-  }
+  }catch(e){console.warn('Slot fetch error:',e.message);}
 
   const slots=computeFreeSlots(dayEvs,durMs,dateVal);
-
   if(!slots.length){
     $('move-slots-wrap').innerHTML=`<div class="warn-box">⚠ Kein freier Slot für ${durLbl(durMs/60000)} gefunden.<br>Anderen Tag wählen oder eigene Zeit eingeben.</div>`;
     return;
   }
-
   moveSelectedSlot=null;
   $('move-step3').style.display='none';
-
   $('move-slots-wrap').innerHTML=`
     <div class="sec-lbl" style="margin-bottom:.5rem;">Freie Zeitfenster am ${fmtDate(dateVal)}</div>
     <div class="slot-list">${slots.map((s,i)=>`
@@ -787,7 +745,6 @@ function computeFreeSlots(dayEvts,neededMs,dateStr){
   const wS=new Date(base);wS.setHours(CAL_START,0,0,0);
   const wE=new Date(base);wE.setHours(CAL_END,0,0,0);
   const now=new Date();
-  // If today: start cursor from now+10min (not in the past)
   const isTodayDate=dateStr===isoDate(now);
   let cursor=isTodayDate?new Date(Math.max(wS.getTime(),now.getTime()+10*60000)):new Date(wS);
   if(cursor>=wE)return[];
@@ -802,25 +759,21 @@ function computeFreeSlots(dayEvts,neededMs,dateStr){
   return gaps;
 }
 
-function selectMoveSlot(i, startMs, endMs) {
-  const ev = weekEvents.find(e => e.id === moveSelectedId);
-  if (!ev) return;
-  const durMs = ev.end - ev.start;
-  const slotStart = new Date(startMs);
-  const slotEnd = new Date(endMs);
-
-  document.querySelectorAll('.slot-item').forEach((el, j) => el.classList.toggle('selected', j === i));
-
-  const latestStart = new Date(slotEnd.getTime() - durMs);
-  const durLabel = durLbl(durMs / 60000);
-
-  const existingPicker = $('slot-time-picker');
-  if (existingPicker) existingPicker.remove();
-
-  const picker = document.createElement('div');
-  picker.id = 'slot-time-picker';
-  picker.style.cssText = 'margin-top:.75rem;padding:.75rem;background:rgba(74,127,184,.05);border:.5px solid rgba(74,127,184,.22);border-radius:8px;';
-  picker.innerHTML = `
+function selectMoveSlot(i,startMs,endMs){
+  const ev=weekEvents.find(e=>e.id===moveSelectedId);
+  if(!ev)return;
+  const durMs=ev.end-ev.start;
+  const slotStart=new Date(startMs);
+  const slotEnd=new Date(endMs);
+  document.querySelectorAll('.slot-item').forEach((el,j)=>el.classList.toggle('selected',j===i));
+  const latestStart=new Date(slotEnd.getTime()-durMs);
+  const durLabel=durLbl(durMs/60000);
+  const existingPicker=$('slot-time-picker');
+  if(existingPicker)existingPicker.remove();
+  const picker=document.createElement('div');
+  picker.id='slot-time-picker';
+  picker.style.cssText='margin-top:.75rem;padding:.75rem;background:rgba(74,127,184,.05);border:.5px solid rgba(74,127,184,.22);border-radius:8px;';
+  picker.innerHTML=`
     <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(74,127,184,.7);margin-bottom:.5rem;">
       Wann im Zeitfenster? (${durLabel})
     </div>
@@ -837,57 +790,56 @@ function selectMoveSlot(i, startMs, endMs) {
     <div id="slot-preview" style="margin-top:.5rem;font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--tx);"></div>
   `;
   $('move-slots-wrap').appendChild(picker);
-
-  updateSlotPreview(startMs, endMs);
-  moveSelectedSlot = null;
-  $('move-step3').style.display = 'none';
+  updateSlotPreview(startMs,endMs);
+  moveSelectedSlot=null;
+  $('move-step3').style.display='none';
 }
 
-function toTimeInput(d) {
-  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+function toTimeInput(d){
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
 }
 
-function updateSlotPreview(startMs, endMs) {
-  const ev = weekEvents.find(e => e.id === moveSelectedId);
-  if (!ev) return;
-  const durMs = ev.end - ev.start;
-  const slotStart = new Date(startMs);
-  const slotEnd = new Date(endMs);
-  const timeVal = $('slot-pick-time')?.value;
-  if (!timeVal) return;
-  const dateVal = $('move-date').value;
-  const newStart = new Date(dateVal + 'T' + timeVal + ':00');
-  const newEnd = new Date(newStart.getTime() + durMs);
-  const preview = $('slot-preview');
-  if (!preview) return;
-  if (newEnd > slotEnd) {
-    preview.style.color = 'rgba(184,74,68,.8)';
-    preview.textContent = '⚠ Zu spät — Termin würde über das Zeitfenster hinausgehen';
-  } else if (newStart < slotStart) {
-    preview.style.color = 'rgba(184,74,68,.8)';
-    preview.textContent = '⚠ Zu früh — vor dem freien Zeitfenster';
+function updateSlotPreview(startMs,endMs){
+  const ev=weekEvents.find(e=>e.id===moveSelectedId);
+  if(!ev)return;
+  const durMs=ev.end-ev.start;
+  const slotStart=new Date(startMs);
+  const slotEnd=new Date(endMs);
+  const timeVal=$('slot-pick-time')?.value;
+  if(!timeVal)return;
+  const dateVal=$('move-date').value;
+  const newStart=new Date(dateVal+'T'+timeVal+':00');
+  const newEnd=new Date(newStart.getTime()+durMs);
+  const preview=$('slot-preview');
+  if(!preview)return;
+  if(newEnd>slotEnd){
+    preview.style.color='rgba(184,74,68,.8)';
+    preview.textContent='⚠ Zu spät — Termin würde über das Zeitfenster hinausgehen';
+  } else if(newStart<slotStart){
+    preview.style.color='rgba(184,74,68,.8)';
+    preview.textContent='⚠ Zu früh — vor dem freien Zeitfenster';
   } else {
-    preview.style.color = 'rgba(61,143,96,.85)';
-    preview.textContent = `✓ ${hm(newStart)} – ${hm(newEnd)}`;
+    preview.style.color='rgba(61,143,96,.85)';
+    preview.textContent=`✓ ${hm(newStart)} – ${hm(newEnd)}`;
   }
 }
 
-function confirmSlotTime(startMs, endMs) {
-  const ev = weekEvents.find(e => e.id === moveSelectedId);
-  if (!ev) return;
-  const durMs = ev.end - ev.start;
-  const slotStart = new Date(startMs);
-  const slotEnd = new Date(endMs);
-  const timeVal = $('slot-pick-time')?.value;
-  const dateVal = $('move-date').value;
-  if (!timeVal || !dateVal) return;
-  const newStart = new Date(dateVal + 'T' + timeVal + ':00');
-  const newEnd = new Date(newStart.getTime() + durMs);
-  if (newStart < slotStart || newEnd > slotEnd) {
-    toast('◇', 'Uhrzeit liegt außerhalb des Slots', `${hm(slotStart)}–${hm(slotEnd)}`);
+function confirmSlotTime(startMs,endMs){
+  const ev=weekEvents.find(e=>e.id===moveSelectedId);
+  if(!ev)return;
+  const durMs=ev.end-ev.start;
+  const slotStart=new Date(startMs);
+  const slotEnd=new Date(endMs);
+  const timeVal=$('slot-pick-time')?.value;
+  const dateVal=$('move-date').value;
+  if(!timeVal||!dateVal)return;
+  const newStart=new Date(dateVal+'T'+timeVal+':00');
+  const newEnd=new Date(newStart.getTime()+durMs);
+  if(newStart<slotStart||newEnd>slotEnd){
+    toast('◇','Uhrzeit liegt außerhalb des Slots',`${hm(slotStart)}–${hm(slotEnd)}`);
     return;
   }
-  moveSelectedSlot = { start: newStart, end: newEnd };
+  moveSelectedSlot={start:newStart,end:newEnd};
   showMoveConfirm();
 }
 
@@ -900,10 +852,7 @@ function useCustomTime(){
   const start=new Date(dateVal+'T'+timeVal+':00');
   const end=new Date(start.getTime()+(ev.end-ev.start));
   if(start<=new Date()){toast('◇','Zeitpunkt liegt in der Vergangenheit','');return;}
-  // Check conflicts
-  const conflict=weekEvents.filter(e=>e.id!==ev.id).find(e=>
-    new Date(e.start)<end&&new Date(e.end)>start
-  );
+  const conflict=weekEvents.filter(e=>e.id!==ev.id).find(e=>new Date(e.start)<end&&new Date(e.end)>start);
   if(conflict){toast('◇','Überschneidung mit: '+conflict.title,'Anderen Zeitpunkt wählen');return;}
   moveSelectedSlot={start,end};
   document.querySelectorAll('.slot-item').forEach(el=>el.classList.remove('selected'));
@@ -925,10 +874,7 @@ function showMoveConfirm(){
     </div>`;
 }
 
-function cancelMove(){
-  moveSelectedSlot=null;
-  $('move-step3').style.display='none';
-}
+function cancelMove(){moveSelectedSlot=null;$('move-step3').style.display='none';}
 
 async function confirmMove(){
   const ev=weekEvents.find(e=>e.id===moveSelectedId);
@@ -937,6 +883,12 @@ async function confirmMove(){
   try{
     const url=`${CAL_API}/calendars/${encodeURIComponent(ev.calId)}/events/${encodeURIComponent(ev.id)}`;
     const full=await apiFetch(url);
+    // Undo-State speichern VOR dem Patch
+    lastMove={
+      evId:ev.id,evTitle:ev.title,calId:ev.calId,
+      oldStart:ev.start.toISOString(),oldEnd:ev.end.toISOString(),
+      tz:full.start.timeZone||'Europe/Berlin'
+    };
     await apiFetch(url,'PATCH',{
       start:{dateTime:moveSelectedSlot.start.toISOString(),timeZone:full.start.timeZone||'Europe/Berlin'},
       end:  {dateTime:moveSelectedSlot.end.toISOString(),  timeZone:full.end.timeZone  ||'Europe/Berlin'}
@@ -947,9 +899,49 @@ async function confirmMove(){
     $('move-step3').style.display='none';
     await renderWeek();
     refreshMoveList();
+    // Undo-Banner anzeigen
+    showUndoBanner();
   }catch(e){
     $('move-confirm-content').innerHTML=`<div class="warn-box">⚠ Fehler: ${esc(e.message)}</div>`;
     toast('◇','Fehler',e.message);
+  }
+}
+
+function showUndoBanner(){
+  if(!lastMove)return;
+  const existing=$('undo-banner');
+  if(existing)existing.remove();
+  const banner=document.createElement('div');
+  banner.id='undo-banner';
+  banner.style.cssText='display:flex;align-items:center;gap:.5rem;padding:.5rem .7rem;background:rgba(74,127,184,.06);border:.5px solid rgba(74,127,184,.22);border-radius:7px;margin-bottom:.7rem;';
+  banner.innerHTML=`
+    <span style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:rgba(74,127,184,.8);flex:1;">
+      ✓ "${esc(lastMove.evTitle)}" verschoben
+    </span>
+    <button class="btn btn-blue" style="font-size:.44rem;" onclick="undoMove()">↩ Rückgängig</button>`;
+  $('move-ev-list').before(banner);
+  // Banner nach 15s automatisch ausblenden
+  setTimeout(()=>{if($('undo-banner'))$('undo-banner').remove();lastMove=null;},15000);
+}
+
+async function undoMove(){
+  if(!lastMove)return;
+  const btn=$('undo-banner')?.querySelector('button');
+  if(btn){btn.disabled=true;btn.textContent='…';}
+  try{
+    const url=`${CAL_API}/calendars/${encodeURIComponent(lastMove.calId)}/events/${encodeURIComponent(lastMove.evId)}`;
+    await apiFetch(url,'PATCH',{
+      start:{dateTime:lastMove.oldStart,timeZone:lastMove.tz},
+      end:  {dateTime:lastMove.oldEnd,  timeZone:lastMove.tz}
+    });
+    toast('✦','Rückgängig gemacht',lastMove.evTitle);
+    lastMove=null;
+    $('undo-banner')?.remove();
+    await renderWeek();
+    refreshMoveList();
+  }catch(e){
+    toast('◇','Fehler beim Rückgängig',e.message);
+    if(btn){btn.disabled=false;btn.textContent='↩ Rückgängig';}
   }
 }
 
@@ -963,7 +955,7 @@ function initDates(){
 }
 function applyPreset(){
   const v=$('preset').value;if(!v)return;
-  const n=new Date(),add=addDays;
+  const n=new Date();
   const dow=n.getDay();
   const mon=new Date(n);mon.setDate(n.getDate()-(dow===0?6:dow-1));mon.setHours(0,0,0,0);
   const fri=addDays(mon,4);
@@ -980,20 +972,19 @@ function applyPreset(){
 // ═══════════════════════════════════════════════
 // CHIPS
 // ═══════════════════════════════════════════════
-const CHIPS=['Mathe lernen, 2h, bis Fr','Python Projekt, 1h täglich','E-Mails, 30min, leicht','Lernblock, 3h, wichtig','Sport, 45min','Haushalt, 1h'];
+const CHIPS=['Beat fertigstellen, 3h','Content aufnehmen, 1h','Mathe lernen, 2h, bis Fr','Mixing, 2h','Video schneiden, 1h','Sport, 45min'];
 function renderChips(){
   $('chips').innerHTML=CHIPS.map(c=>`<span class="chip" onclick="appendChip(${JSON.stringify(c)})">${c.split(',')[0]}</span>`).join('');
 }
 function appendChip(t){const a=$('nl');a.value=(a.value.trim()?a.value.trim()+'\n':'')+t;a.focus();checkGenBtn();}
 
 // ═══════════════════════════════════════════════
-// AI PLAN GENERATION
+// HISTORY
 // ═══════════════════════════════════════════════
 function checkGenBtn(){
   const ok=!!sg(SK_KEY)&&($('nl').value||'').trim().length>2;
   $('gen-btn').disabled=!ok;
 }
-
 function getHistCtx(){
   const h=sg(SK_HIST)||[];if(!h.length)return'Keine bisherige Planungshistorie.';
   return'Frühere Planungen (Muster lernen):\n'+h.slice(-5).map(p=>`- ${p.date}: ${p.tasks} → ${p.sample}`).join('\n');
@@ -1012,129 +1003,213 @@ function renderHist(){
 }
 function clearHist(){localStorage.removeItem(SK_HIST);renderHist();toast('◇','Lernhistorie gelöscht','');}
 
-async function callGemini(key, promptText) {
-  const resp = await fetch(GEM_URL + '?key=' + key, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: promptText }] }],
-      generationConfig: {
-        temperature: 0.1,
-        maxOutputTokens: 4000,
-        responseMimeType: 'application/json'
-      }
-    })
-  });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    const msg = err.error?.message || 'Gemini Fehler ' + resp.status;
-    if (resp.status === 400 || resp.status === 403) {
-      localStorage.removeItem(SK_KEY);
-      $('key-banner').classList.remove('hidden');
-    }
+// ═══════════════════════════════════════════════
+// AI — CORE API CALL
+// ═══════════════════════════════════════════════
+let _generating=false;
+
+async function callGemini(key,promptText){
+  // 30s Timeout
+  const controller=new AbortController();
+  const tid=setTimeout(()=>controller.abort(),30000);
+  let resp;
+  try{
+    resp=await fetch(GEM_URL+'?key='+key,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[{text:promptText}]}],
+        generationConfig:{temperature:0.1,maxOutputTokens:4000,responseMimeType:'application/json'}
+      }),
+      signal:controller.signal
+    });
+  }catch(e){
+    clearTimeout(tid);
+    if(e.name==='AbortError')throw new Error('Zeitüberschreitung — Gemini antwortet nicht (>30s)');
+    throw new Error('Netzwerkfehler: '+e.message);
+  }
+  clearTimeout(tid);
+  if(!resp.ok){
+    const err=await resp.json().catch(()=>({}));
+    const msg=err.error?.message||'Gemini Fehler '+resp.status;
+    if(resp.status===400||resp.status===403){localStorage.removeItem(SK_KEY);$('key-banner').classList.remove('hidden');}
     throw new Error(msg);
   }
-  const data = await resp.json();
-  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  try {
-    return JSON.parse(raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim());
-  } catch {
-    throw new Error('JSON-Parsing fehlgeschlagen. Antwort: ' + raw.slice(0, 200));
+  const data=await resp.json();
+  const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+  let parsed;
+  try{parsed=JSON.parse(raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim());}
+  catch{throw new Error('JSON-Parsing fehlgeschlagen. Antwort: '+raw.slice(0,200));}
+  // Normalisiere alle Zeiten im Plan (z.B. "9:00" → "09:00")
+  if(parsed.blocks){
+    parsed.blocks=parsed.blocks.map(b=>({...b,
+      startTime:normalizeTime(b.startTime),
+      endTime:normalizeTime(b.endTime)
+    }));
   }
+  return parsed;
 }
 
-function buildPlanPrompt(tasks, from, to, calStr, ctx, hist, today, tomorrow) {
-  return `Du bist ein präziser Kalenderassistent. Deine einzige Aufgabe: Plane EXAKT was der Nutzer sagt.
+// ═══════════════════════════════════════════════
+// AI — PROMPT 1: PLANER
+// ═══════════════════════════════════════════════
+function buildPlanPrompt(tasks,from,to,calStr,ctx,hist,today,tomorrow){
+  return `Du bist ein hochintelligenter persönlicher Kalenderassistent für einen Musikproduzenten und Creator namens Timo. Du kennst seinen Alltag, seine Energie und seine Ziele. Deine Aufgabe: plane so, dass er maximal effizient vorwärtskommt — ohne überladen zu sein.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 DATUM-REFERENZEN (absolut verbindlich):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- "heute"   = ${today}
-- "morgen"  = ${tomorrow}
-- Wochentage = nächster Wochentag ab heute
-- Planungszeitraum: ${from} bis ${to}
+• "heute"  = ${today}
+• "morgen" = ${tomorrow}
+• Wochentage = nächster passender Wochentag ab heute
+• Planungszeitraum: ${from} bis ${to}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 EISERNE REGELN — NIEMALS BRECHEN:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [R1] DATUM EXAKT EINHALTEN
-  ✗ FALSCH: Nutzer sagt "morgen (${tomorrow})" → du planst auf anderen Tag
-  ✓ RICHTIG: "morgen" → Blöcke NUR am ${tomorrow}
-  ✗ FALSCH: Nutzer sagt "Montag" → du planst auf Dienstag
-  ✓ RICHTIG: Tagesangabe = einziger erlaubter Tag für diese Aufgabe
+  ✗ "morgen" → anderer Tag als ${tomorrow}
+  ✓ "morgen" → Blöcke NUR am ${tomorrow}
+  ✗ "Montag" → Dienstag
+  ✓ Tagesangabe des Nutzers = einziger erlaubter Tag für diese Aufgabe
 
 [R2] DAUER EXAKT EINHALTEN
-  ✗ FALSCH: Nutzer sagt "2 Stunden" → du planst 3 Stunden
-  ✓ RICHTIG: "2 Stunden" = EXAKT 120 Minuten Arbeitszeit, Pausen zählen NICHT
-  ✗ FALSCH: Nutzer sagt "30 min" → du planst 45 min
-  ✓ RICHTIG: Immer die genannte Dauer, nie mehr, nie weniger
+  ✗ "2 Stunden" → 3 Stunden wegen Aufteilung
+  ✓ "2 Stunden" = EXAKT 120 Minuten Arbeitszeit — Pausen zählen NICHT zur Arbeitszeit
+  ✓ Genannte Dauer niemals über- oder unterschreiten
 
 [R3] NIEMALS UNERLAUBT AUFTEILEN
-  ✗ FALSCH: "Mathe 2h morgen" → auf 2 Tage verteilen
-  ✓ RICHTIG: Aufgabe bleibt auf dem genannten Tag
-  AUSNAHME: Aufteilen erlaubt NUR wenn Nutzer "täglich", "jeden Tag" oder "mehrmals" sagt
+  ✗ "Mathe 2h morgen" → auf 2 Tage verteilen wegen Spaced Repetition
+  ✓ Aufgabe bleibt KOMPLETT auf dem genannten Tag
+  AUSNAHME: Aufteilen erlaubt NUR wenn Nutzer "täglich", "jeden Tag" oder "mehrmals" explizit sagt
 
-[R4] BESTEHENDE TERMINE ABSOLUT RESPEKTIEREN
-  ✗ FALSCH: Termin "Schule 08:00-13:00" vorhanden → trotzdem um 09:00 planen
-  ✓ RICHTIG: Nur in freie Lücken planen
-  Bestehende Termine = MAUERN, kein Block darf diese überschneiden
+[R4] SCHULE-PUFFER — ABSOLUT PFLICHT
+  Nach JEDEM Termin der "Schule" im Titel enthält: die nächsten 45 Minuten nach Ende KOMPLETT FREI lassen
+  ✗ Schule endet 13:00 → Block um 13:15 planen
+  ✓ Schule endet 13:00 → frühester neuer Block um 13:45
+  Grund: Timo braucht Zeit für Heimweg + Essen + mentale Erholung
+  GILT AUCH wenn da scheinbar eine Lücke ist — die 45 min sind GESPERRT
 
-[R5] NUR IM PLANUNGSZEITRAUM
-  ✓ RICHTIG: Kein einziger Block außerhalb ${from}–${to}
+[R5] BESTEHENDE TERMINE = MAUERN
+  ✗ Termin 09:00–10:00 → Block um 09:30
+  ✓ Nur in komplett freie Lücken planen, nie überschneiden
 
-[R6] KEINE ERFUNDENEN AUFGABEN
-  ✓ RICHTIG: Nur planen was der Nutzer explizit nennt
+[R6] NUR IM PLANUNGSZEITRAUM
+  ✓ Kein einziger Block außerhalb ${from}–${to}
+
+[R7] KEINE ERFUNDENEN AUFGABEN
+  ✓ Nur planen was der Nutzer explizit nennt, keine zusätzlichen "Vorbereitungs-" oder "Nachbereitungs-"blöcke
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-OPTIONALE OPTIMIERUNGEN (nur wenn R1–R6 erfüllt):
+KALENDER-ZUORDNUNG — PFLICHT FÜR JEDEN BLOCK:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Bevorzuge 09–12 Uhr und 16–18 Uhr für Tiefarbeit
-- Nach >90 min Arbeit: Pause einplanen (isBreak: true)
-- Einfache Aufgaben nachmittags, schwere vormittags
+Jeder Block bekommt ein "calendar"-Feld. Weise zu:
+
+"production" → alles rund um Musikproduktion:
+  Mixing, Mastering, Beat machen, Track fertigstellen, Sound Design,
+  Arrangement, Recording, Aufnahme, Musik lernen, Ableton, FL Studio,
+  Logic, Audio bearbeiten, Sample suchen, Plugin testen, Bass House,
+  Instrumente, Komposition, Produzieren
+
+"brand" → alles rund um Musik-Brand und Creator-Business:
+  Content aufnehmen, Video drehen, Reels, Instagram, YouTube, TikTok,
+  Social Media, Marketing, Strategie, Brand Planung, Thumbnail,
+  Cover Design, Promo, Release Planung, Community, Newsletter,
+  Brand Identity, Reichweite, Audience, Video schneiden, Uploaden,
+  Content analysieren, Caption schreiben
+
+"timo" → alles andere:
+  Schule, Hausaufgaben, Lernen (nicht Musik), Sport, Haushalt,
+  Arzt, private Termine, Fahrschule, Essen, allgemeine Aufgaben
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-AUSGABE — NUR VALIDES JSON, kein Text außen:
+INTELLIGENTE PLANUNG — SO DENKST DU:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SCHRITT 1 — ALLE AUFGABEN ANALYSIEREN:
+  Bevor du planst: analysiere ALLE Aufgaben zusammen.
+  Erkenne Zusammenhänge: "Beat fertig machen" + "Mixing" gehören zusammen → bündeln
+  Erkenne Reihenfolgen: "Text schreiben" muss vor "Video aufnehmen" kommen
+  Erkenne Konflikte: Zu viele Deep-Work-Blöcke an einem Tag überlasten Timo
+
+SCHRITT 2 — BÜNDELN vs. TRENNEN:
+  Bündeln wenn: Aufgaben denselben mentalen Zustand brauchen (z.B. alle Production-Tasks hintereinander)
+  Trennen wenn: Aufgaben sehr unterschiedliche Energie brauchen (kreativ + administrativ → Pause dazwischen)
+  Pflichtpause zwischen: zwei Deep-Work-Blöcken >60 min (isBreak: true)
+  Nicht bündeln wenn: mehr als 4h Deep Work an einem Tag entstehen würden
+
+SCHRITT 3 — ENERGIE PRO TAG:
+  Morgen 09–12: Schwerste kreativste Aufgaben (Production, Lernen)
+  Mittag 12–14: Leichte Aufgaben, Admin, Brand-Planung
+  Nachmittag 15–18: Mittelschwere Aufgaben, Content, zweite Kreativphase
+  Abend 19–21: Nur wenn nötig, nur leichte Aufgaben
+
+SCHRITT 4 — NICHT ÜBERLADEN:
+  Max. 4–5 Stunden produktive Arbeit pro Tag
+  Lieber realistisch als voller Plan der nicht eingehalten wird
+  Wenn zu viele Aufgaben: priorisiere nach Deadline, dann nach Wichtigkeit
+
+SCHRITT 5 — EMPFEHLUNGEN:
+  Wenn ein bestehender Termin die beste Produktionszeit blockiert:
+  → In warnings[]: "Empfehlung: [Termin] könnte auf [Zeit] verschoben werden"
+  Wenn Aufgaben nicht alle in den Zeitraum passen:
+  → In warnings[]: "Aufgabe X passt nicht rein — Vorschlag: [Datum]"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+AUSGABE — NUR VALIDES JSON, KEIN TEXT AUSSEN:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {
-  "reasoning": "Welcher Tag, welche Dauer, warum diese Uhrzeit",
-  "warnings": [],
+  "reasoning": "Erkläre kurz: welche Aufgaben gebündelt, warum diese Reihenfolge, was priorisiert",
+  "warnings": ["Empfehlungen, Überlastungen, nicht einplanbare Aufgaben"],
   "blocks": [{
     "date": "YYYY-MM-DD",
     "startTime": "HH:MM",
     "endTime": "HH:MM",
     "title": "Aufgabentitel",
+    "calendar": "timo|production|brand",
     "isBreak": false,
     "energy": "deep|medium|light|break",
-    "why": "1 Satz"
+    "why": "1 Satz — warum jetzt, warum diese Reihenfolge"
   }]
 }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EINGABEN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 AUFGABEN VOM NUTZER:
 ${tasks}
 
-${ctx ? 'ZUSATZKONTEXT:\n' + ctx + '\n' : ''}BESTEHENDE TERMINE (BLOCKIERTE ZEITEN):
+${ctx?'ZUSATZKONTEXT VOM NUTZER:\n'+ctx+'\n':''}
+BESTEHENDE TERMINE — BLOCKIERTE ZEITEN (SCHULE-PUFFER BEACHTEN!):
 ${calStr}
 
 ${hist}
 
-Erstelle jetzt den Plan als JSON.`;
+Analysiere zuerst alle Aufgaben gemeinsam, dann plane. Erstelle den Plan als JSON.`;
 }
 
-function buildVerifyPrompt(plan, tasks, from, to, calStr, today, tomorrow) {
-  const workBlocks = (plan.blocks || []).filter(b => !b.isBreak);
-  const totalPlanMinutes = workBlocks.reduce((sum, b) => {
-    const s = new Date(b.date + 'T' + b.startTime + ':00');
-    const e = new Date(b.date + 'T' + b.endTime + ':00');
-    return sum + Math.round((e - s) / 60000);
-  }, 0);
+// ═══════════════════════════════════════════════
+// AI — PROMPT 2: VERIFIKATOR
+// ═══════════════════════════════════════════════
+function buildVerifyPrompt(plan,tasks,from,to,calStr,today,tomorrow){
+  const workBlocks=(plan.blocks||[]).filter(b=>!b.isBreak);
+  const totalPlanMinutes=workBlocks.reduce((sum,b)=>{
+    const s=new Date(b.date+'T'+b.startTime+':00');
+    const e=new Date(b.date+'T'+b.endTime+':00');
+    return sum+Math.round((e-s)/60000);
+  },0);
+
+  // Extrahiere Schule-Endzeiten aus dem Kalender-String
+  const schuleLines=calStr.split('\n').filter(l=>l.toLowerCase().includes('schule'));
 
   return `Du bist ein strenger Plan-Prüfer. Analysiere diesen Kalenderplan auf Fehler.
 
 DATUM-REFERENZEN:
-- "heute"  = ${today}
-- "morgen" = ${tomorrow}
-- Planungszeitraum: ${from} bis ${to}
+• "heute"  = ${today}
+• "morgen" = ${tomorrow}
+• Planungszeitraum: ${from} bis ${to}
 
 ORIGINAL-AUFGABEN VOM NUTZER:
 ${tasks}
@@ -1142,18 +1217,26 @@ ${tasks}
 BESTEHENDE TERMINE (BLOCKIERTE ZEITEN):
 ${calStr}
 
+SCHULE-TERMINE (für Puffer-Prüfung):
+${schuleLines.length?schuleLines.join('\n'):'Keine Schule-Termine im Zeitraum'}
+
 ZU PRÜFENDER PLAN:
-${JSON.stringify(plan, null, 2)}
+${JSON.stringify(plan,null,2)}
 
 BERECHNETE GESAMTARBEITSZEIT IM PLAN: ${totalPlanMinutes} Minuten
 
-PRÜFE JEDEN DIESER PUNKTE:
-[P1] DATUM: Hat der Nutzer "morgen" (${tomorrow}) gesagt aber Blöcke sind an einem anderen Datum?
-[P2] DAUER: Stimmt die Gesamtarbeitszeit (ohne Pausen) EXAKT mit der Nutzerangabe überein?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRÜFE JEDEN DIESER PUNKTE EINZELN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[P1] DATUM: Hat der Nutzer "morgen" (${tomorrow}) oder einen Wochentag gesagt? Liegen die Blöcke am falschen Datum?
+[P2] DAUER: Stimmt die Gesamtarbeitszeit (nur Nicht-Pausen-Blöcke) EXAKT mit der Nutzerangabe überein?
 [P3] AUFTEILUNG: Wurde eine Aufgabe ohne Erlaubnis auf mehrere Tage verteilt?
-[P4] ÜBERSCHNEIDUNG: Überschneidet sich ein Block mit einem bestehenden Termin?
+[P4] ÜBERSCHNEIDUNG: Überschneidet sich ein Block zeitlich mit einem bestehenden Termin?
 [P5] ZEITRAUM: Liegt ein Block außerhalb ${from}–${to}?
-[P6] ERFINDUNG: Gibt es Blöcke für Aufgaben die der Nutzer nicht erwähnt hat?
+[P6] ERFINDUNG: Gibt es Blöcke für Aufgaben die der Nutzer NICHT genannt hat?
+[P7] SCHULE-PUFFER: Gibt es einen Block der weniger als 45 Minuten nach Ende eines Schule-Termins beginnt?
+[P8] KALENDER: Hat jeder Block ein "calendar"-Feld mit Wert "timo", "production" oder "brand"?
 
 AUSGABE — NUR VALIDES JSON:
 {
@@ -1165,17 +1248,20 @@ AUSGABE — NUR VALIDES JSON:
       "severity": "critical"
     }
   ],
-  "correction_instructions": "Was genau geändert werden muss. Leer wenn kein Fehler."
+  "correction_instructions": "Exakt beschreiben was geändert werden muss. Leer wenn kein Fehler."
 }`;
 }
 
-function buildFixPrompt(plan, verifyResult, tasks, from, to, calStr, today, tomorrow) {
+// ═══════════════════════════════════════════════
+// AI — PROMPT 3: KORREKTOR
+// ═══════════════════════════════════════════════
+function buildFixPrompt(plan,verifyResult,tasks,from,to,calStr,today,tomorrow){
   return `Du musst einen fehlerhaften Kalenderplan korrigieren.
 
 DATUM-REFERENZEN:
-- "heute"  = ${today}
-- "morgen" = ${tomorrow}
-- Planungszeitraum: ${from} bis ${to}
+• "heute"  = ${today}
+• "morgen" = ${tomorrow}
+• Planungszeitraum: ${from} bis ${to}
 
 ORIGINAL-AUFGABEN VOM NUTZER:
 ${tasks}
@@ -1184,159 +1270,183 @@ BESTEHENDE TERMINE (BLOCKIERTE ZEITEN):
 ${calStr}
 
 FEHLERHAFTER PLAN:
-${JSON.stringify(plan, null, 2)}
+${JSON.stringify(plan,null,2)}
 
 GEFUNDENE FEHLER:
-${JSON.stringify(verifyResult.errors, null, 2)}
+${JSON.stringify(verifyResult.errors,null,2)}
 
 KORREKTURANWEISUNG:
 ${verifyResult.correction_instructions}
 
-Behebe ALLE Fehler. Ändere NUR was nötig ist.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KORRIGIERE DEN PLAN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Behebe ALLE aufgelisteten Fehler
+• Ändere NUR was nötig ist — behalte alles andere
+• "morgen" = ${tomorrow}, kein anderes Datum
+• Dauer muss EXAKT stimmen — Pausen zählen nicht zur Arbeitszeit
+• Kein Block innerhalb 45 min nach einem Schule-Termin
+• Jeder Block braucht ein "calendar"-Feld: timo|production|brand
 
-AUSGABE — NUR VALIDES JSON:
+AUSGABE — NUR VALIDES JSON (gleiche Struktur):
 {
-  "reasoning": "Was wurde korrigiert",
+  "reasoning": "Was wurde korrigiert und warum",
   "warnings": [],
   "blocks": [...]
 }`;
 }
 
-function setStatus(msg) {
-  $('gen-inner').innerHTML = `<div class="spinner" style="display:inline-block;vertical-align:middle;margin-right:.5rem;border-width:1.5px;width:11px;height:11px;"></div>${msg}`;
+// ═══════════════════════════════════════════════
+// AI — GENERATE PLAN (3-SCHRITT PIPELINE)
+// ═══════════════════════════════════════════════
+function setStatus(msg){
+  $('gen-inner').innerHTML=`<div class="spinner" style="display:inline-block;vertical-align:middle;margin-right:.5rem;border-width:1.5px;width:11px;height:11px;"></div>${msg}`;
 }
 
-async function generatePlan() {
-  const key = sg(SK_KEY); if (!key) return;
-  const tasks = ($('nl').value || '').trim(); if (!tasks) return;
-  const from = $('p-from').value, to = $('p-to').value;
-  if (!from || !to) { toast('◇', 'Zeitraum fehlt', ''); return; }
+async function generatePlan(){
+  if(_generating){toast('◇','Bitte warten','Plan wird gerade generiert');return;}
+  const key=sg(SK_KEY);if(!key)return;
+  const tasks=($('nl').value||'').trim();if(!tasks)return;
+  const from=$('p-from').value,to=$('p-to').value;
+  if(!from||!to){toast('◇','Zeitraum fehlt','');return;}
 
+  _generating=true;
   setLoading(true);
-  currentPlan = null;
-  $('plan-out').innerHTML = '';
+  currentPlan=null;
+  $('plan-out').innerHTML='';
 
-  const today = isoDate(new Date());
-  const tomorrow = isoDate(addDays(new Date(), 1));
+  const today=isoDate(new Date());
+  const tomorrow=isoDate(addDays(new Date(),1));
 
-  try {
+  try{
     // Schritt 1: Kalender laden
     setStatus('Kalender wird geladen …');
-    let calStr = 'Keine bestehenden Termine.';
-    if (gcToken) {
-      try {
-        const evs = await fetchEventsRange(from, to);
-        if (evs.length) {
-          calStr = evs.map(e =>
-            `- ${new Date(e.start).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' })} (${isoDate(e.start)}): ${hm(e.start)}–${hm(e.end)} "${e.title}"`
+    let calStr='Keine bestehenden Termine.';
+    if(gcToken){
+      try{
+        const evs=await fetchEventsRange(from,to);
+        if(evs.length){
+          calStr=evs.map(e=>
+            `- ${new Date(e.start).toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'})} (${isoDate(e.start)}): ${hm(e.start)}–${hm(e.end)} "${e.title}"`
           ).join('\n');
         }
-      } catch {}
+      }catch{}
     }
-    const ctx = ($('nl-ctx').value || '').trim();
-    const hist = getHistCtx();
+    const ctx=($('nl-ctx').value||'').trim();
+    const hist=getHistCtx();
 
     // Schritt 2: Plan generieren
     setStatus('Schritt 1/3 · Plan wird generiert …');
-    let plan = await callGemini(key,
-      buildPlanPrompt(tasks, from, to, calStr, ctx, hist, today, tomorrow)
-    );
+    let plan=await callGemini(key,buildPlanPrompt(tasks,from,to,calStr,ctx,hist,today,tomorrow));
 
     // Schritt 3: Verifizieren
     setStatus('Schritt 2/3 · Plan wird geprüft …');
-    const verify = await callGemini(key,
-      buildVerifyPrompt(plan, tasks, from, to, calStr, today, tomorrow)
-    );
+    const verify=await callGemini(key,buildVerifyPrompt(plan,tasks,from,to,calStr,today,tomorrow));
 
     // Schritt 4: Korrigieren falls nötig
-    const criticalErrors = (verify.errors || []).filter(e => e.severity === 'critical');
-    if (!verify.isValid && criticalErrors.length > 0) {
+    const criticalErrors=(verify.errors||[]).filter(e=>e.severity==='critical');
+    if(!verify.isValid&&criticalErrors.length>0){
       setStatus(`Schritt 3/3 · ${criticalErrors.length} Fehler werden korrigiert …`);
-      plan = await callGemini(key,
-        buildFixPrompt(plan, verify, tasks, from, to, calStr, today, tomorrow)
-      );
+      plan=await callGemini(key,buildFixPrompt(plan,verify,tasks,from,to,calStr,today,tomorrow));
     } else {
       setStatus('Schritt 3/3 · Plan ist korrekt ✓');
-      await new Promise(r => setTimeout(r, 400));
+      await new Promise(r=>setTimeout(r,400));
     }
 
-    currentPlan = plan;
-    saveHist(plan, tasks.slice(0, 100));
+    currentPlan=plan;
+    saveHist(plan,tasks.slice(0,100));
+    _generating=false;
     setLoading(false);
-    renderPlan(plan, from, to, verify);
+    renderPlan(plan,from,to,verify);
 
-  } catch (e) {
+  }catch(e){
+    _generating=false;
     setLoading(false);
-    $('plan-out').innerHTML = `<div class="warn-box" style="margin-top:.8rem;">⚠ ${esc(e.message)}</div>`;
-    toast('◇', 'Fehler', e.message.slice(0, 60));
+    $('plan-out').innerHTML=`<div class="warn-box" style="margin-top:.8rem;">⚠ ${esc(e.message)}</div>`;
+    toast('◇','Fehler',e.message.slice(0,60));
   }
 }
 
-function setLoading(on) {
-  const btn = $('gen-btn');
-  if (on) {
-    btn.disabled = true;
-    $('gen-inner').innerHTML = '<div class="spinner" style="display:inline-block;vertical-align:middle;margin-right:.5rem;border-width:1.5px;width:11px;height:11px;"></div>KI plant …';
+function setLoading(on){
+  const btn=$('gen-btn');
+  if(on){
+    btn.disabled=true;
+    $('gen-inner').innerHTML='<div class="spinner" style="display:inline-block;vertical-align:middle;margin-right:.5rem;border-width:1.5px;width:11px;height:11px;"></div>KI plant …';
   } else {
     checkGenBtn();
-    $('gen-inner').innerHTML = '◆ &nbsp;Plan generieren';
+    $('gen-inner').innerHTML='◆ &nbsp;Plan generieren';
   }
 }
 
-function renderPlan(plan, from, to, verify) {
-  if (!plan?.blocks?.length) {
-    $('plan-out').innerHTML = '<div class="info-box" style="margin-top:.8rem;">Keine Blöcke generiert.</div>';
+// ═══════════════════════════════════════════════
+// RENDER PLAN
+// ═══════════════════════════════════════════════
+function renderPlan(plan,from,to,verify){
+  if(!plan?.blocks?.length){
+    $('plan-out').innerHTML='<div class="info-box" style="margin-top:.8rem;">Keine Blöcke generiert.</div>';
     return;
   }
-  const byDay = {};
-  plan.blocks.forEach(b => { if (!byDay[b.date]) byDay[b.date] = []; byDay[b.date].push(b); });
-  const wb = plan.blocks.filter(b => !b.isBreak);
-  const em = {
-    deep:   { cls: 't-deep', lbl: 'Tief',   col: 'rgba(184,74,68,.55)' },
-    medium: { cls: 't-med',  lbl: 'Mittel', col: 'rgba(210,170,80,.5)' },
-    light:  { cls: 't-light',lbl: 'Leicht', col: 'rgba(61,143,96,.5)'  },
-    break:  { cls: 't-brk', lbl: 'Pause',  col: 'rgba(61,143,96,.4)'  },
+  const byDay={};
+  plan.blocks.forEach(b=>{if(!byDay[b.date])byDay[b.date]=[];byDay[b.date].push(b);});
+  const wb=plan.blocks.filter(b=>!b.isBreak);
+  const em={
+    deep:  {cls:'t-deep',lbl:'Tief',  col:'rgba(184,74,68,.55)'},
+    medium:{cls:'t-med', lbl:'Mittel',col:'rgba(210,170,80,.5)'},
+    light: {cls:'t-light',lbl:'Leicht',col:'rgba(61,143,96,.5)'},
+    break: {cls:'t-brk', lbl:'Pause', col:'rgba(61,143,96,.4)'},
   };
 
-  const critCount = verify ? (verify.errors || []).filter(e => e.severity === 'critical').length : 0;
-  const hadFix = verify && !verify.isValid && critCount > 0;
-  const verifyBadge = verify
-    ? hadFix
-      ? `<div style="display:flex;align-items:center;gap:.5rem;padding:.45rem .7rem;background:rgba(123,94,167,.06);border:.5px solid rgba(123,94,167,.25);border-radius:7px;margin-bottom:.8rem;">
-           <span style="color:#7b5ea7;">⟳</span>
-           <span style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:rgba(123,94,167,.85);">${critCount} Fehler erkannt &amp; automatisch korrigiert</span>
-         </div>`
-      : `<div style="display:flex;align-items:center;gap:.5rem;padding:.45rem .7rem;background:rgba(61,143,96,.06);border:.5px solid rgba(61,143,96,.25);border-radius:7px;margin-bottom:.8rem;">
-           <span style="color:var(--green);">✓</span>
-           <span style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:rgba(61,143,96,.85);">Automatisch geprüft · Keine kritischen Fehler</span>
-         </div>`
-    : '';
+  const critCount=verify?(verify.errors||[]).filter(e=>e.severity==='critical').length:0;
+  const hadFix=verify&&!verify.isValid&&critCount>0;
+  const verifyBadge=verify
+    ?hadFix
+      ?`<div style="display:flex;align-items:center;gap:.5rem;padding:.45rem .7rem;background:rgba(123,94,167,.06);border:.5px solid rgba(123,94,167,.25);border-radius:7px;margin-bottom:.8rem;">
+          <span style="color:#7b5ea7;">⟳</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:rgba(123,94,167,.85);">${critCount} Fehler erkannt &amp; automatisch korrigiert</span>
+        </div>`
+      :`<div style="display:flex;align-items:center;gap:.5rem;padding:.45rem .7rem;background:rgba(61,143,96,.06);border:.5px solid rgba(61,143,96,.25);border-radius:7px;margin-bottom:.8rem;">
+          <span style="color:var(--green);">✓</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:rgba(61,143,96,.85);">Automatisch geprüft · Keine kritischen Fehler</span>
+        </div>`
+    :'';
 
-  let html = '<div class="plan-out">' + verifyBadge;
-  if (plan.reasoning) html += `<div class="reasoning"><div class="reasoning-lbl">◈ Begründung</div><div class="reasoning-txt">${esc(plan.reasoning)}</div></div>`;
-  (plan.warnings || []).forEach(w => { html += `<div class="warn-box" style="margin-bottom:.5rem;">⚠ ${esc(w)}</div>`; });
+  let html='<div class="plan-out">'+verifyBadge;
+  if(plan.reasoning)html+=`<div class="reasoning"><div class="reasoning-lbl">◈ Begründung</div><div class="reasoning-txt">${esc(plan.reasoning)}</div></div>`;
+  (plan.warnings||[]).forEach(w=>{html+=`<div class="warn-box" style="margin-bottom:.5rem;">⚠ ${esc(w)}</div>`;});
 
-  Object.keys(byDay).sort().forEach(date => {
-    const dbs = byDay[date], wbs = dbs.filter(b => !b.isBreak);
-    const tot = wbs.reduce((s, b) => {
-      return s + (new Date(date + 'T' + b.endTime + ':00') - new Date(date + 'T' + b.startTime + ':00')) / 60000;
-    }, 0);
-    html += `<div class="day-grp"><div class="day-lbl">${fmtDate(date)} <span class="day-stat">${wbs.length} Block${wbs.length !== 1 ? 'e' : ''} · ${durLbl(tot)}</span></div>`;
-    dbs.forEach(b => {
-      const e2 = em[b.energy || 'medium'] || em.medium;
-      const m = Math.round((new Date(date + 'T' + b.endTime + ':00') - new Date(date + 'T' + b.startTime + ':00')) / 60000);
-      html += `<div class="sb${b.isBreak ? ' brk' : ''}">
+  Object.keys(byDay).sort().forEach(date=>{
+    const dbs=byDay[date],wbs=dbs.filter(b=>!b.isBreak);
+    const tot=wbs.reduce((s,b)=>{
+      return s+(new Date(date+'T'+b.endTime+':00')-new Date(date+'T'+b.startTime+':00'))/60000;
+    },0);
+    html+=`<div class="day-grp"><div class="day-lbl">${fmtDate(date)} <span class="day-stat">${wbs.length} Block${wbs.length!==1?'e':''} · ${durLbl(tot)}</span></div>`;
+    dbs.forEach(b=>{
+      const e2=em[b.energy||'medium']||em.medium;
+      const m=Math.round((new Date(date+'T'+b.endTime+':00')-new Date(date+'T'+b.startTime+':00'))/60000);
+      const calBadge=b.calendar==='production'
+        ?`<span class="tag" style="color:#a78bfa;border:.5px solid rgba(167,139,250,.3);background:rgba(167,139,250,.05);">Production</span>`
+        :b.calendar==='brand'
+        ?`<span class="tag" style="color:#60a5fa;border:.5px solid rgba(96,165,250,.3);background:rgba(96,165,250,.05);">Brand</span>`
+        :b.calendar==='timo'
+        ?`<span class="tag" style="color:var(--gold);border:.5px solid rgba(210,170,80,.2);background:rgba(210,170,80,.04);">Timo</span>`
+        :'';
+      html+=`<div class="sb${b.isBreak?' brk':''}">
         <div class="sb-bar" style="background:${e2.col}"></div>
         <div class="sb-time">${b.startTime}<br><span style="opacity:.38;font-size:.48rem;">${b.endTime}</span></div>
         <div class="sb-body"><div class="sb-name">${esc(b.title)}</div>
-          <div class="sb-meta"><span class="tag ${e2.cls}">${e2.lbl}</span><span class="tag t-dur">${durLbl(m)}</span>${b.why ? `<span class="sb-why">${esc(b.why)}</span>` : ''}</div>
+          <div class="sb-meta">
+            <span class="tag ${e2.cls}">${e2.lbl}</span>
+            <span class="tag t-dur">${durLbl(m)}</span>
+            ${calBadge}
+            ${b.why?`<span class="sb-why">${esc(b.why)}</span>`:''}
+          </div>
         </div>
       </div>`;
     });
-    html += '</div>';
+    html+='</div>';
   });
 
-  html += `<div class="confirm-bar">
+  html+=`<div class="confirm-bar">
     <div class="conf-sum"><strong>${wb.length} Termine</strong> bereit</div>
     <div class="conf-btns">
       <button class="btn btn-ghost" onclick="discardPlan()">✕</button>
@@ -1344,30 +1454,50 @@ function renderPlan(plan, from, to, verify) {
     </div>
   </div></div>`;
 
-  $('plan-out').innerHTML = html;
+  $('plan-out').innerHTML=html;
 }
 
+// ═══════════════════════════════════════════════
+// CREATE ALL — MIT KALENDER-ROUTING
+// ═══════════════════════════════════════════════
 async function createAll(){
   if(!currentPlan)return;
   if(!gcToken){toast('◇','Nicht verbunden','');return;}
   const btn=$('create-btn');btn.disabled=true;btn.textContent='…';
-  let calId='primary';try{calId=await getPrimCalId();}catch{}
   const blocks=currentPlan.blocks.filter(b=>!b.isBreak);
   let ok=0,fail=0;
   for(const b of blocks){
     try{
-      const s=new Date(b.date+'T'+b.startTime+':00'),e=new Date(b.date+'T'+b.endTime+':00');
+      const s=new Date(b.date+'T'+normalizeTime(b.startTime)+':00');
+      const e=new Date(b.date+'T'+normalizeTime(b.endTime)+':00');
+      const calId=b.calendar==='production'
+        ?CAL_ROUTING.production.id
+        :b.calendar==='brand'
+        ?CAL_ROUTING.brand.id
+        :b.calendar==='timo'
+        ?CAL_ROUTING.timo.id
+        :routeToCalendar(b.title,b.why);
+      const calName=calNameFromId(calId);
       await apiFetch(`${CAL_API}/calendars/${encodeURIComponent(calId)}/events`,'POST',{
-        summary:b.title,description:'◆ Focus Planer\n'+(b.why||''),
+        summary:b.title,
+        description:`◆ Focus Planer → ${calName}\n${b.why||''}`,
         start:{dateTime:s.toISOString(),timeZone:'Europe/Berlin'},
         end:  {dateTime:e.toISOString(),timeZone:'Europe/Berlin'}
-      });ok++;
-    }catch(e){fail++;}
+      });
+      ok++;
+    }catch(err){fail++;console.warn('Create event error:',err);}
   }
   toast('✦',`${ok} Termin${ok!==1?'e':''} erstellt`,fail?`${fail} fehlgeschlagen`:'');
-  btn.textContent='✓';btn.style.color='var(--green)';
-  if(!fail)setTimeout(()=>{currentPlan=null;$('nl').value='';$('plan-out').innerHTML='';btn.disabled=false;btn.textContent='✓ Erstellen';btn.style.color='';checkGenBtn();renderWeek();},1800);
+  btn.textContent=fail?'✕ Fehler':'✓';
+  btn.style.color=fail?'var(--red)':'var(--green)';
+  // Button immer zurücksetzen — auch bei Fehlern
+  setTimeout(()=>{
+    currentPlan=null;$('nl').value='';$('plan-out').innerHTML='';
+    btn.disabled=false;btn.textContent='✓ Erstellen';btn.style.color='';
+    checkGenBtn();renderWeek();
+  },1800);
 }
+
 function discardPlan(){currentPlan=null;$('plan-out').innerHTML='';}
 
 // ═══════════════════════════════════════════════
@@ -1378,7 +1508,6 @@ function init(){
   $('nl').addEventListener('input',checkGenBtn);
   $('nl').addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter')generatePlan();});
   renderWeek();
-  // Refresh now line every minute
   setInterval(renderNowLine,60000);
 }
 init();
