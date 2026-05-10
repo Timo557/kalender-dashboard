@@ -556,12 +556,12 @@ async function revealApp(){
 }
 
 // ═══════════════════════════════════════════════════
-// AUTH — PKCE + Cloudflare Worker Token Proxy
-// Einmal anmelden → für immer eingeloggt
-// Worker URL: nach dem Deploy hier eintragen ↓
+// AUTH — PKCE + Cloudflare Worker
+// Einmal anmelden → dauerhaft eingeloggt
 // ═══════════════════════════════════════════════════
-const SK_REFRESH   = 'fd_refresh_tok';
-const WORKER_URL   = 'focus-auth.timothienel.workers.dev'; // z.B. https://focus-auth.DEIN-NAME.workers.dev
+const SK_REFRESH = 'fd_refresh_tok';
+// ⚠ Deine Worker-URL hier eintragen (mit https://):
+const WORKER_URL = 'https://focus-auth.timothienel.workers.dev';
 
 // ── PKCE Helpers ──
 async function pkceChallenge(){
@@ -582,56 +582,68 @@ function buildAuthUrl(challenge){
   u.searchParams.set('access_type','offline');
   u.searchParams.set('code_challenge',challenge);
   u.searchParams.set('code_challenge_method','S256');
+  // 'consent' nur beim allerersten Mal nötig, danach 'select_account' reicht
+  // Wir setzen 'consent' immer damit Google den refresh_token zurückgibt
   u.searchParams.set('prompt','consent');
   u.searchParams.set('login_hint','timelezmusic021@gmail.com');
   return u.toString();
 }
 
-// Code gegen Token tauschen — läuft über Worker (hat client_secret)
-async function exchangeCode(code, verifier){
+// Code gegen Token tauschen (läuft über Worker der das client_secret hat)
+async function exchangeCode(code,verifier){
   const r=await fetch(WORKER_URL+'/exchange',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
+    method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({code,verifier})
   });
-  if(!r.ok)throw new Error('exchange_failed_'+r.status);
+  if(!r.ok){
+    const err=await r.json().catch(()=>({}));
+    throw new Error('exchange_failed_'+r.status+': '+(err.error||''));
+  }
   return r.json();
 }
 
-// Access Token lautlos erneuern — kein Popup, kein Blinken
-async function refreshAccessToken(refreshTok){
+// Access Token lautlos über Refresh Token erneuern (kein Popup)
+async function callRefreshToken(rt){
   const r=await fetch(WORKER_URL+'/refresh',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({refresh_token:refreshTok})
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({refresh_token:rt})
   });
-  if(!r.ok)throw new Error('refresh_failed_'+r.status);
+  if(!r.ok){
+    const err=await r.json().catch(()=>({}));
+    throw new Error('refresh_failed_'+r.status+': '+(err.error||''));
+  }
   return r.json();
 }
 
-function saveToken(tok, expIn, refreshTok){
+function saveToken(tok,expIn,refreshTok){
   token=tok;
-  ss({[SK_TOKEN]:{token:tok,exp:Date.now()+expIn*1000,sv:SCOPE_VERSION}});
+  ss({[SK_TOKEN]:{token:tok,exp:Date.now()+((expIn||3600)-60)*1000,sv:SCOPE_VERSION}});
   if(refreshTok) ss({[SK_REFRESH]:refreshTok});
 }
-function tokenValid(){const s=sg(SK_TOKEN);return s&&s.token&&s.exp>Date.now()+60000&&s.sv===SCOPE_VERSION;}
+function tokenValid(){const s=sg(SK_TOKEN);return s&&s.token&&s.exp>Date.now()&&s.sv===SCOPE_VERSION;}
 function loadToken(){const s=sg(SK_TOKEN);if(s&&s.token){token=s.token;return true;}return false;}
 function getRefreshToken(){return sg(SK_REFRESH)||null;}
 
 function scheduleTokenRefresh(){
   clearTimeout(tokenRefreshTmr);
   const s=sg(SK_TOKEN);if(!s||!s.exp)return;
-  const ms=s.exp-Date.now()-REFRESH_BEFORE;
+  // Refresh 5 Minuten vor Ablauf
+  const ms=s.exp-Date.now()-5*60*1000;
   tokenRefreshTmr=setTimeout(()=>triggerReauth(),ms>0?ms:0);
 }
 
-// Einmaliger Login per Popup (Desktop) oder Redirect (Handy)
+// Einmaliger Login per Popup (Desktop) oder Redirect (Mobil)
 function doAuth(){
   return new Promise(async(res,rej)=>{
     const{verifier,challenge}=await pkceChallenge();
     ss({pkce_verifier:verifier});
     const url=buildAuthUrl(challenge);
-    if(isMobile()){ss({pending_auth:'1'});window.location.href=url;return;}
+    if(isMobile()){
+      saveManualSession();
+      ss({pending_auth:'1'});
+      window.location.href=url;
+      return;
+    }
     const W=520,H=620,L=Math.round(screen.width/2-W/2),T=Math.round(screen.height/2-H/2);
     const popup=window.open(url,'_auth',`width=${W},height=${H},left=${L},top=${T},toolbar=no`);
     if(!popup||popup.closed){rej(new Error('popup_blocked'));return;}
@@ -641,44 +653,57 @@ function doAuth(){
         if(u.startsWith(window.location.origin)){
           clearInterval(t);popup.close();
           const p=new URLSearchParams(new URL(u).search);
-          const code=p.get('code');if(!code){rej(new Error('no_code'));return;}
-          const storedVerifier=sg('pkce_verifier');localStorage.removeItem('pkce_verifier');
+          const code=p.get('code');
+          if(!code){rej(new Error('no_code'));return;}
+          const storedVerifier=sg('pkce_verifier');
+          localStorage.removeItem('pkce_verifier');
           const data=await exchangeCode(code,storedVerifier);
-          res({token:data.access_token,expiresIn:data.expires_in||3600,refreshToken:data.refresh_token});
+          if(!data.access_token){rej(new Error('no_access_token'));return;}
+          res({token:data.access_token,expiresIn:data.expires_in||3600,refreshToken:data.refresh_token||null});
         }
       }catch(_){}
-      if(popup.closed){clearInterval(t);rej(new Error('closed'));}
+      if(popup.closed){clearInterval(t);rej(new Error('popup_closed'));}
     },500);
   });
 }
 
-// Lautloser Token-Refresh über gespeicherten Refresh Token
-async function silentRefresh(){
-  const rt=getRefreshToken();
-  if(!rt)throw new Error('no_refresh_token');
-  const data=await refreshAccessToken(rt);
-  return{token:data.access_token,expiresIn:data.expires_in||3600,refreshToken:data.refresh_token||rt};
-}
-
 async function triggerReauth(){
   if(isRefreshing)return;isRefreshing=true;
-  // 1. Refresh Token da → lautlos, kein Popup
-  try{
-    const{token:tok,expiresIn:exp,refreshToken:rt}=await silentRefresh();
-    saveToken(tok,exp,rt);scheduleTokenRefresh();token=tok;isRefreshing=false;
-    setStatus(true);await loadData();return;
-  }catch(e){console.info('Silent refresh failed:',e.message);}
-  // 2. Kein Refresh Token → einmalig Popup (nur beim allerersten Mal)
+  // 1. Refresh Token da → lautlos erneuern, kein Popup, kein Blinken
+  const rt=getRefreshToken();
+  if(rt){
+    try{
+      const data=await callRefreshToken(rt);
+      if(!data.access_token)throw new Error('no_access_token_in_response');
+      saveToken(data.access_token,data.expires_in||3600,data.refresh_token||rt);
+      scheduleTokenRefresh();token=sg(SK_TOKEN).token;
+      isRefreshing=false;setStatus(true);await loadData();return;
+    }catch(e){
+      console.info('Silent refresh failed:',e.message);
+      // Refresh Token ungültig → löschen und neu anmelden
+      if(e.message.includes('401')||e.message.includes('400')){
+        localStorage.removeItem(SK_REFRESH);
+      }
+    }
+  }
+  // 2. Kein Refresh Token oder ungültig → Popup/Redirect
   setStatus('warn','Einmalige Anmeldung …');
   try{
-    if(isMobile()){saveManualSession();const{verifier,challenge}=await pkceChallenge();ss({pkce_verifier:verifier,pending_auth:'1'});window.location.href=buildAuthUrl(challenge);return;}
-    const{token:tok,expiresIn:exp,refreshToken:rt}=await doAuth();
-    saveToken(tok,exp,rt);setStatus(true);scheduleTokenRefresh();await loadData();
-  }catch{
+    if(isMobile()){
+      saveManualSession();
+      const{verifier,challenge}=await pkceChallenge();
+      ss({pkce_verifier:verifier,pending_auth:'1'});
+      window.location.href=buildAuthUrl(challenge);
+      return;
+    }
+    const{token:tok,expiresIn:exp,refreshToken:rTok}=await doAuth();
+    saveToken(tok,exp,rTok);setStatus(true);scheduleTokenRefresh();await loadData();
+  }catch(e){
     setStatus('err','Sitzung abgelaufen');
     const b=$('refresh-btn');b.textContent='Anmelden →';b.classList.add('login-needed');
   }finally{isRefreshing=false;}
 }
+
 
 // ═══════════════════════════════════════════════════
 // API
@@ -761,7 +786,7 @@ const SK_SESSION='fd_manual_session';
 
 function saveManualSession(){
   if(!manualSession)return;
-  ss(SK_SESSION,{
+  ss({[SK_SESSION]:{
     sessionStart:manualSession.sessionStart.getTime(),
     event:{
       id:manualSession.event.id,title:manualSession.event.title,
@@ -1216,7 +1241,7 @@ function tick(){
   $('hdr-date').textContent=now.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
   const p=(now.getHours()*3600+now.getMinutes()*60+now.getSeconds())/86400*100;
   $('day-fill').style.width=p.toFixed(2)+'%';$('day-pct').textContent=p.toFixed(0)+'\u202f%';
-  if(manualSession&&now>=manualSession.event.start){endManualSession();return;}
+  if(manualSession&&now>=manualSession.event.end){endManualSession();return;}
   if(manualSession&&!conflictBannerActive){
     const conflict=events.find(e=>e.id!==manualSession.event.id&&e.start<=now&&e.end>now);
     if(conflict)showConflictBanner(conflict);
@@ -1625,18 +1650,15 @@ function startDashboard(){
   $('planner-btn').onclick=()=>location.href='planner.html';
   $('logout-btn').onclick=()=>{
     clearTimeout(refreshTmr);clearTimeout(tokenRefreshTmr);clearInterval(clockTmr);
-    ['fd_tok','fd_tok3','fd_tok4','fd_tok5','fd_client','pending_auth',SK_SESSION,SK_REFRESH,'pkce_verifier'].forEach(k=>localStorage.removeItem(k));
+    ['fd_tok','fd_tok3','fd_tok4','fd_tok5','fd_client','pending_auth','pkce_verifier',SK_SESSION,SK_REFRESH].forEach(k=>localStorage.removeItem(k));
     location.reload();
   };
   $('refresh-btn').onclick=async()=>{
     const btn=$('refresh-btn');
     if(btn.classList.contains('login-needed')){
       btn.textContent='…';btn.disabled=true;
-      try{
-        const{token:tok,expiresIn:exp,refreshToken:rt}=await doAuth();
-        saveToken(tok,exp,rt);btn.textContent='↻';btn.disabled=false;
-        btn.classList.remove('login-needed');setStatus(true);scheduleTokenRefresh();await loadData();
-      }catch{btn.textContent='Anmelden →';btn.disabled=false;}
+      try{const{token:tok,expiresIn:exp,refreshToken:rt}=await doAuth();saveToken(tok,exp,rt);btn.textContent='↻';btn.disabled=false;btn.classList.remove('login-needed');setStatus(true);scheduleTokenRefresh();await loadData();}
+      catch{btn.textContent='Anmelden →';btn.disabled=false;}
     }else{loadData();}
   };
 }
@@ -1647,7 +1669,8 @@ function startDashboard(){
 async function init(){
   lsStart=Date.now();
 
-  // 1. PKCE-Redirect abfangen (?code=...)
+  // ── 1. PKCE-Redirect abfangen (?code=...) ──
+  // Passiert nach Google-Login auf Mobil (Redirect) oder Desktop (Popup-Fallback)
   const sp=new URLSearchParams(window.location.search);
   const code=sp.get('code');
   if(code){
@@ -1655,42 +1678,53 @@ async function init(){
     const verifier=sg('pkce_verifier');
     localStorage.removeItem('pkce_verifier');
     localStorage.removeItem('pending_auth');
+    $('load-txt').textContent='Anmeldung wird abgeschlossen …';
     try{
       const data=await exchangeCode(code,verifier);
-      saveToken(data.access_token,data.expires_in||3600,data.refresh_token);
-      await revealApp();startDashboard();return;
-    }catch(e){console.error('Code exchange failed:',e);}
-  }
-
-  // 2. Access Token noch gueltig
-  if(tokenValid()){loadToken();await revealApp();startDashboard();return;}
-
-  // 3. Refresh Token vorhanden -> lautlos erneuern
-  const rt=getRefreshToken();
-  if(rt){
-    $('load-txt').textContent='Verbinde ...';
-    try{
-      const data=await refreshAccessToken(rt);
-      saveToken(data.access_token,data.expires_in||3600,data.refresh_token||rt);
+      if(!data.access_token)throw new Error('Kein Token erhalten');
+      saveToken(data.access_token,data.expires_in||3600,data.refresh_token||null);
       await revealApp();startDashboard();return;
     }catch(e){
-      console.info('Refresh token failed, re-auth:',e.message);
-      localStorage.removeItem(SK_REFRESH);
+      console.error('Code exchange failed:',e.message);
+      // Weiter zum normalen Flow — wird neu anmelden
     }
   }
 
-  // 4. Kein Token -> einmalig Anmelden (1x pro Geraet)
-  $('load-txt').textContent='Einmalige Anmeldung ...';
+  // ── 2. Noch gültiger Access Token ──
+  if(tokenValid()){loadToken();await revealApp();startDashboard();return;}
+
+  // ── 3. Refresh Token vorhanden → lautlos erneuern (häufigster Fall) ──
+  const rt=getRefreshToken();
+  if(rt){
+    $('load-txt').textContent='Verbinde …';
+    try{
+      const data=await callRefreshToken(rt);
+      if(!data.access_token)throw new Error('no_access_token');
+      saveToken(data.access_token,data.expires_in||3600,data.refresh_token||rt);
+      await revealApp();startDashboard();return;
+    }catch(e){
+      console.info('Startup refresh failed:',e.message);
+      // Refresh Token ungültig → löschen
+      if(e.message.includes('401')||e.message.includes('400')||e.message.includes('invalid')){
+        localStorage.removeItem(SK_REFRESH);
+      }
+    }
+  }
+
+  // ── 4. Kein Token → einmalig anmelden (nur beim allerersten Mal) ──
+  $('load-txt').textContent='Einmalige Anmeldung …';
   if(isMobile()){
+    // Auf Mobil: direkt redirect (kein Popup möglich)
     await new Promise(r=>setTimeout(r,600));
     const{verifier,challenge}=await pkceChallenge();
     ss({pkce_verifier:verifier,pending_auth:'1'});
-    window.location.href=buildAuthUrl(challenge,'timelezmusic021@gmail.com');
+    window.location.href=buildAuthUrl(challenge);
     return;
   }
+  // Desktop: Popup
   await revealApp();
   clockTmr=setInterval(tick,1000);tick();
-  setStatus('warn','Einmalige Anmeldung ...');
+  setStatus('warn','Einmalige Anmeldung …');
   await new Promise(r=>setTimeout(r,300));
   try{
     const{token:tok,expiresIn:exp,refreshToken:rTok}=await doAuth();
