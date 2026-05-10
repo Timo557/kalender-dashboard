@@ -415,21 +415,74 @@ function toast(icon,main,sub=''){
 // ═══════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════
-function initAuth(){
+// ── Shared Auth mit kalender-dashboard ──
+// Liest Token aus localStorage, erneuert via Worker wenn nötig
+const SK_REFRESH_P = 'fd_refresh_tok';
+const WORKER_URL_P = 'https://focus-auth.timothienel.workers.dev';
+let tokenRefreshTmrP = null;
+
+async function refreshTokenPlanner(){
+  const rt = localStorage.getItem(SK_REFRESH_P);
+  if(!rt) throw new Error('no_refresh_token');
+  const parsed = JSON.parse(rt);
+  const r = await fetch(WORKER_URL_P+'/refresh',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({refresh_token:parsed})
+  });
+  if(!r.ok) throw new Error('refresh_failed_'+r.status);
+  return r.json();
+}
+
+async function initAuth(){
   const s=sg(SK_TOK);
-  if(s&&s.token&&s.exp>Date.now()+30000){
+  if(s&&s.token&&s.exp>Date.now()+60000){
     gcToken=s.token;
     $('cdot').className='cdot';$('clbl').textContent='Google Kalender verbunden';
-    // Proaktiv warnen wenn Token in <10min abläuft
-    const msLeft=s.exp-Date.now();
-    if(msLeft<600000)setTimeout(()=>{
-      $('cdot').className='cdot err';$('clbl').textContent='Token läuft bald ab — neu anmelden';
-      toast('◇','Google-Session läuft ab','Bitte in Focus neu anmelden');
-    },msLeft-30000);
+    scheduleTokenRefreshPlanner(s.exp);
   } else {
-    gcToken=null;
-    $('cdot').className='cdot err';$('clbl').textContent='Nicht angemeldet — Focus öffnen';
-    toast('◇','Bitte zuerst in Focus anmelden','Dann Seite neu laden');
+    // Versuche lautlos per Refresh Token zu erneuern
+    try{
+      const data = await refreshTokenPlanner();
+      gcToken = data.access_token;
+      const exp = Date.now()+(data.expires_in||3600)*1000;
+      // Speichere erneuerten Token im selben Format wie kalender-dashboard
+      try{
+        const currentTok = sg(SK_TOK)||{};
+        localStorage.setItem(SK_TOK, JSON.stringify({token:data.access_token,exp,sv:currentTok.sv||5}));
+        if(data.refresh_token) localStorage.setItem(SK_REFRESH_P, JSON.stringify(data.refresh_token));
+      }catch(e){console.warn('Token speichern fehlgeschlagen:',e);}
+      $('cdot').className='cdot';$('clbl').textContent='Google Kalender verbunden';
+      scheduleTokenRefreshPlanner(exp);
+    }catch(e){
+      gcToken=null;
+      $('cdot').className='cdot err';$('clbl').textContent='Nicht angemeldet — Focus öffnen';
+      toast('◇','Bitte zuerst in Focus anmelden','Dann Seite neu laden');
+    }
+  }
+}
+
+function scheduleTokenRefreshPlanner(expMs){
+  clearTimeout(tokenRefreshTmrP);
+  const ms = expMs - Date.now() - 5*60*1000; // 5 min vor Ablauf
+  if(ms <= 0){ silentRefreshPlanner(); return; }
+  tokenRefreshTmrP = setTimeout(silentRefreshPlanner, ms);
+}
+
+async function silentRefreshPlanner(){
+  try{
+    const data = await refreshTokenPlanner();
+    gcToken = data.access_token;
+    const exp = Date.now()+(data.expires_in||3600)*1000;
+    try{
+      const currentTok = sg(SK_TOK)||{};
+      localStorage.setItem(SK_TOK, JSON.stringify({token:data.access_token,exp,sv:currentTok.sv||5}));
+      if(data.refresh_token) localStorage.setItem(SK_REFRESH_P, JSON.stringify(data.refresh_token));
+    }catch(e){}
+    $('cdot').className='cdot';$('clbl').textContent='Google Kalender verbunden';
+    scheduleTokenRefreshPlanner(exp);
+  }catch(e){
+    $('cdot').className='cdot err';$('clbl').textContent='Session abgelaufen — Focus öffnen';
+    toast('◇','Session abgelaufen','Bitte in Focus neu anmelden');
   }
 }
 
@@ -454,10 +507,26 @@ async function apiFetch(url,method='GET',body=null){
   let r;
   try{r=await fetch(url,o);}catch(e){throw new Error('Netzwerkfehler: '+e.message);}
   if(r.status===401){
-    gcToken=null;
-    $('cdot').className='cdot err';$('clbl').textContent='Session abgelaufen — neu anmelden';
-    toast('◇','Google-Session abgelaufen','Bitte in Focus neu anmelden und Seite laden');
-    throw new Error('auth_expired');
+    // Versuche Token zu erneuern bevor aufgeben
+    try{
+      const data=await refreshTokenPlanner();
+      gcToken=data.access_token;
+      const exp=Date.now()+(data.expires_in||3600)*1000;
+      try{const ct=sg(SK_TOK)||{};localStorage.setItem(SK_TOK,JSON.stringify({token:data.access_token,exp,sv:ct.sv||5}));}catch{}
+      scheduleTokenRefreshPlanner(exp);
+      // Einmal wiederholen
+      const h2={'Authorization':`Bearer ${gcToken}`};
+      const o2={method,headers:h2};
+      if(body){h2['Content-Type']='application/json';o2.body=JSON.stringify(body);}
+      const r2=await fetch(url,o2);
+      if(!r2.ok)throw new Error('GCal '+r2.status);
+      return r2.json();
+    }catch(retryErr){
+      gcToken=null;
+      $('cdot').className='cdot err';$('clbl').textContent='Session abgelaufen — neu anmelden';
+      toast('◇','Google-Session abgelaufen','Bitte in Focus neu anmelden und Seite laden');
+      throw new Error('auth_expired');
+    }
   }
   if(!r.ok)throw new Error('GCal '+r.status);
   return r.json();
